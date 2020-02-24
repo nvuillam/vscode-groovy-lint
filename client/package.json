@@ -1,0 +1,20 @@
+{
+  "name": "vscode-groovy-lint-client",
+  "version": "0.0.1",
+  "description": "VsCode Groovy Lint extension client",
+  "scripts": {
+    "update-vscode": "vscode-install",
+    "postinstall": "vscode-install"
+  },
+  "engines": {
+    "vscode": "^1.42.0"
+  },
+  "author": "Nicolas Vuillamy",
+  "license": "MIT",
+  "dependencies": {
+    "vscode-languageclient": "^6.1.1"
+  },
+  "devDependencies": {
+    "vscode": "^1.1.36"
+  }
+}
