@@ -9,6 +9,26 @@
 	"categories": [
 		"Other"
 	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/nvuillam/vscode-groovy-lint.git"
+	},
+	"keywords": [
+		"vscode",
+		"extension",
+		"groovy",
+		"lint",
+		"jenkinsfile",
+		"codenarc",
+		"npm",
+		"linter",
+		"package",
+		"wrapper"
+	],
+	"bugs": {
+		"url": "https://github.com/nvuillam/vscode-groovy-lint/issues"
+	},
+	"homepage": "https://github.com/nvuillam/vscode-groovy-lint#readme",
 	"activationEvents": [
 		"onLanguage:groovy",
 		"workspaceContains:**/Jenkins*",
@@ -20,8 +40,36 @@
 			{
 				"command": "groovyLint.lint",
 				"title": "GroovyLint: Lint"
+			},
+			{
+				"command": "groovyLint.lintFix",
+				"title": "GroovyLint: Lint and fix"
 			}
 		],
+		"menus": {
+			"commandPalette": [
+				{
+					"when": "resourceLangId == groovy",
+					"command": "groovyLint.lint"
+				},
+				{
+					"when": "resourceLangId == groovy",
+					"command": "groovyLint.lintFix"
+				}
+			],
+			"editor/context": [
+				{
+					"when": "resourceLangId == groovy",
+					"command": "groovyLint.lint",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == groovy",
+					"command": "groovyLint.lintFix",
+					"group": "navigation"
+				}
+			]
+		},
 		"configuration": {
 			"type": "object",
 			"title": "Groovy Lint configuration",
@@ -69,6 +117,34 @@
 					"type": "boolean",
 					"default": false,
 					"description": "Verbose logs"
+				},
+				"groovyLint.ruleSetGroovy": {
+					"scope": "resource",
+					"type": "string",
+					"enum": [
+						"recommended",
+						"custom"
+					],
+					"enumDescriptions": [
+						"Default npm-groovy-lint RuleSet-Groovy",
+						"Custom"
+					],
+					"default": "default",
+					"description": "RuleSet to use for Groovy files"
+				},
+				"groovyLint.ruleSetJenkinsfile": {
+					"scope": "resource",
+					"type": "string",
+					"enum": [
+						"recommended",
+						"custom"
+					],
+					"enumDescriptions": [
+						"Default npm-groovy-lint RuleSet-Jenskinsfile",
+						"Custom"
+					],
+					"default": "default",
+					"description": "RuleSet to use for Jenkinsfile"
 				}
 			}
 		}

@@ -14,13 +14,16 @@ let statusBarItem: vscode.StatusBarItem;
 
 interface StatusParams {
 	state: string;
+	documentUri?: string;
+	updatedSource?: string;
 }
 namespace StatusNotification {
 	export const type = new NotificationType<StatusParams, void>('groovylint/status');
 }
 
 interface LintRequestParams {
-	documentUri: string
+	documentUri: string,
+	fix?: boolean
 }
 namespace LintRequestNotification {
 	export const type = new NotificationType<LintRequestParams, void>('groovylint/lint');
@@ -33,8 +36,11 @@ export function activate(context: ExtensionContext) {
 	// --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
 	let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
 
+	// Register commands
 	const lintCommand = 'groovyLint.lint';
 	context.subscriptions.push(vscode.commands.registerCommand(lintCommand, executeLintCommand));
+	const lintFixCommand = 'groovyLint.lintFix';
+	context.subscriptions.push(vscode.commands.registerCommand(lintFixCommand, executeLintFixCommand));
 
 	// Manage status bar item
 	statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
@@ -77,9 +83,9 @@ export function activate(context: ExtensionContext) {
 	// Actions after client is ready
 	client.onReady().then(() => {
 
-
-		// Manage status bar notifications
+		// Manage status notifications
 		client.onNotification(StatusNotification.type, (status) => {
+			updateTextDocument(status);
 			updateStatusBarItem(status);
 		});
 	});
@@ -93,10 +99,20 @@ export function deactivate(): Thenable<void> {
 	return client.stop();
 }
 
-// Catch Groovy lint command
+// Request lint & fix to server 
 function executeLintCommand(commandParams) {
 	client.sendNotification(LintRequestNotification.type, { documentUri: vscode.window.activeTextEditor.document.uri.toString() });
 };
+// Request lint & fix to server
+function executeLintFixCommand(commandParams) {
+	client.sendNotification(LintRequestNotification.type, { documentUri: vscode.window.activeTextEditor.document.uri.toString(), fix: true });
+};
+
+function updateTextDocument(status: StatusParams): void {
+	if (status.state === 'lint.end' && status.updatedSource) {
+		const textDocument: vscode.TextDocument = vscode.workspace.textDocuments[status.documentUri];
+	}
+}
 
 // Update status bar item
 function updateStatusBarItem(status: StatusParams): void {

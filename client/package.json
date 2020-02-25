@@ -2,6 +2,26 @@
   "name": "vscode-groovy-lint-client",
   "version": "0.0.1",
   "description": "VsCode Groovy Lint extension client",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nvuillam/vscode-groovy-lint.git"
+  },
+  "keywords": [
+    "vscode",
+    "extension",
+    "groovy",
+    "lint",
+    "jenkinsfile",
+    "codenarc",
+    "npm",
+    "linter",
+    "package",
+    "wrapper"
+  ],
+  "bugs": {
+    "url": "https://github.com/nvuillam/vscode-groovy-lint/issues"
+  },
+  "homepage": "https://github.com/nvuillam/vscode-groovy-lint#readme",
   "scripts": {
     "update-vscode": "vscode-install",
     "postinstall": "vscode-install"
