@@ -14,8 +14,11 @@ let statusBarItem: vscode.StatusBarItem;
 
 interface StatusParams {
 	state: string;
-	documentUri?: string;
-	updatedSource?: string;
+	documents: [
+		{
+			documentUri: string,
+			updatedSource?: string
+		}]
 }
 namespace StatusNotification {
 	export const type = new NotificationType<StatusParams, void>('groovylint/status');
@@ -45,8 +48,9 @@ export function activate(context: ExtensionContext) {
 	// Manage status bar item
 	statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
 	statusBarItem.command = lintCommand;
+	statusBarItem.text = 'GroovyLint $(zap)';
+	statusBarItem.show();
 	context.subscriptions.push(statusBarItem);
-
 
 	// If the extension is launched in debug mode then the debug server options are used
 	// Otherwise the run options are used
@@ -63,6 +67,7 @@ export function activate(context: ExtensionContext) {
 	let clientOptions: LanguageClientOptions = {
 		// Register the server for plain text documents
 		documentSelector: [{ scheme: 'file', language: 'groovy' }],
+		diagnosticCollectionName: 'GroovyLint',
 		synchronize: {
 			// Notify the server about file changes to '.clientrc files contained in the workspace
 			fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
@@ -85,8 +90,7 @@ export function activate(context: ExtensionContext) {
 
 		// Manage status notifications
 		client.onNotification(StatusNotification.type, (status) => {
-			updateTextDocument(status);
-			updateStatusBarItem(status);
+			updateClient(status);
 		});
 	});
 }
@@ -100,29 +104,48 @@ export function deactivate(): Thenable<void> {
 }
 
 // Request lint & fix to server 
-function executeLintCommand(commandParams) {
+function executeLintCommand(_commandParams) {
 	client.sendNotification(LintRequestNotification.type, { documentUri: vscode.window.activeTextEditor.document.uri.toString() });
 };
 // Request lint & fix to server
-function executeLintFixCommand(commandParams) {
+function executeLintFixCommand(_commandParams) {
 	client.sendNotification(LintRequestNotification.type, { documentUri: vscode.window.activeTextEditor.document.uri.toString(), fix: true });
 };
 
-function updateTextDocument(status: StatusParams): void {
-	if (status.state === 'lint.end' && status.updatedSource) {
-		const textDocument: vscode.TextDocument = vscode.workspace.textDocuments[status.documentUri];
+// Update text editor & status bar
+async function updateClient(status: StatusParams): Promise<any> {
+
+	// Start linting: update status bar and freeze text editors while fixing (if fix requested)
+	if (status.state === 'lint.start') {
+		statusBarItem.text = 'GroovyLint $(sync~spin)';
+	}
+	else if (status.state === 'lint.start.fix') {
+		statusBarItem.text = `GroovyLint $(sync~spin)`;
+	}
+	// End linting: update status bar and update textEditors if fixes has been performed
+	else if (status.state === 'lint.end') {
+		statusBarItem.text = 'GroovyLint $(zap)';
+		for (const doc of status.documents) {
+			if (doc.updatedSource) {
+				const textEditor = getDocumentTextEditor(doc.documentUri);
+				await textEditor.edit((texteditorEdit: vscode.TextEditorEdit) => {
+					const firstLine = textEditor.document.lineAt(0);
+					const lastLine = textEditor.document.lineAt(textEditor.document.lineCount - 1);
+					const textRange = new vscode.Range(firstLine.range.start, lastLine.range.end);
+					texteditorEdit.replace(textRange, doc.updatedSource);
+				});
+			}
+		}
+	}
+	else {
+		statusBarItem.text = 'GroovyLint $(error)';
 	}
 }
 
-// Update status bar item
-function updateStatusBarItem(status: StatusParams): void {
-	if (status.state === 'lint.start') {
-		statusBarItem.text = `Linting...`;
-		statusBarItem.show();
-	} else if (status.state === 'lint.end') {
-		statusBarItem.text = `Groovy linter`;
-	} else {
-		statusBarItem.text = `Groovy lint error`;
-		statusBarItem.show();
+function getDocumentTextEditor(documentUri: string) {
+	const textEditors = vscode.window.visibleTextEditors.filter(textEditor => textEditor.document && textEditor.document.uri.toString() === documentUri);
+	if (textEditors.length > 0) {
+		return textEditors[0];
 	}
+	return null;
 }

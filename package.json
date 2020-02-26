@@ -3,6 +3,7 @@
 	"displayName": "Groovy Lint and Fix",
 	"description": "VSCode extension to lint and fix groovy and Jenkinsfile",
 	"version": "0.0.1",
+	"license": "MIT",
 	"engines": {
 		"vscode": "^1.42.0"
 	},
@@ -171,5 +172,7 @@
 		"typescript": "^3.7.5",
 		"vscode-test": "^1.3.0"
 	},
-	"dependencies": {}
+	"dependencies": {
+		"npm-groovy-lint": "^2.2.0-beta.5"
+	}
 }

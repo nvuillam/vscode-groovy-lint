@@ -17,8 +17,11 @@ const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
 // Status notifications schema
 interface StatusParams {
     state: string;
-    documentUri?: string;
-    updatedSource?: string;
+    documents: [
+        {
+            documentUri: string,
+            updatedSource?: string
+        }]
 }
 namespace StatusNotification {
     export const type = new NotificationType<StatusParams, void>('groovylint/status');
@@ -137,7 +140,19 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
 
     // Reinitialize UI Diagnostic for this file
     let diagnostics: Diagnostic[] = [];
+    const diagnosticWaiting: Diagnostic = {
+        severity: DiagnosticSeverity.Information,
+        code: '...',
+        range: {
+            start: { line: 0, character: 0 },
+            end: { line: 0, character: 0 }
+        },
+        message: (opts.fix) ? 'fixing...' : 'linting...',
+        source: 'GroovyLint'
+    };
+    diagnostics.push(diagnosticWaiting);
     connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+    diagnostics = [];
 
     // Build NmpGroovyLint config
     const npmGroovyLintConfig = {
@@ -150,22 +165,34 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
 
     // Process NpmGroovyLint
     const linter = new NpmGroovyLint(npmGroovyLintConfig, {});
-    connection.sendNotification(StatusNotification.type, { state: 'lint.start', documentUri: textDocument.uri });
+    connection.sendNotification(StatusNotification.type, {
+        state: 'lint.start' + ((opts.fix === true) ? '.fix' : ''),
+        documents: [{ documentUri: textDocument.uri }]
+    });
     try {
         await linter.run();
     } catch (e) {
         console.error('VsCode Groovy Lint error: ' + e.message);
-        connection.sendNotification(StatusNotification.type, { state: 'lint.error', documentUri: textDocument.uri });
+        connection.sendNotification(StatusNotification.type, {
+            state: 'lint.error',
+            documents: [{ documentUri: textDocument.uri }]
+        });
         return;
     }
 
     // Run again linting after fixes to update results
     if (opts.fix === true && linter.status === 0) {
         linter.lintResult.files[0].updatedSources;
-        connection.sendNotification(StatusNotification.type, { state: 'lint.end', documentUri: textDocument.uri, updatedSource: linter.lintResult.files[0].updatedSources });
+        connection.sendNotification(StatusNotification.type, {
+            state: 'lint.end',
+            documents: [{ documentUri: textDocument.uri, updatedSource: linter.lintResult.files[0].updatedSource }]
+        });
     }
     else { // Just notify end of linting
-        connection.sendNotification(StatusNotification.type, { state: 'lint.end', documentUri: textDocument.uri });
+        connection.sendNotification(StatusNotification.type, {
+            state: 'lint.end',
+            documents: [{ documentUri: textDocument.uri }]
+        });
     }
 
     // Parse results into VsCode diagnostic
