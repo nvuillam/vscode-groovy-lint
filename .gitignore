@@ -106,3 +106,5 @@ dist
 server/out/
 
 client/out/
+
+*.vsix
