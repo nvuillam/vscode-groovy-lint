@@ -157,7 +157,7 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
     // Build NmpGroovyLint config
     const npmGroovyLintConfig = {
         source: textDocument.getText(),
-        fix: opts.fix,
+        fix: (opts.fix) ? true : false,
         loglevel: settings.loglevel,
         output: 'none',
         verbose: settings.verbose
@@ -203,13 +203,14 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
     if (lintResults.files[0] && lintResults.files[0].errors) {
         // Get each error for the file
         for (const err of lintResults.files[0].errors) {
-            let range = {
-                start: { line: 0, character: 0 },
-                end: { line: 0, character: 0 }
-            };
-            // Build range
+            let range = err.range;
+            if (range) {
+                range.start.line += diffLine;
+                range.end.line += diffLine;
+            }
+            // Build default range (whole line) if not returned by npm-groovy-lint
             // eslint-disable-next-line eqeqeq
-            if (err.line && err.line != null && err.line > 0 && allTextLines[err.line + diffLine]) {
+            else if (err.line && err.line != null && err.line > 0 && allTextLines[err.line + diffLine]) {
                 const line = allTextLines[err.line + diffLine];
                 const indent = line.search(/\S/);
                 range = {
