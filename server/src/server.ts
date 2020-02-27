@@ -207,7 +207,13 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
             if (range) {
                 range.start.line += diffLine;
                 range.end.line += diffLine;
+                // Avoid issue from linter if it returns wrong range
+                range.start.line = (range.start.line >= 0) ? range.start.line : 0;
+                range.start.character = (range.start.character >= 0) ? range.start.character : 0;
+                range.end.line = (range.end.line >= 0) ? range.end.line : 0;
+                range.end.character = (range.end.character >= 0) ? range.end.character : 0;
             }
+
             // Build default range (whole line) if not returned by npm-groovy-lint
             // eslint-disable-next-line eqeqeq
             else if (err.line && err.line != null && err.line > 0 && allTextLines[err.line + diffLine]) {

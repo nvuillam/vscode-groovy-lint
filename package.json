@@ -2,6 +2,7 @@
 	"name": "vscode-groovy-lint",
 	"displayName": "GroovyLint (and Fix!)",
 	"description": "VSCode extension to lint and fix groovy and Jenkinsfile",
+	"publisher": "NicolasVuillamy",
 	"version": "0.0.1",
 	"license": "MIT",
 	"engines": {
@@ -95,7 +96,7 @@
 					"scope": "resource",
 					"type": "boolean",
 					"default": false,
-					"description": "(Experimental) Turns auto fix on save on or off."
+					"description": "Turns auto fix on save on or off."
 				},
 				"groovyLint.loglevel": {
 					"scope": "resource",

@@ -2,9 +2,13 @@
 .vscode-test/**
 out/test/**
 src/**
+client/src**
+server/src**
+.eslintrc.json
 .gitignore
 vsc-extension-quickstart.md
 **/tsconfig.json
 **/.eslintrc.json
 **/*.map
 **/*.ts
+vscode-groovy-lint*.vsx
