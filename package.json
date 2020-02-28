@@ -9,23 +9,24 @@
 		"vscode": "^1.42.0"
 	},
 	"categories": [
-		"Other"
+		"Programming Languages",
+		"Linters"
 	],
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/nvuillam/vscode-groovy-lint.git"
 	},
 	"keywords": [
-		"vscode",
-		"extension",
 		"groovy",
 		"lint",
 		"jenkinsfile",
 		"codenarc",
-		"npm",
 		"linter",
+		"format",
 		"package",
-		"wrapper"
+		"wrapper",
+		"vscode",
+		"extension"
 	],
 	"bugs": {
 		"url": "https://github.com/nvuillam/vscode-groovy-lint/issues"

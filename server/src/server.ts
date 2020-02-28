@@ -8,7 +8,11 @@ import {
     DidChangeConfigurationNotification,
     TextDocumentSyncKind,
     DidSaveTextDocumentNotification,
-    NotificationType
+    NotificationType,
+    CodeAction,
+    CodeActionKind,
+    Command,
+    DiagnosticTag
 } from 'vscode-languageserver';
 import * as  path from 'path';
 import { TextDocument, DocumentUri } from 'vscode-languageserver-textdocument';
@@ -20,7 +24,8 @@ interface StatusParams {
     documents: [
         {
             documentUri: string,
-            updatedSource?: string
+            updatedSource?: string,
+            quickFixes?: any[]
         }]
 }
 namespace StatusNotification {
@@ -30,7 +35,8 @@ namespace StatusNotification {
 // Lint request notification schema
 interface LintRequestParams {
     documentUri: DocumentUri;
-    fix?: boolean
+    fix?: boolean,
+    quickFixIds?: number[]
 }
 namespace LintRequestNotification {
     export const type = new NotificationType<LintRequestParams, void>('groovylint/lint');
@@ -180,28 +186,15 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
         return;
     }
 
-    // Run again linting after fixes to update results
-    if (opts.fix === true && linter.status === 0) {
-        linter.lintResult.files[0].updatedSources;
-        connection.sendNotification(StatusNotification.type, {
-            state: 'lint.end',
-            documents: [{ documentUri: textDocument.uri, updatedSource: linter.lintResult.files[0].updatedSource }]
-        });
-    }
-    else { // Just notify end of linting
-        connection.sendNotification(StatusNotification.type, {
-            state: 'lint.end',
-            documents: [{ documentUri: textDocument.uri }]
-        });
-    }
-
     // Parse results into VsCode diagnostic
     const diffLine = -1; // Difference between CodeNarc line number and VSCode line number
     const allText = textDocument.getText();
     const allTextLines = allText.split('\n');
     const lintResults = linter.lintResult;
+    const docQuickFixes: any[] = [];
     if (lintResults.files[0] && lintResults.files[0].errors) {
         // Get each error for the file
+        let pos = 0;
         for (const err of lintResults.files[0].errors) {
             let range = err.range;
             if (range) {
@@ -239,10 +232,33 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
                 message: err.msg,
                 source: 'GroovyLint'
             };
+            if (err.fixable) {
+                docQuickFixes.push({
+                    label: 'Quick fix',
+                    errId: err.id,
+                    position: pos
+                });
+            }
             diagnostics.push(diagnostic);
-
+            pos++;
         }
     }
+
+    // Send updated sources to client 
+    if (opts.fix === true && linter.status === 0) {
+        linter.lintResult.files[0].updatedSources;
+        connection.sendNotification(StatusNotification.type, {
+            state: 'lint.end',
+            documents: [{ documentUri: textDocument.uri, updatedSource: linter.lintResult.files[0].updatedSource }]
+        });
+    }
+    else { // Just notify end of linting and send list of fixable errors
+        connection.sendNotification(StatusNotification.type, {
+            state: 'lint.end',
+            documents: [{ documentUri: textDocument.uri, quickFixes: docQuickFixes }]
+        });
+    }
+
     connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
 
