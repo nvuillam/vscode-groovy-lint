@@ -55,7 +55,11 @@ connection.onInitialize((params: InitializeParams) => {
     console.debug('GroovyLint: initializing server');
     return {
         capabilities: {
-            textDocumentSync: TextDocumentSyncKind.Full,
+            textDocumentSync: {
+                openClose: true,
+                change: TextDocumentSyncKind.Full,
+                save: { includeText: true }
+            }
         }
     };
 });
@@ -94,15 +98,6 @@ connection.onDidChangeConfiguration(change => {
     documents.all().forEach(validateTextDocument);
 });
 
-// Lint groovy doc on save
-connection.onDidSaveTextDocument(async event => {
-    const textDocument: TextDocument = documents.get(event.textDocument.uri)!;
-    const settings = await getDocumentSettings(textDocument.uri);
-    if (settings.run === 'onSave') {
-        validateTextDocument(textDocument);
-    }
-});
-
 // Lint groovy doc on open
 documents.onDidOpen(async (event) => {
     const textDocument: TextDocument = documents.get(event.document.uri)!;
@@ -115,6 +110,15 @@ documents.onDidChangeContent(async change => {
     const settings = await getDocumentSettings(change.document.uri);
     if (settings.run === 'onType') {
         validateTextDocument(change.document);
+    }
+});
+
+// Lint on save if it has been configured
+documents.onDidSave(async event => {
+    const textDocument: TextDocument = documents.get(event.document.uri)!;
+    const settings = await getDocumentSettings(textDocument.uri);
+    if (settings.run === 'onSave') {
+        validateTextDocument(textDocument);
     }
 });
 
@@ -234,7 +238,7 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
             };
             if (err.fixable) {
                 docQuickFixes.push({
-                    label: 'Quick fix',
+                    label: err.fixLabel || `Fix ${err.rule}`,
                     errId: err.id,
                     position: pos
                 });
@@ -249,17 +253,26 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
         linter.lintResult.files[0].updatedSources;
         connection.sendNotification(StatusNotification.type, {
             state: 'lint.end',
-            documents: [{ documentUri: textDocument.uri, updatedSource: linter.lintResult.files[0].updatedSource }]
+            documents: [{
+                documentUri: textDocument.uri,
+                updatedSource: linter.lintResult.files[0].updatedSource,
+                quickFixes: docQuickFixes
+            }]
         });
     }
-    else { // Just notify end of linting and send list of fixable errors
+    else { // Just notify end of linting and send list of quickfixable errors
         connection.sendNotification(StatusNotification.type, {
             state: 'lint.end',
-            documents: [{ documentUri: textDocument.uri, quickFixes: docQuickFixes }]
+            documents: [{
+                documentUri: textDocument.uri,
+                quickFixes: docQuickFixes
+            }]
         });
     }
 
+    // Send diagnostics to client
     connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+
 }
 
 // Make the text document manager listen on the connection

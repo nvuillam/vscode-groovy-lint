@@ -6,14 +6,15 @@ import {
 	LanguageClientOptions,
 	ServerOptions,
 	TransportKind,
-	NotificationType
+	NotificationType,
+	TextDocument
 } from 'vscode-languageclient';
+
+const DIAGNOSTICS_COLLECTION_NAME = 'GroovyLint';
 
 let client: LanguageClient;
 let statusBarItem: vscode.StatusBarItem;
-let quickFixes: {};
-
-const DIAGNOSTICS_COLLECTION_NAME = 'GroovyLint';
+let quickFixes: Map<String, any> = new Map<String, any>();
 
 interface StatusParams {
 	state: string;
@@ -38,48 +39,23 @@ namespace LintRequestNotification {
 }
 
 export function activate(context: ExtensionContext) {
+
+	///////////////////////////////////////////////
+	/////////////// Server + client ///////////////
+	///////////////////////////////////////////////
+
 	// The server is implemented in node
 	let serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'));
-	// The debug options for the server
-	// --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
-	let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
-
-	// Register commands
-	const lintCommand = 'groovyLint.lint';
-	context.subscriptions.push(vscode.commands.registerCommand(lintCommand, executeLintCommand));
-	const lintFixCommand = 'groovyLint.lintFix';
-	context.subscriptions.push(vscode.commands.registerCommand(lintFixCommand, executeLintFixCommand));
-	const quickFixCommand = 'groovyLint.quickFix';
-	context.subscriptions.push(vscode.commands.registerCommand(quickFixCommand, executeQuickFixCommand));
-
-	// Register CodeAction providers
-	context.subscriptions.push(
-		vscode.languages.registerCodeActionsProvider('groovy', new GroovyLintCodeActionProvider(), {
-			providedCodeActionKinds: GroovyLintCodeActionProvider.providedCodeActionKinds
-		}));
-
-	// Create diagnostics collection
-	const groovyLintDiagnostics = vscode.languages.createDiagnosticCollection(DIAGNOSTICS_COLLECTION_NAME);
-	context.subscriptions.push(groovyLintDiagnostics);
-
-	// Manage status bar item
-	statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-	statusBarItem.command = lintCommand;
-	statusBarItem.text = 'GroovyLint $(zap)';
-	statusBarItem.show();
-	context.subscriptions.push(statusBarItem);
-
 	// If the extension is launched in debug mode then the debug server options are used
 	// Otherwise the run options are used
 	let serverOptions: ServerOptions = {
-		run: { module: serverModule, transport: TransportKind.ipc },
+		run: { module: serverModule, transport: TransportKind.ipc, options: { cwd: process.cwd() } },
 		debug: {
 			module: serverModule,
 			transport: TransportKind.ipc,
-			options: debugOptions
+			options: { cwd: process.cwd(), execArgv: ['--nolazy', '--inspect=6009'] }
 		}
 	};
-
 	// Options to control the language client
 	let clientOptions: LanguageClientOptions = {
 		// Register the server for groovy documents
@@ -90,7 +66,6 @@ export function activate(context: ExtensionContext) {
 			fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
 		}
 	};
-
 	// Create the language client and start the client.
 	client = new LanguageClient(
 		'groovyLint',
@@ -98,9 +73,31 @@ export function activate(context: ExtensionContext) {
 		serverOptions,
 		clientOptions
 	);
-
 	// Start the client. This will also launch the server
-	client.start();
+
+	// Register commands
+	const lintCommand = 'groovyLint.lint';
+	context.subscriptions.push(vscode.commands.registerCommand(lintCommand, executeLintCommand));
+	const lintFixCommand = 'groovyLint.lintFix';
+	context.subscriptions.push(vscode.commands.registerCommand(lintFixCommand, executeLintFixCommand));
+	const quickFixCommand = 'groovyLint.quickFix';
+	context.subscriptions.push(vscode.commands.registerCommand(quickFixCommand, executeQuickFixCommand));
+
+	// Register CodeAction providers
+	context.subscriptions.push(vscode.languages.registerCodeActionsProvider('groovy', new GroovyLintCodeActionProvider(), {
+		providedCodeActionKinds: GroovyLintCodeActionProvider.providedCodeActionKinds
+	}));
+
+	// Manage status bar item
+	statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+	statusBarItem.command = lintCommand;
+	statusBarItem.text = 'GroovyLint $(zap)';
+	statusBarItem.show();
+	context.subscriptions.push(statusBarItem);
+
+	context.subscriptions.push(
+		client.start()
+	);
 
 	// Actions after client is ready
 	client.onReady().then(() => {
@@ -110,6 +107,7 @@ export function activate(context: ExtensionContext) {
 			updateClient(status);
 		});
 	});
+
 }
 
 // Stop client when extension is deactivated
@@ -159,12 +157,22 @@ async function updateClient(status: StatusParams): Promise<any> {
 		// Update document fixable errors list
 		for (const doc of status.documents) {
 			quickFixes[doc.documentUri] = doc.quickFixes;
+			const textEditor = getDocumentTextEditor(doc.documentUri);
+			// eslint-disable-next-line eqeqeq
+			if (textEditor == null) {
+				continue;
+			}
+
 		}
 
 		// update textEditors if fixes has been performed
 		for (const doc of status.documents) {
 			if (doc.updatedSource) {
 				const textEditor = getDocumentTextEditor(doc.documentUri);
+				// eslint-disable-next-line eqeqeq
+				if (textEditor == null) {
+					continue;
+				}
 				await textEditor.edit((texteditorEdit: vscode.TextEditorEdit) => {
 					const firstLine = textEditor.document.lineAt(0);
 					const lastLine = textEditor.document.lineAt(textEditor.document.lineCount - 1);
@@ -196,19 +204,34 @@ export class GroovyLintCodeActionProvider implements vscode.CodeActionProvider {
 		vscode.CodeActionKind.QuickFix
 	];
 
-	provideCodeActions(document: vscode.TextDocument, range: vscode.Range | vscode.Selection, context: vscode.CodeActionContext, token: vscode.CancellationToken): vscode.CodeAction[] {
-		// for each diagnostic entry that has the matching `code`, create a code action command
+	provideCodeActions(document: vscode.TextDocument, range: vscode.Range | vscode.Selection, codeActionContext: vscode.CodeActionContext, token: vscode.CancellationToken): vscode.CodeAction[] {
+		// for each diagnostic entry that has a matching quickAction from server.ts, create a code action command
+		const fileQuickFixes = quickFixes[document.uri.toString()];
+		const codeActions: vscode.CodeAction[] = [];
+		// eslint-disable-next-line eqeqeq
+		if (fileQuickFixes == null) {
+			return codeActions;
+		}
 		let pos = 0;
-		return context.diagnostics
-			.filter(diagnostic => {
-				pos++;
-			})
-			.map(diagnostic => this.createCommandCodeAction(diagnostic));
+		for (const diagnostic of codeActionContext.diagnostics) {
+			const matchQuickFix = fileQuickFixes.filter((quickFix: any) => quickFix.position === pos);
+			if (matchQuickFix && matchQuickFix[0]) {
+				const codeAction = this.createCommandCodeAction(diagnostic, matchQuickFix[0]);
+				codeActions.push(codeAction);
+			}
+			pos++;
+		}
+		return codeActions;
 	}
 
-	private createCommandCodeAction(diagnostic: vscode.Diagnostic): vscode.CodeAction {
-		const action = new vscode.CodeAction('Learn more...', vscode.CodeActionKind.QuickFix);
-		action.command = { command: 'groovyLint.quickFix', title: 'Quick fix', tooltip: 'This will fix the error found by GroovyLint.' };
+	private createCommandCodeAction(diagnostic: vscode.Diagnostic, quickFix: any): vscode.CodeAction {
+		const action = new vscode.CodeAction('Quick fix', vscode.CodeActionKind.QuickFix);
+		action.command = {
+			command: 'groovyLint.quickFix',
+			title: quickFix.label,
+			tooltip: 'This will fix the error found by GroovyLint.',
+			arguments: [quickFix.errId]
+		};
 		action.diagnostics = [diagnostic];
 		action.isPreferred = true;
 		return action;
