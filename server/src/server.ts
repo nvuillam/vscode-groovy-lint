@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 import {
     createConnection,
     TextDocuments,
@@ -12,10 +13,17 @@ import {
     CodeAction,
     CodeActionKind,
     Command,
-    DiagnosticTag
+    CodeActionParams,
+    ExecuteCommandParams,
+    ShowMessageRequest,
+    MessageType,
+    ShowMessageRequestParams,
+    ApplyWorkspaceEditParams,
+    WorkspaceEdit,
+    TextDocumentEdit
 } from 'vscode-languageserver';
-import * as  path from 'path';
-import { TextDocument, DocumentUri } from 'vscode-languageserver-textdocument';
+import { provideQuickFixCodeActions } from './CodeActionProvider';
+import { TextDocument, DocumentUri, TextEdit } from 'vscode-languageserver-textdocument';
 const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
 
 // Status notifications schema
@@ -24,23 +32,15 @@ interface StatusParams {
     documents: [
         {
             documentUri: string,
-            updatedSource?: string,
-            quickFixes?: any[]
+            updatedSource?: string
         }]
 }
 namespace StatusNotification {
     export const type = new NotificationType<StatusParams, void>('groovylint/status');
 }
 
-// Lint request notification schema
-interface LintRequestParams {
-    documentUri: DocumentUri;
-    fix?: boolean,
-    quickFixIds?: number[]
-}
-namespace LintRequestNotification {
-    export const type = new NotificationType<LintRequestParams, void>('groovylint/lint');
-}
+// Globals
+const indentLength = 4; // TODO: Nice to set as config later... when we'll be able to generate RuleSets from vsCode config
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -49,16 +49,30 @@ let connection = createConnection(ProposedFeatures.all);
 // Create a simple text document manager. The text document manager
 // supports full document sync only
 let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+let currentTextDocumentUri: DocumentUri;
+
+let docsDiagsQuickFixes: any = {};
+
+// Create commands
+const COMMAND_LINT = Command.create('GroovyLint: Lint', 'groovyLint.lint');
+const COMMAND_LINT_FIX = Command.create('GroovyLint: Lint and fix all', 'groovyLint.lintFix');
+const commands = [
+    COMMAND_LINT,
+    COMMAND_LINT_FIX
+];
 
 // Manage to have only one codenarc running
 connection.onInitialize((params: InitializeParams) => {
     console.debug('GroovyLint: initializing server');
     return {
         capabilities: {
-            textDocumentSync: {
-                openClose: true,
-                change: TextDocumentSyncKind.Full,
-                save: { includeText: true }
+            textDocumentSync: TextDocumentSyncKind.Full,
+
+            executeCommandProvider: {
+                commands: commands.map(command => command.command)
+            },
+            codeActionProvider: {
+                codeActionKinds: [CodeActionKind.QuickFix]
             }
         }
     };
@@ -69,13 +83,6 @@ connection.onInitialized(() => {
     // Register for all configuration changes.
     connection.client.register(DidChangeConfigurationNotification.type);
     connection.client.register(DidSaveTextDocumentNotification.type);
-
-    // Trigger linting when requested by the client 
-    connection.onNotification(LintRequestNotification.type, (params) => {
-        const textDocument: TextDocument = documents.get(params.documentUri)!;
-        validateTextDocument(textDocument, { fix: params.fix });
-    });
-
     console.debug('GroovyLint: initialized server');
 
 });
@@ -91,6 +98,7 @@ interface VsCodeGroovyLintSettings {
 // Cache the settings of all open documents
 let documentSettings: Map<string, Thenable<VsCodeGroovyLintSettings>> = new Map();
 
+// Lint again all opened documents in configuration changed
 connection.onDidChangeConfiguration(change => {
     // Reset all cached document settings
     documentSettings.clear();
@@ -98,15 +106,44 @@ connection.onDidChangeConfiguration(change => {
     documents.all().forEach(validateTextDocument);
 });
 
+// Handle command requests from client
+connection.onExecuteCommand(async (params: ExecuteCommandParams) => {
+    const document: TextDocument = documents.get(currentTextDocumentUri)!;
+    if (params.command === 'groovyLint.lint') {
+        validateTextDocument(document);
+    }
+    else if (params.command === 'groovyLint.lintFix') {
+        validateTextDocument(document, { fix: true });
+    }
+});
+
+// Manage to provide code actions (QuickFixes) when the user selects a part of the source code containing diagnostics
+connection.onCodeAction(async (codeActionParams: CodeActionParams): Promise<CodeAction[]> => {
+    if (!codeActionParams.context.diagnostics.length) {
+        return [];
+    }
+    const document = documents.get(codeActionParams.textDocument.uri);
+    if (document == null) {
+        return [];
+    }
+    const docQuickFixes = docsDiagsQuickFixes[codeActionParams.textDocument.uri];
+    if (docQuickFixes == null) {
+        return [];
+    }
+    return provideQuickFixCodeActions(document, codeActionParams, docQuickFixes);
+});
+
 // Lint groovy doc on open
 documents.onDidOpen(async (event) => {
     const textDocument: TextDocument = documents.get(event.document.uri)!;
+    currentTextDocumentUri = textDocument.uri;
     validateTextDocument(textDocument);
 });
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(async change => {
+    currentTextDocumentUri = change.document.uri;
     const settings = await getDocumentSettings(change.document.uri);
     if (settings.run === 'onType') {
         validateTextDocument(change.document);
@@ -148,25 +185,28 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
         return;
     }
 
-    // Reinitialize UI Diagnostic for this file
+    // Propose to replace tabs by spaces if there are, because CodeNarc hates tabs :/
+    let source: string = textDocument.getText();
+    if (source.includes("\t")) {
+        const msg: ShowMessageRequestParams = {
+            type: MessageType.Info,
+            message: "CodeNarc linter doesn't like tabs, let's replace them by spaces ?",
+            actions: [{ title: "Yes of course :)" }, { title: "No" }]
+        };
+        let req: any = await connection.sendRequest('window/showMessageRequest', msg);
+        if (req.title === "Yes of course :)") {
+            const replaceChars = " ".repeat(indentLength);
+            source = source.replace(/\t/g, replaceChars);
+            await applyTextDocumentEditOnWorkspace(textDocument, source);
+        }
+    }
+
+    // Initialize diagnostics for this file
     let diagnostics: Diagnostic[] = [];
-    const diagnosticWaiting: Diagnostic = {
-        severity: DiagnosticSeverity.Information,
-        code: '...',
-        range: {
-            start: { line: 0, character: 0 },
-            end: { line: 0, character: 0 }
-        },
-        message: (opts.fix) ? 'fixing...' : 'linting...',
-        source: 'GroovyLint'
-    };
-    diagnostics.push(diagnosticWaiting);
-    connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
-    diagnostics = [];
 
     // Build NmpGroovyLint config
     const npmGroovyLintConfig = {
-        source: textDocument.getText(),
+        source: source,
         fix: (opts.fix) ? true : false,
         loglevel: settings.loglevel,
         output: 'none',
@@ -179,6 +219,7 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
         state: 'lint.start' + ((opts.fix === true) ? '.fix' : ''),
         documents: [{ documentUri: textDocument.uri }]
     });
+
     try {
         await linter.run();
     } catch (e) {
@@ -191,12 +232,13 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
     }
 
     // Parse results into VsCode diagnostic
+    textDocument = getUpToDateTextDocument(textDocument);
     const diffLine = -1; // Difference between CodeNarc line number and VSCode line number
-    const allText = textDocument.getText();
+    const allText = source;
     const allTextLines = allText.split('\n');
-    const lintResults = linter.lintResult;
-    const docQuickFixes: any[] = [];
-    if (lintResults.files[0] && lintResults.files[0].errors) {
+    const lintResults = linter.lintResult || {};
+    const docQuickFixes: any = {};
+    if (lintResults.files && lintResults.files[0] && lintResults.files[0].errors) {
         // Get each error for the file
         let pos = 0;
         for (const err of lintResults.files[0].errors) {
@@ -210,7 +252,6 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
                 range.end.line = (range.end.line >= 0) ? range.end.line : 0;
                 range.end.character = (range.end.character >= 0) ? range.end.character : 0;
             }
-
             // Build default range (whole line) if not returned by npm-groovy-lint
             // eslint-disable-next-line eqeqeq
             else if (err.line && err.line != null && err.line > 0 && allTextLines[err.line + diffLine]) {
@@ -226,53 +267,91 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
                         character: line.length || 0
                     }
                 };
+            } else {
+                // Default range (should not really happen)
+                range = {
+                    start: {
+                        line: 0,
+                        character: 0 // Get first non empty character position
+                    },
+                    end: {
+                        line: 0,
+                        character: 0
+                    }
+                };
             }
+            // Create vscode Diagnostic
+            const diagCode: string = err.rule + '-' + err.id;
             const diagnostic: Diagnostic = {
                 severity: (err.severity === 'error') ? DiagnosticSeverity.Error :
                     (err.severity === 'warning') ? DiagnosticSeverity.Warning :
                         DiagnosticSeverity.Information,
-                code: err.rule,
+                code: diagCode,
                 range: range,
                 message: err.msg,
                 source: 'GroovyLint'
             };
+            // Add quick fix if error is fixable. This will be reused in CodeActionProvider
             if (err.fixable) {
-                docQuickFixes.push({
+                docQuickFixes[diagCode] = [];
+                docQuickFixes[diagCode].push({
                     label: err.fixLabel || `Fix ${err.rule}`,
-                    errId: err.id,
-                    position: pos
+                    errId: err.id
                 });
             }
             diagnostics.push(diagnostic);
             pos++;
         }
-    }
-
-    // Send updated sources to client 
-    if (opts.fix === true && linter.status === 0) {
-        linter.lintResult.files[0].updatedSources;
-        connection.sendNotification(StatusNotification.type, {
-            state: 'lint.end',
-            documents: [{
-                documentUri: textDocument.uri,
-                updatedSource: linter.lintResult.files[0].updatedSource,
-                quickFixes: docQuickFixes
-            }]
-        });
-    }
-    else { // Just notify end of linting and send list of quickfixable errors
-        connection.sendNotification(StatusNotification.type, {
-            state: 'lint.end',
-            documents: [{
-                documentUri: textDocument.uri,
-                quickFixes: docQuickFixes
-            }]
-        });
+        docsDiagsQuickFixes[textDocument.uri] = docQuickFixes;
     }
 
     // Send diagnostics to client
     connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 
+    // Send updated sources to client 
+    if (opts.fix === true && linter.status === 0) {
+        applyTextDocumentEditOnWorkspace(textDocument, linter.lintResult.files[0].updatedSources);
+    }
+    // Just Notify client of end of linting 
+    connection.sendNotification(StatusNotification.type, {
+        state: 'lint.end',
+        documents: [{
+            documentUri: textDocument.uri
+        }]
+    });
+}
+
+// Apply updated source into the client TextDocument
+async function applyTextDocumentEditOnWorkspace(textDocument: TextDocument, updatedSource: string) {
+    textDocument = getUpToDateTextDocument(textDocument);
+    const textDocEdit: TextDocumentEdit = createTextDocumentEdit(textDocument, updatedSource);
+    const applyWorkspaceEdits: WorkspaceEdit = {
+        documentChanges: [textDocEdit]
+    };
+    connection.workspace.applyEdit(applyWorkspaceEdits);
+}
+
+// Create a TextDocumentEdit that will be applied on client workspace
+function createTextDocumentEdit(textDocument: TextDocument, updatedSource: string): TextDocumentEdit {
+    const allLines = updatedSource.replace(/\r?\n/g, "\r\n").split("\r\n");
+    const range = {
+        start: { line: 0, character: 0 },
+        end: { line: allLines.length - 1, character: allLines[allLines.length - 1].length }
+    };
+    const textEdit: TextEdit = {
+        range: range,
+        newText: updatedSource
+    };
+    const textDocEdit: TextDocumentEdit = {
+        textDocument: textDocument,
+        edits: [textEdit]
+    };
+    return textDocEdit;
+}
+
+// If document has been updated during an operation, get its most recent state
+function getUpToDateTextDocument(textDocument: TextDocument): TextDocument {
+    return documents.get(textDocument.uri)!;
 }
 
 // Make the text document manager listen on the connection
