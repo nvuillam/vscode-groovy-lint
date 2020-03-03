@@ -20,10 +20,14 @@ import {
     ShowMessageRequestParams,
     ApplyWorkspaceEditParams,
     WorkspaceEdit,
-    TextDocumentEdit
+    TextDocumentEdit,
+    ExitNotification,
+    ShutdownRequest
 } from 'vscode-languageserver';
+import * as path from 'path';
 import { provideQuickFixCodeActions } from './CodeActionProvider';
 import { TextDocument, DocumentUri, TextEdit } from 'vscode-languageserver-textdocument';
+const { performance } = require('perf_hooks');
 const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
 
 // Status notifications schema
@@ -33,7 +37,9 @@ interface StatusParams {
         {
             documentUri: string,
             updatedSource?: string
-        }]
+        }],
+    lastFileName?: string
+    lastLintTimeMs?: number
 }
 namespace StatusNotification {
     export const type = new NotificationType<StatusParams, void>('groovylint/status');
@@ -51,6 +57,7 @@ let connection = createConnection(ProposedFeatures.all);
 let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 let currentTextDocumentUri: DocumentUri;
 
+let autoFixTabs = false;
 let docsDiagsQuickFixes: any = {};
 
 // Create commands
@@ -80,11 +87,20 @@ connection.onInitialize((params: InitializeParams) => {
 
 // Actions when server is initialized
 connection.onInitialized(() => {
-    // Register for all configuration changes.
+    // Register for the client notifications we can use
     connection.client.register(DidChangeConfigurationNotification.type);
     connection.client.register(DidSaveTextDocumentNotification.type);
+    connection.client.register(ExitNotification.type);
+    connection.client.register(ShutdownRequest.type);
     console.debug('GroovyLint: initialized server');
+});
 
+// Kill server when closing VsCode or deactivate extension
+connection.onShutdown(async () => {
+    await new NpmGroovyLint({ killserver: true }, {}).run();
+});
+connection.onExit(async () => {
+    await new NpmGroovyLint({ killserver: true }, {}).run();
 });
 
 // Usable settings
@@ -179,6 +195,8 @@ function getDocumentSettings(resource: string): Thenable<VsCodeGroovyLintSetting
 
 // Validate a groovy file
 async function validateTextDocument(textDocument: TextDocument, opts: any = { fix: false }): Promise<void> {
+    const perfStart = performance.now();
+
     // In this simple example we get the settings for every validate run.
     let settings = await getDocumentSettings(textDocument.uri);
     if (settings.enable === false) {
@@ -187,19 +205,8 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
 
     // Propose to replace tabs by spaces if there are, because CodeNarc hates tabs :/
     let source: string = textDocument.getText();
-    if (source.includes("\t")) {
-        const msg: ShowMessageRequestParams = {
-            type: MessageType.Info,
-            message: "CodeNarc linter doesn't like tabs, let's replace them by spaces ?",
-            actions: [{ title: "Yes of course :)" }, { title: "No" }]
-        };
-        let req: any = await connection.sendRequest('window/showMessageRequest', msg);
-        if (req.title === "Yes of course :)") {
-            const replaceChars = " ".repeat(indentLength);
-            source = source.replace(/\t/g, replaceChars);
-            await applyTextDocumentEditOnWorkspace(textDocument, source);
-        }
-    }
+    let fileNm = path.basename(textDocument.uri);
+    source = await managePreFixSource(source, textDocument);
 
     // Initialize diagnostics for this file
     let diagnostics: Diagnostic[] = [];
@@ -217,7 +224,8 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
     const linter = new NpmGroovyLint(npmGroovyLintConfig, {});
     connection.sendNotification(StatusNotification.type, {
         state: 'lint.start' + ((opts.fix === true) ? '.fix' : ''),
-        documents: [{ documentUri: textDocument.uri }]
+        documents: [{ documentUri: textDocument.uri }],
+        lastFileName: fileNm
     });
 
     try {
@@ -226,7 +234,8 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
         console.error('VsCode Groovy Lint error: ' + e.message);
         connection.sendNotification(StatusNotification.type, {
             state: 'lint.error',
-            documents: [{ documentUri: textDocument.uri }]
+            documents: [{ documentUri: textDocument.uri }],
+            lastFileName: fileNm
         });
         return;
     }
@@ -317,8 +326,39 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
         state: 'lint.end',
         documents: [{
             documentUri: textDocument.uri
-        }]
+        }],
+        lastFileName: fileNm,
+        lastLintTimeMs: performance.now() - perfStart
     });
+}
+
+async function managePreFixSource(source: string, textDocument: TextDocument): Promise<string> {
+    if (source.includes("\t")) {
+        let fixTabs = false;
+        if (autoFixTabs === false) {
+            const msg: ShowMessageRequestParams = {
+                type: MessageType.Info,
+                message: "CodeNarc linter doesn't like tabs, let's replace them by spaces ?",
+                actions: [
+                    { title: "Always (recommended)" },
+                    { title: "Yes" },
+                    { title: "No" },
+                    { title: "Never" }]
+            };
+            let req: any = await connection.sendRequest('window/showMessageRequest', msg);
+            if (req.title === "Always (recommended)") {
+                autoFixTabs = true;
+            } else if (req.title === "Yes") {
+                fixTabs = true;
+            }
+        }
+        if (autoFixTabs || fixTabs) {
+            const replaceChars = " ".repeat(indentLength);
+            source = source.replace(/\t/g, replaceChars);
+            await applyTextDocumentEditOnWorkspace(textDocument, source);
+        }
+    }
+    return source;
 }
 
 // Apply updated source into the client TextDocument
@@ -328,7 +368,7 @@ async function applyTextDocumentEditOnWorkspace(textDocument: TextDocument, upda
     const applyWorkspaceEdits: WorkspaceEdit = {
         documentChanges: [textDocEdit]
     };
-    connection.workspace.applyEdit(applyWorkspaceEdits);
+    await connection.workspace.applyEdit(applyWorkspaceEdits);
 }
 
 // Create a TextDocumentEdit that will be applied on client workspace

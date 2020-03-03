@@ -21,20 +21,13 @@ interface StatusParams {
 		{
 			documentUri: string,
 			updatedSource?: string
-		}]
+		}];
+	lastFileName?: string
+	lastLintTimeMs?: number
 }
 namespace StatusNotification {
 	export const type = new NotificationType<StatusParams, void>('groovylint/status');
 }
-
-/*
-interface LintRequestParams {
-	documentUri: string,
-	fix?: boolean
-}
-namespace LintRequestNotification {
-	export const type = new NotificationType<LintRequestParams, void>('groovylint/lint');
-} */
 
 export function activate(context: ExtensionContext) {
 
@@ -89,13 +82,12 @@ export function activate(context: ExtensionContext) {
 		client.onNotification(StatusNotification.type, (status) => {
 			updateClient(status);
 		});
-
 	});
-
 }
 
 // Stop client when extension is deactivated
 export function deactivate(): Thenable<void> {
+	// Remove status bar
 	if (statusBarItem) {
 		statusBarItem.dispose();
 	}
@@ -108,18 +100,25 @@ async function updateClient(status: StatusParams): Promise<any> {
 	// Start linting: update status bar and freeze text editors while fixing (if fix requested)
 	if (status.state === 'lint.start') {
 		statusBarItem.text = 'GroovyLint $(sync~spin)';
+		statusBarItem.tooltip = 'GroovyLint is analyzing ' + status.lastFileName;
+		statusBarItem.color = new vscode.ThemeColor('statusBar.debuggingForeground');
 	}
 	else if (status.state === 'lint.start.fix') {
 		statusBarItem.text = `GroovyLint $(sync~spin)`;
+		statusBarItem.tooltip = 'GroovyLint is fixing ' + status.lastFileName;
+		statusBarItem.color = new vscode.ThemeColor('statusBar.debuggingForeground');
 	}
 	// End linting:  and 
 	else if (status.state === 'lint.end') {
 		// update status bar
 		statusBarItem.text = 'GroovyLint $(zap)';
-
+		statusBarItem.tooltip = 'Groovylint analyzed ' + status.lastFileName + ' in ' + Math.floor(status.lastLintTimeMs) + 'ms';
+		statusBarItem.color = new vscode.ThemeColor('statusBarItem.prominentForeground');
 	}
 	else {
 		statusBarItem.text = 'GroovyLint $(error)';
+		statusBarItem.tooltip = 'There has been an error during linting ' + status.lastFileName;
+		statusBarItem.color = new vscode.ThemeColor('errorForeground');
 	}
 }
 
