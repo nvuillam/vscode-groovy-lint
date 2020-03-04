@@ -73,8 +73,11 @@ connection.onInitialize((params: InitializeParams) => {
     console.debug('GroovyLint: initializing server');
     return {
         capabilities: {
-            textDocumentSync: TextDocumentSyncKind.Full,
-
+            textDocumentSync: {
+                change: TextDocumentSyncKind.Incremental,
+                openClose: true,
+                willSaveWaitUntil: true
+            },
             executeCommandProvider: {
                 commands: commands.map(command => command.command)
             },
@@ -319,7 +322,7 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
 
     // Send updated sources to client 
     if (opts.fix === true && linter.status === 0) {
-        applyTextDocumentEditOnWorkspace(textDocument, linter.lintResult.files[0].updatedSources);
+        applyTextDocumentEditOnWorkspace(textDocument, linter.lintResult.files[0].updatedSource);
     }
     // Just Notify client of end of linting 
     connection.sendNotification(StatusNotification.type, {
@@ -368,12 +371,13 @@ async function applyTextDocumentEditOnWorkspace(textDocument: TextDocument, upda
     const applyWorkspaceEdits: WorkspaceEdit = {
         documentChanges: [textDocEdit]
     };
-    await connection.workspace.applyEdit(applyWorkspaceEdits);
+    const applyEditResult = await connection.workspace.applyEdit(applyWorkspaceEdits);
+    console.debug(`Updated ${textDocument.uri} using WorkspaceEdit (${JSON.stringify(applyEditResult)})`);
 }
 
 // Create a TextDocumentEdit that will be applied on client workspace
 function createTextDocumentEdit(textDocument: TextDocument, updatedSource: string): TextDocumentEdit {
-    const allLines = updatedSource.replace(/\r?\n/g, "\r\n").split("\r\n");
+    const allLines = textDocument.getText().replace(/\r?\n/g, "\r\n").split("\r\n");
     const range = {
         start: { line: 0, character: 0 },
         end: { line: allLines.length - 1, character: allLines[allLines.length - 1].length }
@@ -382,10 +386,9 @@ function createTextDocumentEdit(textDocument: TextDocument, updatedSource: strin
         range: range,
         newText: updatedSource
     };
-    const textDocEdit: TextDocumentEdit = {
-        textDocument: textDocument,
-        edits: [textEdit]
-    };
+
+    const textDocEdit: TextDocumentEdit = TextDocumentEdit.create({ uri: textDocument.uri, version: textDocument.version }, [textEdit]);
+
     return textDocEdit;
 }
 

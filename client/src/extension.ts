@@ -52,6 +52,7 @@ export function activate(context: ExtensionContext) {
 		// Register the server for groovy documents
 		documentSelector: [{ scheme: 'file', language: 'groovy' }],
 		diagnosticCollectionName: DIAGNOSTICS_COLLECTION_NAME,
+		progressOnInitialization: true,
 		synchronize: {
 			// Notify the server about file changes to '.clientrc files contained in the workspace
 			fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
@@ -73,7 +74,11 @@ export function activate(context: ExtensionContext) {
 	statusBarItem.show();
 	context.subscriptions.push(statusBarItem);
 
-	client.start();
+	client.registerProposedFeatures();
+
+	context.subscriptions.push(
+		client.start(),
+	);
 
 	// Actions after client is ready
 	client.onReady().then(() => {
