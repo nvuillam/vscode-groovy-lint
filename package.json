@@ -46,7 +46,7 @@
 			},
 			{
 				"command": "groovyLint.lintFix",
-				"title": "GroovyLint: Lint and fix"
+				"title": "GroovyLint: Lint and fix errors"
 			}
 		],
 		"menus": {

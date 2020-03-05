@@ -19,25 +19,58 @@ export function provideQuickFixCodeActions(textDocument: TextDocument, codeActio
 		const diagCode: string = diagnostic.code + '';
 		if (docQuickFixes && docQuickFixes[diagCode]) {
 			for (const quickFix of docQuickFixes[diagCode]) {
-				const codeAction = createCommandCodeAction(diagnostic, quickFix);
+				const codeAction = createQuickFixCodeAction(diagnostic, quickFix, textDocument.uri);
 				codeActions.push(codeAction);
 			}
 		}
+		// Add @SuppressWarnings('ErrorCode') for this error
+		const suppressWarningActions = createQuickFixSuppressWarningActions(diagnostic, textDocument.uri);
+		codeActions.push(...suppressWarningActions);
 	}
 	return codeActions;
+
 }
 
-function createCommandCodeAction(diagnostic: Diagnostic, quickFix: any): CodeAction {
+function createQuickFixCodeAction(diagnostic: Diagnostic, quickFix: any, textDocumentUri: string): CodeAction {
 	const action: CodeAction = {
 		title: quickFix.label,
-		kind: CodeActionKind.QuickFix
+		kind: CodeActionKind.QuickFix,
+		command: {
+			command: 'groovyLint.quickFix',
+			title: quickFix.label,
+			arguments: [diagnostic, quickFix.errId, textDocumentUri]
+		},
+		diagnostics: [diagnostic],
+		isPreferred: true
 	};
-	action.command = {
-		command: 'groovyLint.quickFix',
-		title: quickFix.label,
-		arguments: [quickFix.errId]
-	};
-	action.diagnostics = [diagnostic];
-	action.isPreferred = true;
 	return action;
+}
+
+function createQuickFixSuppressWarningActions(diagnostic: Diagnostic, textDocumentUri: string) {
+	const errorCode = (diagnostic.code as string).split('-')[0];
+	// Ignore only this error
+	const suppressWarningAction: CodeAction = {
+		title: `Ignore ${errorCode}`,
+		kind: CodeActionKind.QuickFix,
+		command: {
+			command: 'groovyLint.addSuppressWarning',
+			title: `Ignore ${errorCode}`,
+			arguments: [diagnostic, textDocumentUri]
+		},
+		diagnostics: [diagnostic],
+		isPreferred: false
+	};
+	// ignore this error type in all file
+	const suppressWarningFileAction: CodeAction = {
+		title: `Ignore ${errorCode} in all file`,
+		kind: CodeActionKind.QuickFix,
+		command: {
+			command: 'groovyLint.addSuppressWarningFile',
+			title: `Ignore ${errorCode} in all file`,
+			arguments: [diagnostic, textDocumentUri]
+		},
+		diagnostics: [diagnostic],
+		isPreferred: false
+	};
+	return [suppressWarningAction, suppressWarningFileAction];
 }

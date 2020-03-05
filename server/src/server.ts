@@ -15,14 +15,15 @@ import {
     Command,
     CodeActionParams,
     ExecuteCommandParams,
-    ShowMessageRequest,
     MessageType,
     ShowMessageRequestParams,
-    ApplyWorkspaceEditParams,
     WorkspaceEdit,
     TextDocumentEdit,
     ExitNotification,
-    ShutdownRequest
+    ShutdownRequest,
+    Range,
+    DiagnosticRelatedInformation,
+    DiagnosticTag
 } from 'vscode-languageserver';
 import * as path from 'path';
 import { provideQuickFixCodeActions } from './CodeActionProvider';
@@ -58,14 +59,21 @@ let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 let currentTextDocumentUri: DocumentUri;
 
 let autoFixTabs = false;
+let docsDiagnostics: Map<String, Diagnostic[]> = new Map<String, Diagnostic[]>();
 let docsDiagsQuickFixes: any = {};
 
 // Create commands
 const COMMAND_LINT = Command.create('GroovyLint: Lint', 'groovyLint.lint');
 const COMMAND_LINT_FIX = Command.create('GroovyLint: Lint and fix all', 'groovyLint.lintFix');
+const COMMAND_LINT_QUICKFIX = Command.create('GroovyLint: Lint and fix all', 'groovyLint.quickFix');
+const COMMAND_SUPPRESS_WARNING_LINE = Command.create('GroovyLint: Ignore this error', 'groovyLint.addSuppressWarning');
+const COMMAND_SUPPRESS_WARNING_FILE = Command.create('GroovyLint: Ignore this error type in all file', 'groovyLint.addSuppressWarningFile');
 const commands = [
     COMMAND_LINT,
-    COMMAND_LINT_FIX
+    COMMAND_LINT_FIX,
+    COMMAND_LINT_QUICKFIX,
+    COMMAND_SUPPRESS_WARNING_LINE,
+    COMMAND_SUPPRESS_WARNING_FILE
 ];
 
 // Manage to have only one codenarc running
@@ -79,7 +87,8 @@ connection.onInitialize((params: InitializeParams) => {
                 willSaveWaitUntil: true
             },
             executeCommandProvider: {
-                commands: commands.map(command => command.command)
+                commands: commands.map(command => command.command),
+                dynamicRegistration: true
             },
             codeActionProvider: {
                 codeActionKinds: [CodeActionKind.QuickFix]
@@ -93,12 +102,10 @@ connection.onInitialized(() => {
     // Register for the client notifications we can use
     connection.client.register(DidChangeConfigurationNotification.type);
     connection.client.register(DidSaveTextDocumentNotification.type);
-    connection.client.register(ExitNotification.type);
-    connection.client.register(ShutdownRequest.type);
     console.debug('GroovyLint: initialized server');
 });
 
-// Kill server when closing VsCode or deactivate extension
+// Kill CodeNarcServer when closing VsCode or deactivate extension
 connection.onShutdown(async () => {
     await new NpmGroovyLint({ killserver: true }, {}).run();
 });
@@ -118,21 +125,32 @@ interface VsCodeGroovyLintSettings {
 let documentSettings: Map<string, Thenable<VsCodeGroovyLintSettings>> = new Map();
 
 // Lint again all opened documents in configuration changed
-connection.onDidChangeConfiguration(change => {
+connection.onDidChangeConfiguration(async (change) => {
     // Reset all cached document settings
     documentSettings.clear();
     // Revalidate all open text documents
-    documents.all().forEach(validateTextDocument);
+    for (const doc of documents.all()) {
+        await validateTextDocument(doc);
+    };
 });
 
 // Handle command requests from client
 connection.onExecuteCommand(async (params: ExecuteCommandParams) => {
     const document: TextDocument = documents.get(currentTextDocumentUri)!;
     if (params.command === 'groovyLint.lint') {
-        validateTextDocument(document);
+        await validateTextDocument(document);
     }
     else if (params.command === 'groovyLint.lintFix') {
-        validateTextDocument(document, { fix: true });
+        await validateTextDocument(document, { fix: true });
+    }
+    /*    else if (params.command === 'groovyLint.quickFix') {
+            addSuppressWarning(params, 'line');
+        } */
+    else if (params.command === 'groovyLint.addSuppressWarning') {
+        await addSuppressWarning(params, 'line');
+    }
+    else if (params.command === 'groovyLint.addSuppressWarningFile') {
+        await addSuppressWarning(params, 'file');
     }
 });
 
@@ -156,7 +174,7 @@ connection.onCodeAction(async (codeActionParams: CodeActionParams): Promise<Code
 documents.onDidOpen(async (event) => {
     const textDocument: TextDocument = documents.get(event.document.uri)!;
     currentTextDocumentUri = textDocument.uri;
-    validateTextDocument(textDocument);
+    await validateTextDocument(textDocument);
 });
 
 // The content of a text document has changed. This event is emitted
@@ -165,7 +183,7 @@ documents.onDidChangeContent(async change => {
     currentTextDocumentUri = change.document.uri;
     const settings = await getDocumentSettings(change.document.uri);
     if (settings.run === 'onType') {
-        validateTextDocument(change.document);
+        await validateTextDocument(change.document);
     }
 });
 
@@ -174,7 +192,7 @@ documents.onDidSave(async event => {
     const textDocument: TextDocument = documents.get(event.document.uri)!;
     const settings = await getDocumentSettings(textDocument.uri);
     if (settings.run === 'onSave') {
-        validateTextDocument(textDocument);
+        await validateTextDocument(textDocument);
     }
 });
 
@@ -234,7 +252,7 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
     try {
         await linter.run();
     } catch (e) {
-        console.error('VsCode Groovy Lint error: ' + e.message);
+        console.error('VsCode Groovy Lint error: ' + e.message + '\n' + e.stack);
         connection.sendNotification(StatusNotification.type, {
             state: 'lint.error',
             documents: [{ documentUri: textDocument.uri }],
@@ -254,6 +272,9 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
         // Get each error for the file
         let pos = 0;
         for (const err of lintResults.files[0].errors) {
+            if (err.fixed === true) {
+                continue; // Do not display diagnostics for fixed errors
+            }
             let range = err.range;
             if (range) {
                 range.start.line += diffLine;
@@ -319,10 +340,11 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
 
     // Send diagnostics to client
     connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+    docsDiagnostics.set(textDocument.uri, diagnostics);
 
     // Send updated sources to client 
     if (opts.fix === true && linter.status === 0) {
-        applyTextDocumentEditOnWorkspace(textDocument, linter.lintResult.files[0].updatedSource);
+        await applyTextDocumentEditOnWorkspace(textDocument, linter.lintResult.files[0].updatedSource);
     }
     // Just Notify client of end of linting 
     connection.sendNotification(StatusNotification.type, {
@@ -335,6 +357,65 @@ async function validateTextDocument(textDocument: TextDocument, opts: any = { fi
     });
 }
 
+// Add suppress warning
+async function addSuppressWarning(params: any, scope: string) {
+    const [diagnostic, textDocumentUri] = params.arguments;
+    const textDocument: TextDocument = documents.get(textDocumentUri)!;
+    const allLines = getTextDocumentLines(textDocument);
+    // Get line to check or create
+    let linePos: number = 0;
+    let removeAll = false;
+    switch (scope) {
+        case 'line': linePos = (diagnostic?.range?.start?.line) || 0; break;
+        case 'file': linePos = 0; removeAll = true; break;
+    }
+    const line: string = allLines[linePos];
+    const prevLine: string = allLines[(linePos === 0) ? 0 : linePos - 1] || '';
+    const indent = " ".repeat(line.search(/\S/));
+    const errorCode = diagnostic.code.split('-')[0];
+    // Create updated @SuppressWarnings line
+    if (prevLine.includes('@SuppressWarnings')) {
+        const alreadyExistingWarnings = prevLine.trimLeft().replace('@SuppressWarnings', '')
+            .replace('(', '').replace(')', '')
+            .replace('[', '').replace(']', '')
+            .replace(/'/g, '').split(',');
+        alreadyExistingWarnings.push(errorCode);
+        alreadyExistingWarnings.sort();
+        const suppressWarningLine = indent + `@SuppressWarnings(['${[...new Set(alreadyExistingWarnings)].join("','")}'])`;
+        await applyTextDocumentEditOnWorkspace(textDocument, suppressWarningLine, { replaceLinePos: (linePos === 0) ? 0 : linePos - 1 });
+        removeDiagnostic(diagnostic, textDocument.uri, removeAll);
+    }
+    else {
+        // Add new @SuppressWarnings line
+        const suppressWarningLine = indent + `@SuppressWarnings(['${errorCode}'])`;
+        await applyTextDocumentEditOnWorkspace(textDocument, suppressWarningLine, { insertLinePos: linePos });
+        removeDiagnostic(diagnostic, textDocument.uri, removeAll, linePos);
+    }
+    connection.sendDiagnostics({ uri: textDocument.uri, diagnostics: docsDiagnostics.get(textDocument.uri)! });
+}
+
+// Remove diagnostic after it has been cleared
+function removeDiagnostic(diagnostic: Diagnostic, textDocumentUri: string, removeAll?: boolean, recalculateRangeLinePos?: number) {
+    let diagnostics: Diagnostic[] = docsDiagnostics.get(textDocumentUri) || [];
+    const diagnosticCodeNarcCode = (diagnostic.code as string).split('-')[0];
+    diagnostics = diagnostics?.filter(diag =>
+        (removeAll) ?
+            (diag.code as string).split('-')[0] !== diagnosticCodeNarcCode :
+            diag.code !== diagnostic.code);
+    // Recalculate diagnostic ranges if line number has changed
+    if (recalculateRangeLinePos || recalculateRangeLinePos === 0) {
+        diagnostics = diagnostics?.map(diag => {
+            if (diag?.range?.start?.line >= recalculateRangeLinePos) {
+                diag.range.start.line = diag.range.start.line + 1;
+                diag.range.end.line = diag.range.end.line + 1;
+            }
+            return diag;
+        });
+    }
+    docsDiagnostics.set(textDocumentUri, diagnostics);
+}
+
+// If necessary, fix source before sending it to CodeNarc
 async function managePreFixSource(source: string, textDocument: TextDocument): Promise<string> {
     if (source.includes("\t")) {
         let fixTabs = false;
@@ -365,9 +446,9 @@ async function managePreFixSource(source: string, textDocument: TextDocument): P
 }
 
 // Apply updated source into the client TextDocument
-async function applyTextDocumentEditOnWorkspace(textDocument: TextDocument, updatedSource: string) {
+async function applyTextDocumentEditOnWorkspace(textDocument: TextDocument, updatedSource: string, where: any = {}) {
     textDocument = getUpToDateTextDocument(textDocument);
-    const textDocEdit: TextDocumentEdit = createTextDocumentEdit(textDocument, updatedSource);
+    const textDocEdit: TextDocumentEdit = createTextDocumentEdit(textDocument, updatedSource, where);
     const applyWorkspaceEdits: WorkspaceEdit = {
         documentChanges: [textDocEdit]
     };
@@ -376,16 +457,48 @@ async function applyTextDocumentEditOnWorkspace(textDocument: TextDocument, upda
 }
 
 // Create a TextDocumentEdit that will be applied on client workspace
-function createTextDocumentEdit(textDocument: TextDocument, updatedSource: string): TextDocumentEdit {
-    const allLines = textDocument.getText().replace(/\r?\n/g, "\r\n").split("\r\n");
-    const range = {
-        start: { line: 0, character: 0 },
-        end: { line: allLines.length - 1, character: allLines[allLines.length - 1].length }
-    };
-    const textEdit: TextEdit = {
-        range: range,
-        newText: updatedSource
-    };
+function createTextDocumentEdit(textDocument: TextDocument, updatedSource: string, where: any = {}): TextDocumentEdit {
+    const allLines = getTextDocumentLines(textDocument);
+    // If range is not sent, replace all file lines
+    let textEdit: TextEdit;
+    // Insert at position
+    if (where.insertLinePos || where.insertLinePos === 0) {
+        allLines.splice(where.insertLinePos, 0, updatedSource);
+        textEdit = {
+            range: {
+                start: { line: 0, character: 0 },
+                end: { line: allLines.length - 1, character: allLines[allLines.length - 1].length }
+            },
+            newText: allLines.join('\r\n')
+        };
+    }
+    // Replace line at position
+    else if (where.replaceLinePos || where.replaceLinePos === 0) {
+        textEdit = {
+            range: {
+                start: { line: where.replaceLinePos, character: 0 },
+                end: { line: where.replaceLinePos, character: allLines[where.replaceLinePos].length }
+            },
+            newText: updatedSource
+        };
+    }
+    // Replace all source
+    else if (!where?.range) {
+        textEdit = {
+            range: {
+                start: { line: 0, character: 0 },
+                end: { line: allLines.length - 1, character: allLines[allLines.length - 1].length }
+            },
+            newText: updatedSource
+        };
+    }
+    // Provided range
+    else {
+        textEdit = {
+            range: where.range,
+            newText: updatedSource
+        };
+    }
 
     const textDocEdit: TextDocumentEdit = TextDocumentEdit.create({ uri: textDocument.uri, version: textDocument.version }, [textEdit]);
 
@@ -395,6 +508,11 @@ function createTextDocumentEdit(textDocument: TextDocument, updatedSource: strin
 // If document has been updated during an operation, get its most recent state
 function getUpToDateTextDocument(textDocument: TextDocument): TextDocument {
     return documents.get(textDocument.uri)!;
+}
+
+// Split source string into array of lines
+function getTextDocumentLines(textDocument: TextDocument) {
+    return textDocument.getText().replace(/\r?\n/g, "\r\n").split("\r\n");
 }
 
 // Make the text document manager listen on the connection
