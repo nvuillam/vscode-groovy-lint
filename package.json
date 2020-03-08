@@ -8,6 +8,16 @@
 	"engines": {
 		"vscode": "^1.42.0"
 	},
+	"scripts": {
+		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
+		"compile": "tsc -b",
+		"watch": "tsc -b -w",
+		"lint": "eslint client/src --ext ts && eslint server/src --ext ts",
+		"lint:fix": "eslint client/src --ext ts --fix && eslint server/src --ext ts --fix",
+		"pretest": "npm run compile && npm run lint",
+		"test": "node ./out/test/runTest.js",
+		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
+	},
 	"categories": [
 		"Programming Languages",
 		"Linters"
@@ -32,6 +42,19 @@
 		"url": "https://github.com/nvuillam/vscode-groovy-lint/issues"
 	},
 	"homepage": "https://github.com/nvuillam/vscode-groovy-lint#readme",
+	"devDependencies": {
+		"@types/glob": "^7.1.1",
+		"@types/mocha": "^7.0.1",
+		"@types/node": "^12.11.7",
+		"eslint": "^6.8.0",
+		"@typescript-eslint/parser": "^2.18.0",
+		"@typescript-eslint/eslint-plugin": "^2.18.0",
+		"glob": "^7.1.6",
+		"mocha": "^7.0.1",
+		"typescript": "^3.7.5",
+		"vscode-test": "^1.3.0"
+	},
+	"dependencies": {},
 	"activationEvents": [
 		"onLanguage:groovy",
 		"workspaceContains:**/Jenkins*",
@@ -75,15 +98,15 @@
 		},
 		"configuration": {
 			"type": "object",
-			"title": "Groovy Lint configuration",
+			"title": "Groovy Lint",
 			"properties": {
-				"groovyLint.enable": {
+				"groovyLint.basic.enable": {
 					"scope": "resource",
 					"type": "boolean",
 					"default": true,
 					"description": "Controls whether GroovyLint is enabled or not."
 				},
-				"groovyLint.run": {
+				"groovyLint.basic.run": {
 					"scope": "resource",
 					"type": "string",
 					"enum": [
@@ -93,13 +116,13 @@
 					"default": "onSave",
 					"description": "Run the linter on save (onSave) or on type (onType)"
 				},
-				"groovyLint.autoFixOnSave": {
+				"groovyLint.basic.autoFixOnSave": {
 					"scope": "resource",
 					"type": "boolean",
 					"default": false,
 					"description": "Turns auto fix on save on or off."
 				},
-				"groovyLint.loglevel": {
+				"groovyLint.basic.loglevel": {
 					"scope": "resource",
 					"type": "string",
 					"enum": [
@@ -115,13 +138,13 @@
 					"default": "info",
 					"description": "Linting error level"
 				},
-				"groovyLint.verbose": {
+				"groovyLint.basic.verbose": {
 					"scope": "resource",
 					"type": "boolean",
 					"default": false,
 					"description": "Verbose logs"
 				},
-				"groovyLint.ruleSetGroovy": {
+				"groovyLint.ruleset.Groovy": {
 					"scope": "resource",
 					"type": "string",
 					"enum": [
@@ -132,47 +155,4537 @@
 						"Default npm-groovy-lint RuleSet-Groovy",
 						"Custom"
 					],
-					"default": "default",
+					"default": "recommended",
 					"description": "RuleSet to use for Groovy files"
 				},
-				"groovyLint.ruleSetJenkinsfile": {
+				"groovyLint.ruleset.Groovy.custom.rules.basic.AssertWithinFinallyBlock": {
+					"scope": "resource",
+					"description": "Assert within finally block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.AssignmentInConditional": {
+					"scope": "resource",
+					"description": "Assignment in conditional",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.BigDecimalInstantiation": {
+					"scope": "resource",
+					"description": "Big decimal instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.BitwiseOperatorInConditional": {
+					"scope": "resource",
+					"description": "Bitwise operator in conditional",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.BooleanGetBoolean": {
+					"scope": "resource",
+					"description": "Boolean get boolean",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.BrokenNullCheck": {
+					"scope": "resource",
+					"description": "Broken null check",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.BrokenOddnessCheck": {
+					"scope": "resource",
+					"description": "Broken oddness check",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.ClassForName": {
+					"scope": "resource",
+					"description": "Class for name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.ComparisonOfTwoConstants": {
+					"scope": "resource",
+					"description": "Comparison of two constants",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.ComparisonWithSelf": {
+					"scope": "resource",
+					"description": "Comparison with self",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.ConstantAssertExpression": {
+					"scope": "resource",
+					"description": "Constant assert expression",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.ConstantIfExpression": {
+					"scope": "resource",
+					"description": "Constant if expression",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.ConstantTernaryExpression": {
+					"scope": "resource",
+					"description": "Constant ternary expression",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.DeadCode": {
+					"scope": "resource",
+					"description": "Dead code",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.DoubleNegative": {
+					"scope": "resource",
+					"description": "Double negative",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.DuplicateCaseStatement": {
+					"scope": "resource",
+					"description": "Duplicate case statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.DuplicateMapKey": {
+					"scope": "resource",
+					"description": "Duplicate map key",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.DuplicateSetValue": {
+					"scope": "resource",
+					"description": "Duplicate set value",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.EmptyCatchBlock": {
+					"scope": "resource",
+					"description": "Empty catch block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.EmptyClass": {
+					"scope": "resource",
+					"description": "Empty class",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.EmptyElseBlock": {
+					"scope": "resource",
+					"description": "Empty else block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.EmptyFinallyBlock": {
+					"scope": "resource",
+					"description": "Empty finally block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.EmptyForStatement": {
+					"scope": "resource",
+					"description": "Empty for statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.EmptyIfStatement": {
+					"scope": "resource",
+					"description": "Empty if statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.EmptyInstanceInitializer": {
+					"scope": "resource",
+					"description": "Empty instance initializer",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.EmptyMethod": {
+					"scope": "resource",
+					"description": "Empty method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.EmptyStaticInitializer": {
+					"scope": "resource",
+					"description": "Empty static initializer",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.EmptySwitchStatement": {
+					"scope": "resource",
+					"description": "Empty switch statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.EmptySynchronizedStatement": {
+					"scope": "resource",
+					"description": "Empty synchronized statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.EmptyTryBlock": {
+					"scope": "resource",
+					"description": "Empty try block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.EmptyWhileStatement": {
+					"scope": "resource",
+					"description": "Empty while statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.EqualsAndHashCode": {
+					"scope": "resource",
+					"description": "Equals and hash code",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.EqualsOverloaded": {
+					"scope": "resource",
+					"description": "Equals overloaded",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.ExplicitGarbageCollection": {
+					"scope": "resource",
+					"description": "Explicit garbage collection",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.ForLoopShouldBeWhileLoop": {
+					"scope": "resource",
+					"description": "For loop should be while loop",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.HardCodedWindowsFileSeparator": {
+					"scope": "resource",
+					"description": "Hard coded windows file separator",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.HardCodedWindowsRootDirectory": {
+					"scope": "resource",
+					"description": "Hard coded windows root directory",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.IntegerGetInteger": {
+					"scope": "resource",
+					"description": "Integer get integer",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.MultipleUnaryOperators": {
+					"scope": "resource",
+					"description": "Multiple unary operators",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.RandomDoubleCoercedToZero": {
+					"scope": "resource",
+					"description": "Random double coerced to zero",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.RemoveAllOnSelf": {
+					"scope": "resource",
+					"description": "Remove all on self",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.ReturnFromFinallyBlock": {
+					"scope": "resource",
+					"description": "Return from finally block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.basic.ThrowExceptionFromFinallyBlock": {
+					"scope": "resource",
+					"description": "Throw exception from finally block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.braces.ElseBlockBraces": {
+					"scope": "resource",
+					"description": "Else block braces",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.braces.ForStatementBraces": {
+					"scope": "resource",
+					"description": "For statement braces",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.braces.IfStatementBraces": {
+					"scope": "resource",
+					"description": "If statement braces",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.braces.WhileStatementBraces": {
+					"scope": "resource",
+					"description": "While statement braces",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.comments.ClassJavadoc": {
+					"scope": "resource",
+					"description": "Class javadoc",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.comments.JavadocConsecutiveEmptyLines": {
+					"scope": "resource",
+					"description": "Javadoc consecutive empty lines",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.comments.JavadocEmptyAuthorTag": {
+					"scope": "resource",
+					"description": "Javadoc empty author tag",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.comments.JavadocEmptyExceptionTag": {
+					"scope": "resource",
+					"description": "Javadoc empty exception tag",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.comments.JavadocEmptyFirstLine": {
+					"scope": "resource",
+					"description": "Javadoc empty first line",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.comments.JavadocEmptyLastLine": {
+					"scope": "resource",
+					"description": "Javadoc empty last line",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.comments.JavadocEmptyParamTag": {
+					"scope": "resource",
+					"description": "Javadoc empty param tag",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.comments.JavadocEmptyReturnTag": {
+					"scope": "resource",
+					"description": "Javadoc empty return tag",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.comments.JavadocEmptySeeTag": {
+					"scope": "resource",
+					"description": "Javadoc empty see tag",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.comments.JavadocEmptySinceTag": {
+					"scope": "resource",
+					"description": "Javadoc empty since tag",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.comments.JavadocEmptyThrowsTag": {
+					"scope": "resource",
+					"description": "Javadoc empty throws tag",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.comments.JavadocEmptyVersionTag": {
+					"scope": "resource",
+					"description": "Javadoc empty version tag",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.comments.JavadocMissingExceptionDescription": {
+					"scope": "resource",
+					"description": "Javadoc missing exception description",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.comments.JavadocMissingParamDescription": {
+					"scope": "resource",
+					"description": "Javadoc missing param description",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.comments.JavadocMissingThrowsDescription": {
+					"scope": "resource",
+					"description": "Javadoc missing throws description",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.BusyWait": {
+					"scope": "resource",
+					"description": "Busy wait",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.DoubleCheckedLocking": {
+					"scope": "resource",
+					"description": "Double checked locking",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.InconsistentPropertyLocking": {
+					"scope": "resource",
+					"description": "Inconsistent property locking",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.InconsistentPropertySynchronization": {
+					"scope": "resource",
+					"description": "Inconsistent property synchronization",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.NestedSynchronization": {
+					"scope": "resource",
+					"description": "Nested synchronization",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.StaticCalendarField": {
+					"scope": "resource",
+					"description": "Static calendar field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.StaticConnection": {
+					"scope": "resource",
+					"description": "Static connection",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.StaticDateFormatField": {
+					"scope": "resource",
+					"description": "Static date format field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.StaticMatcherField": {
+					"scope": "resource",
+					"description": "Static matcher field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.StaticSimpleDateFormatField": {
+					"scope": "resource",
+					"description": "Static simple date format field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.SynchronizedMethod": {
+					"scope": "resource",
+					"description": "Synchronized method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.SynchronizedOnBoxedPrimitive": {
+					"scope": "resource",
+					"description": "Synchronized on boxed primitive",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.SynchronizedOnGetClass": {
+					"scope": "resource",
+					"description": "Synchronized on get class",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.SynchronizedOnReentrantLock": {
+					"scope": "resource",
+					"description": "Synchronized on reentrant lock",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.SynchronizedOnString": {
+					"scope": "resource",
+					"description": "Synchronized on string",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.SynchronizedOnThis": {
+					"scope": "resource",
+					"description": "Synchronized on this",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.SynchronizedReadObjectMethod": {
+					"scope": "resource",
+					"description": "Synchronized read object method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.SystemRunFinalizersOnExit": {
+					"scope": "resource",
+					"description": "System run finalizers on exit",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.ThisReferenceEscapesConstructor": {
+					"scope": "resource",
+					"description": "This reference escapes constructor",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.ThreadGroup": {
+					"scope": "resource",
+					"description": "Thread group",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.ThreadLocalNotStaticFinal": {
+					"scope": "resource",
+					"description": "Thread local not static final",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.ThreadYield": {
+					"scope": "resource",
+					"description": "Thread yield",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.UseOfNotifyMethod": {
+					"scope": "resource",
+					"description": "Use of notify method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.VolatileArrayField": {
+					"scope": "resource",
+					"description": "Volatile array field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.VolatileLongOrDoubleField": {
+					"scope": "resource",
+					"description": "Volatile long or double field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.concurrency.WaitOutsideOfWhileLoop": {
+					"scope": "resource",
+					"description": "Wait outside of while loop",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.CompileStatic": {
+					"scope": "resource",
+					"description": "Compile static",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.ConfusingTernary": {
+					"scope": "resource",
+					"description": "Confusing ternary",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.CouldBeElvis": {
+					"scope": "resource",
+					"description": "Could be elvis",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.CouldBeSwitchStatement": {
+					"scope": "resource",
+					"description": "Could be switch statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.FieldTypeRequired": {
+					"scope": "resource",
+					"description": "Field type required",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.HashtableIsObsolete": {
+					"scope": "resource",
+					"description": "Hashtable is obsolete",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.IfStatementCouldBeTernary": {
+					"scope": "resource",
+					"description": "If statement could be ternary",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.InvertedCondition": {
+					"scope": "resource",
+					"description": "Inverted condition",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.InvertedIfElse": {
+					"scope": "resource",
+					"description": "Inverted if else",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.LongLiteralWithLowerCaseL": {
+					"scope": "resource",
+					"description": "Long literal with lower case l",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.MethodParameterTypeRequired": {
+					"scope": "resource",
+					"description": "Method parameter type required",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.MethodReturnTypeRequired": {
+					"scope": "resource",
+					"description": "Method return type required",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.NoDef": {
+					"scope": "resource",
+					"description": "No def",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.NoJavaUtilDate": {
+					"scope": "resource",
+					"description": "No java util date",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.NoTabCharacter": {
+					"scope": "resource",
+					"description": "No tab character",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.ParameterReassignment": {
+					"scope": "resource",
+					"description": "Parameter reassignment",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.PublicMethodsBeforeNonPublicMethods": {
+					"scope": "resource",
+					"description": "Public methods before non public methods",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.StaticFieldsBeforeInstanceFields": {
+					"scope": "resource",
+					"description": "Static fields before instance fields",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.StaticMethodsBeforeInstanceMethods": {
+					"scope": "resource",
+					"description": "Static methods before instance methods",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.TernaryCouldBeElvis": {
+					"scope": "resource",
+					"description": "Ternary could be elvis",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.TrailingComma": {
+					"scope": "resource",
+					"description": "Trailing comma",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.VariableTypeRequired": {
+					"scope": "resource",
+					"description": "Variable type required",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.convention.VectorIsObsolete": {
+					"scope": "resource",
+					"description": "Vector is obsolete",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.AbstractClassWithPublicConstructor": {
+					"scope": "resource",
+					"description": "Abstract class with public constructor",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.AbstractClassWithoutAbstractMethod": {
+					"scope": "resource",
+					"description": "Abstract class without abstract method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.AssignmentToStaticFieldFromInstanceMethod": {
+					"scope": "resource",
+					"description": "Assignment to static field from instance method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.BooleanMethodReturnsNull": {
+					"scope": "resource",
+					"description": "Boolean method returns null",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.BuilderMethodWithSideEffects": {
+					"scope": "resource",
+					"description": "Builder method with side effects",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.CloneableWithoutClone": {
+					"scope": "resource",
+					"description": "Cloneable without clone",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.CloseWithoutCloseable": {
+					"scope": "resource",
+					"description": "Close without closeable",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.CompareToWithoutComparable": {
+					"scope": "resource",
+					"description": "Compare to without comparable",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.ConstantsOnlyInterface": {
+					"scope": "resource",
+					"description": "Constants only interface",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.EmptyMethodInAbstractClass": {
+					"scope": "resource",
+					"description": "Empty method in abstract class",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.FinalClassWithProtectedMember": {
+					"scope": "resource",
+					"description": "Final class with protected member",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.ImplementationAsType": {
+					"scope": "resource",
+					"description": "Implementation as type",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.Instanceof": {
+					"scope": "resource",
+					"description": "Instanceof",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.LocaleSetDefault": {
+					"scope": "resource",
+					"description": "Locale set default",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.NestedForLoop": {
+					"scope": "resource",
+					"description": "Nested for loop",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.PrivateFieldCouldBeFinal": {
+					"scope": "resource",
+					"description": "Private field could be final",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.PublicInstanceField": {
+					"scope": "resource",
+					"description": "Public instance field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.ReturnsNullInsteadOfEmptyArray": {
+					"scope": "resource",
+					"description": "Returns null instead of empty array",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.ReturnsNullInsteadOfEmptyCollection": {
+					"scope": "resource",
+					"description": "Returns null instead of empty collection",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.SimpleDateFormatMissingLocale": {
+					"scope": "resource",
+					"description": "Simple date format missing locale",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.StatelessSingleton": {
+					"scope": "resource",
+					"description": "Stateless singleton",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.design.ToStringReturnsNull": {
+					"scope": "resource",
+					"description": "To string returns null",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.dry.DuplicateListLiteral": {
+					"scope": "resource",
+					"description": "Duplicate list literal",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.dry.DuplicateMapLiteral": {
+					"scope": "resource",
+					"description": "Duplicate map literal",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.dry.DuplicateNumberLiteral": {
+					"scope": "resource",
+					"description": "Duplicate number literal",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.dry.DuplicateStringLiteral": {
+					"scope": "resource",
+					"description": "Duplicate string literal",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.enhanced.CloneWithoutCloneable": {
+					"scope": "resource",
+					"description": "Clone without cloneable",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.enhanced.JUnitAssertEqualsConstantActualValue": {
+					"scope": "resource",
+					"description": "J unit assert equals constant actual value",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.enhanced.MissingOverrideAnnotation": {
+					"scope": "resource",
+					"description": "Missing override annotation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.enhanced.UnsafeImplementationAsMap": {
+					"scope": "resource",
+					"description": "Unsafe implementation as map",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.CatchArrayIndexOutOfBoundsException": {
+					"scope": "resource",
+					"description": "Catch array index out of bounds exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.CatchError": {
+					"scope": "resource",
+					"description": "Catch error",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.CatchException": {
+					"scope": "resource",
+					"description": "Catch exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.CatchIllegalMonitorStateException": {
+					"scope": "resource",
+					"description": "Catch illegal monitor state exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.CatchIndexOutOfBoundsException": {
+					"scope": "resource",
+					"description": "Catch index out of bounds exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.CatchNullPointerException": {
+					"scope": "resource",
+					"description": "Catch null pointer exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.CatchRuntimeException": {
+					"scope": "resource",
+					"description": "Catch runtime exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.CatchThrowable": {
+					"scope": "resource",
+					"description": "Catch throwable",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.ConfusingClassNamedException": {
+					"scope": "resource",
+					"description": "Confusing class named exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.ExceptionExtendsError": {
+					"scope": "resource",
+					"description": "Exception extends error",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.ExceptionExtendsThrowable": {
+					"scope": "resource",
+					"description": "Exception extends throwable",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.ExceptionNotThrown": {
+					"scope": "resource",
+					"description": "Exception not thrown",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.MissingNewInThrowStatement": {
+					"scope": "resource",
+					"description": "Missing new in throw statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.ReturnNullFromCatchBlock": {
+					"scope": "resource",
+					"description": "Return null from catch block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.SwallowThreadDeath": {
+					"scope": "resource",
+					"description": "Swallow thread death",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.ThrowError": {
+					"scope": "resource",
+					"description": "Throw error",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.ThrowException": {
+					"scope": "resource",
+					"description": "Throw exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.ThrowNullPointerException": {
+					"scope": "resource",
+					"description": "Throw null pointer exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.ThrowRuntimeException": {
+					"scope": "resource",
+					"description": "Throw runtime exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.exceptions.ThrowThrowable": {
+					"scope": "resource",
+					"description": "Throw throwable",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.BlankLineBeforePackage": {
+					"scope": "resource",
+					"description": "Blank line before package",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.BlockEndsWithBlankLine": {
+					"scope": "resource",
+					"description": "Block ends with blank line",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.BlockStartsWithBlankLine": {
+					"scope": "resource",
+					"description": "Block starts with blank line",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.BracesForClass": {
+					"scope": "resource",
+					"description": "Braces for class",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.BracesForForLoop": {
+					"scope": "resource",
+					"description": "Braces for for loop",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.BracesForIfElse": {
+					"scope": "resource",
+					"description": "Braces for if else",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.BracesForMethod": {
+					"scope": "resource",
+					"description": "Braces for method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.BracesForTryCatchFinally": {
+					"scope": "resource",
+					"description": "Braces for try catch finally",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.ClassEndsWithBlankLine": {
+					"scope": "resource",
+					"description": "Class ends with blank line",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.ClassStartsWithBlankLine": {
+					"scope": "resource",
+					"description": "Class starts with blank line",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.ClosureStatementOnOpeningLineOfMultipleLineClosure": {
+					"scope": "resource",
+					"description": "Closure statement on opening line of multiple line closure",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.ConsecutiveBlankLines": {
+					"scope": "resource",
+					"description": "Consecutive blank lines",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.FileEndsWithoutNewline": {
+					"scope": "resource",
+					"description": "File ends without newline",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.Indentation": {
+					"scope": "resource",
+					"description": "Indentation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.LineLength": {
+					"scope": "resource",
+					"description": "Line length",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.MissingBlankLineAfterImports": {
+					"scope": "resource",
+					"description": "Missing blank line after imports",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.MissingBlankLineAfterPackage": {
+					"scope": "resource",
+					"description": "Missing blank line after package",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.SpaceAfterCatch": {
+					"scope": "resource",
+					"description": "Space after catch",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.SpaceAfterClosingBrace": {
+					"scope": "resource",
+					"description": "Space after closing brace",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.SpaceAfterComma": {
+					"scope": "resource",
+					"description": "Space after comma",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.SpaceAfterFor": {
+					"scope": "resource",
+					"description": "Space after for",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.SpaceAfterIf": {
+					"scope": "resource",
+					"description": "Space after if",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.SpaceAfterOpeningBrace": {
+					"scope": "resource",
+					"description": "Space after opening brace",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.SpaceAfterSemicolon": {
+					"scope": "resource",
+					"description": "Space after semicolon",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.SpaceAfterSwitch": {
+					"scope": "resource",
+					"description": "Space after switch",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.SpaceAfterWhile": {
+					"scope": "resource",
+					"description": "Space after while",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.SpaceAroundClosureArrow": {
+					"scope": "resource",
+					"description": "Space around closure arrow",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.SpaceAroundMapEntryColon": {
+					"scope": "resource",
+					"description": "Space around map entry colon",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.SpaceAroundOperator": {
+					"scope": "resource",
+					"description": "Space around operator",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.SpaceBeforeClosingBrace": {
+					"scope": "resource",
+					"description": "Space before closing brace",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.SpaceBeforeOpeningBrace": {
+					"scope": "resource",
+					"description": "Space before opening brace",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.formatting.TrailingWhitespace": {
+					"scope": "resource",
+					"description": "Trailing whitespace",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.generic.IllegalClassMember": {
+					"scope": "resource",
+					"description": "Illegal class member",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.generic.IllegalClassReference": {
+					"scope": "resource",
+					"description": "Illegal class reference",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.generic.IllegalPackageReference": {
+					"scope": "resource",
+					"description": "Illegal package reference",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.generic.IllegalRegex": {
+					"scope": "resource",
+					"description": "Illegal regex",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.generic.IllegalString": {
+					"scope": "resource",
+					"description": "Illegal string",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.generic.IllegalSubclass": {
+					"scope": "resource",
+					"description": "Illegal subclass",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.generic.RequiredRegex": {
+					"scope": "resource",
+					"description": "Required regex",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.generic.RequiredString": {
+					"scope": "resource",
+					"description": "Required string",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.generic.StatelessClass": {
+					"scope": "resource",
+					"description": "Stateless class",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.grails.GrailsDomainHasEquals": {
+					"scope": "resource",
+					"description": "Grails domain has equals",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.grails.GrailsDomainHasToString": {
+					"scope": "resource",
+					"description": "Grails domain has to string",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.grails.GrailsDomainReservedSqlKeywordName": {
+					"scope": "resource",
+					"description": "Grails domain reserved sql keyword name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.grails.GrailsDomainStringPropertyMaxSize": {
+					"scope": "resource",
+					"description": "Grails domain string property max size",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.grails.GrailsDomainWithServiceReference": {
+					"scope": "resource",
+					"description": "Grails domain with service reference",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.grails.GrailsDuplicateConstraint": {
+					"scope": "resource",
+					"description": "Grails duplicate constraint",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.grails.GrailsDuplicateMapping": {
+					"scope": "resource",
+					"description": "Grails duplicate mapping",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.grails.GrailsMassAssignment": {
+					"scope": "resource",
+					"description": "Grails mass assignment",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.grails.GrailsPublicControllerMethod": {
+					"scope": "resource",
+					"description": "Grails public controller method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.grails.GrailsServletContextReference": {
+					"scope": "resource",
+					"description": "Grails servlet context reference",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.grails.GrailsStatelessService": {
+					"scope": "resource",
+					"description": "Grails stateless service",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.AssignCollectionSort": {
+					"scope": "resource",
+					"description": "Assign collection sort",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.AssignCollectionUnique": {
+					"scope": "resource",
+					"description": "Assign collection unique",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ClosureAsLastMethodParameter": {
+					"scope": "resource",
+					"description": "Closure as last method parameter",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.CollectAllIsDeprecated": {
+					"scope": "resource",
+					"description": "Collect all is deprecated",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ConfusingMultipleReturns": {
+					"scope": "resource",
+					"description": "Confusing multiple returns",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitArrayListInstantiation": {
+					"scope": "resource",
+					"description": "Explicit array list instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitCallToAndMethod": {
+					"scope": "resource",
+					"description": "Explicit call to and method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitCallToCompareToMethod": {
+					"scope": "resource",
+					"description": "Explicit call to compare to method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitCallToDivMethod": {
+					"scope": "resource",
+					"description": "Explicit call to div method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitCallToEqualsMethod": {
+					"scope": "resource",
+					"description": "Explicit call to equals method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitCallToGetAtMethod": {
+					"scope": "resource",
+					"description": "Explicit call to get at method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitCallToLeftShiftMethod": {
+					"scope": "resource",
+					"description": "Explicit call to left shift method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitCallToMinusMethod": {
+					"scope": "resource",
+					"description": "Explicit call to minus method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitCallToModMethod": {
+					"scope": "resource",
+					"description": "Explicit call to mod method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitCallToMultiplyMethod": {
+					"scope": "resource",
+					"description": "Explicit call to multiply method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitCallToOrMethod": {
+					"scope": "resource",
+					"description": "Explicit call to or method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitCallToPlusMethod": {
+					"scope": "resource",
+					"description": "Explicit call to plus method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitCallToPowerMethod": {
+					"scope": "resource",
+					"description": "Explicit call to power method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitCallToPutAtMethod": {
+					"scope": "resource",
+					"description": "Explicit call to put at method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitCallToRightShiftMethod": {
+					"scope": "resource",
+					"description": "Explicit call to right shift method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitCallToXorMethod": {
+					"scope": "resource",
+					"description": "Explicit call to xor method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitHashMapInstantiation": {
+					"scope": "resource",
+					"description": "Explicit hash map instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitHashSetInstantiation": {
+					"scope": "resource",
+					"description": "Explicit hash set instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitLinkedHashMapInstantiation": {
+					"scope": "resource",
+					"description": "Explicit linked hash map instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitLinkedListInstantiation": {
+					"scope": "resource",
+					"description": "Explicit linked list instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitStackInstantiation": {
+					"scope": "resource",
+					"description": "Explicit stack instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.ExplicitTreeSetInstantiation": {
+					"scope": "resource",
+					"description": "Explicit tree set instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.GStringAsMapKey": {
+					"scope": "resource",
+					"description": "G string as map key",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.GStringExpressionWithinString": {
+					"scope": "resource",
+					"description": "G string expression within string",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.GetterMethodCouldBeProperty": {
+					"scope": "resource",
+					"description": "Getter method could be property",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.GroovyLangImmutable": {
+					"scope": "resource",
+					"description": "Groovy lang immutable",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.UseCollectMany": {
+					"scope": "resource",
+					"description": "Use collect many",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.groovyism.UseCollectNested": {
+					"scope": "resource",
+					"description": "Use collect nested",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.imports.DuplicateImport": {
+					"scope": "resource",
+					"description": "Duplicate import",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.imports.ImportFromSamePackage": {
+					"scope": "resource",
+					"description": "Import from same package",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.imports.ImportFromSunPackages": {
+					"scope": "resource",
+					"description": "Import from sun packages",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.imports.MisorderedStaticImports": {
+					"scope": "resource",
+					"description": "Misordered static imports",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.imports.NoWildcardImports": {
+					"scope": "resource",
+					"description": "No wildcard imports",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.imports.UnnecessaryGroovyImport": {
+					"scope": "resource",
+					"description": "Unnecessary groovy import",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.jdbc.DirectConnectionManagement": {
+					"scope": "resource",
+					"description": "Direct connection management",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.jdbc.JdbcConnectionReference": {
+					"scope": "resource",
+					"description": "Jdbc connection reference",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.jdbc.JdbcResultSetReference": {
+					"scope": "resource",
+					"description": "Jdbc result set reference",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.jdbc.JdbcStatementReference": {
+					"scope": "resource",
+					"description": "Jdbc statement reference",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.ChainedTest": {
+					"scope": "resource",
+					"description": "Chained test",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.CoupledTestCase": {
+					"scope": "resource",
+					"description": "Coupled test case",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.JUnitAssertAlwaysFails": {
+					"scope": "resource",
+					"description": "J unit assert always fails",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.JUnitAssertAlwaysSucceeds": {
+					"scope": "resource",
+					"description": "J unit assert always succeeds",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.JUnitFailWithoutMessage": {
+					"scope": "resource",
+					"description": "J unit fail without message",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.JUnitLostTest": {
+					"scope": "resource",
+					"description": "J unit lost test",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.JUnitPublicField": {
+					"scope": "resource",
+					"description": "J unit public field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.JUnitPublicNonTestMethod": {
+					"scope": "resource",
+					"description": "J unit public non test method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.JUnitPublicProperty": {
+					"scope": "resource",
+					"description": "J unit public property",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.JUnitSetUpCallsSuper": {
+					"scope": "resource",
+					"description": "J unit set up calls super",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.JUnitStyleAssertions": {
+					"scope": "resource",
+					"description": "J unit style assertions",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.JUnitTearDownCallsSuper": {
+					"scope": "resource",
+					"description": "J unit tear down calls super",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.JUnitTestMethodWithoutAssert": {
+					"scope": "resource",
+					"description": "J unit test method without assert",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.JUnitUnnecessarySetUp": {
+					"scope": "resource",
+					"description": "J unit unnecessary set up",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.JUnitUnnecessaryTearDown": {
+					"scope": "resource",
+					"description": "J unit unnecessary tear down",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.JUnitUnnecessaryThrowsException": {
+					"scope": "resource",
+					"description": "J unit unnecessary throws exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.SpockIgnoreRestUsed": {
+					"scope": "resource",
+					"description": "Spock ignore rest used",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.UnnecessaryFail": {
+					"scope": "resource",
+					"description": "Unnecessary fail",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.UseAssertEqualsInsteadOfAssertTrue": {
+					"scope": "resource",
+					"description": "Use assert equals instead of assert true",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.UseAssertFalseInsteadOfNegation": {
+					"scope": "resource",
+					"description": "Use assert false instead of negation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.UseAssertNullInsteadOfAssertEquals": {
+					"scope": "resource",
+					"description": "Use assert null instead of assert equals",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.UseAssertSameInsteadOfAssertTrue": {
+					"scope": "resource",
+					"description": "Use assert same instead of assert true",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.UseAssertTrueInsteadOfAssertEquals": {
+					"scope": "resource",
+					"description": "Use assert true instead of assert equals",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.junit.UseAssertTrueInsteadOfNegation": {
+					"scope": "resource",
+					"description": "Use assert true instead of negation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.logging.LoggerForDifferentClass": {
+					"scope": "resource",
+					"description": "Logger for different class",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.logging.LoggerWithWrongModifiers": {
+					"scope": "resource",
+					"description": "Logger with wrong modifiers",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.logging.LoggingSwallowsStacktrace": {
+					"scope": "resource",
+					"description": "Logging swallows stacktrace",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.logging.MultipleLoggers": {
+					"scope": "resource",
+					"description": "Multiple loggers",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.logging.PrintStackTrace": {
+					"scope": "resource",
+					"description": "Print stack trace",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.logging.Println": {
+					"scope": "resource",
+					"description": "Println",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.logging.SystemErrPrint": {
+					"scope": "resource",
+					"description": "System err print",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.logging.SystemOutPrint": {
+					"scope": "resource",
+					"description": "System out print",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.naming.AbstractClassName": {
+					"scope": "resource",
+					"description": "Abstract class name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.naming.ClassName": {
+					"scope": "resource",
+					"description": "Class name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.naming.ClassNameSameAsFilename": {
+					"scope": "resource",
+					"description": "Class name same as filename",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.naming.ClassNameSameAsSuperclass": {
+					"scope": "resource",
+					"description": "Class name same as superclass",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.naming.ConfusingMethodName": {
+					"scope": "resource",
+					"description": "Confusing method name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.naming.FactoryMethodName": {
+					"scope": "resource",
+					"description": "Factory method name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.naming.FieldName": {
+					"scope": "resource",
+					"description": "Field name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.naming.InterfaceName": {
+					"scope": "resource",
+					"description": "Interface name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.naming.InterfaceNameSameAsSuperInterface": {
+					"scope": "resource",
+					"description": "Interface name same as super interface",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.naming.MethodName": {
+					"scope": "resource",
+					"description": "Method name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.naming.ObjectOverrideMisspelledMethodName": {
+					"scope": "resource",
+					"description": "Object override misspelled method name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.naming.PackageName": {
+					"scope": "resource",
+					"description": "Package name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.naming.PackageNameMatchesFilePath": {
+					"scope": "resource",
+					"description": "Package name matches file path",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.naming.ParameterName": {
+					"scope": "resource",
+					"description": "Parameter name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.naming.PropertyName": {
+					"scope": "resource",
+					"description": "Property name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.naming.VariableName": {
+					"scope": "resource",
+					"description": "Variable name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.security.FileCreateTempFile": {
+					"scope": "resource",
+					"description": "File create temp file",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.security.InsecureRandom": {
+					"scope": "resource",
+					"description": "Insecure random",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.security.JavaIoPackageAccess": {
+					"scope": "resource",
+					"description": "Java io package access",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.security.NonFinalPublicField": {
+					"scope": "resource",
+					"description": "Non final public field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.security.NonFinalSubclassOfSensitiveInterface": {
+					"scope": "resource",
+					"description": "Non final subclass of sensitive interface",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.security.ObjectFinalize": {
+					"scope": "resource",
+					"description": "Object finalize",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.security.PublicFinalizeMethod": {
+					"scope": "resource",
+					"description": "Public finalize method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.security.SystemExit": {
+					"scope": "resource",
+					"description": "System exit",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.security.UnsafeArrayDeclaration": {
+					"scope": "resource",
+					"description": "Unsafe array declaration",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.serialization.EnumCustomSerializationIgnored": {
+					"scope": "resource",
+					"description": "Enum custom serialization ignored",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.serialization.SerialPersistentFields": {
+					"scope": "resource",
+					"description": "Serial persistent fields",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.serialization.SerialVersionUID": {
+					"scope": "resource",
+					"description": "Serial version u i d",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.serialization.SerializableClassMustDefineSerialVersionUID": {
+					"scope": "resource",
+					"description": "Serializable class must define serial version u i d",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.size.ClassSize": {
+					"scope": "resource",
+					"description": "Class size",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.size.MethodCount": {
+					"scope": "resource",
+					"description": "Method count",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.size.MethodSize": {
+					"scope": "resource",
+					"description": "Method size",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.size.NestedBlockDepth": {
+					"scope": "resource",
+					"description": "Nested block depth",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.size.ParameterCount": {
+					"scope": "resource",
+					"description": "Parameter count",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.AddEmptyString": {
+					"scope": "resource",
+					"description": "Add empty string",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.ConsecutiveLiteralAppends": {
+					"scope": "resource",
+					"description": "Consecutive literal appends",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.ConsecutiveStringConcatenation": {
+					"scope": "resource",
+					"description": "Consecutive string concatenation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryBigDecimalInstantiation": {
+					"scope": "resource",
+					"description": "Unnecessary big decimal instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryBigIntegerInstantiation": {
+					"scope": "resource",
+					"description": "Unnecessary big integer instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryBooleanExpression": {
+					"scope": "resource",
+					"description": "Unnecessary boolean expression",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryBooleanInstantiation": {
+					"scope": "resource",
+					"description": "Unnecessary boolean instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryCallForLastElement": {
+					"scope": "resource",
+					"description": "Unnecessary call for last element",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryCallToSubstring": {
+					"scope": "resource",
+					"description": "Unnecessary call to substring",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryCast": {
+					"scope": "resource",
+					"description": "Unnecessary cast",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryCatchBlock": {
+					"scope": "resource",
+					"description": "Unnecessary catch block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryCollectCall": {
+					"scope": "resource",
+					"description": "Unnecessary collect call",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryCollectionCall": {
+					"scope": "resource",
+					"description": "Unnecessary collection call",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryConstructor": {
+					"scope": "resource",
+					"description": "Unnecessary constructor",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryDefInFieldDeclaration": {
+					"scope": "resource",
+					"description": "Unnecessary def in field declaration",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryDefInMethodDeclaration": {
+					"scope": "resource",
+					"description": "Unnecessary def in method declaration",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryDefInVariableDeclaration": {
+					"scope": "resource",
+					"description": "Unnecessary def in variable declaration",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryDotClass": {
+					"scope": "resource",
+					"description": "Unnecessary dot class",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryDoubleInstantiation": {
+					"scope": "resource",
+					"description": "Unnecessary double instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryElseStatement": {
+					"scope": "resource",
+					"description": "Unnecessary else statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryFinalOnPrivateMethod": {
+					"scope": "resource",
+					"description": "Unnecessary final on private method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryFloatInstantiation": {
+					"scope": "resource",
+					"description": "Unnecessary float instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryGString": {
+					"scope": "resource",
+					"description": "Unnecessary g string",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryGetter": {
+					"scope": "resource",
+					"description": "Unnecessary getter",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryIfStatement": {
+					"scope": "resource",
+					"description": "Unnecessary if statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryInstanceOfCheck": {
+					"scope": "resource",
+					"description": "Unnecessary instance of check",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryInstantiationToGetClass": {
+					"scope": "resource",
+					"description": "Unnecessary instantiation to get class",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryIntegerInstantiation": {
+					"scope": "resource",
+					"description": "Unnecessary integer instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryLongInstantiation": {
+					"scope": "resource",
+					"description": "Unnecessary long instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryModOne": {
+					"scope": "resource",
+					"description": "Unnecessary mod one",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryNullCheck": {
+					"scope": "resource",
+					"description": "Unnecessary null check",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryNullCheckBeforeInstanceOf": {
+					"scope": "resource",
+					"description": "Unnecessary null check before instance of",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryObjectReferences": {
+					"scope": "resource",
+					"description": "Unnecessary object references",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryOverridingMethod": {
+					"scope": "resource",
+					"description": "Unnecessary overriding method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryPackageReference": {
+					"scope": "resource",
+					"description": "Unnecessary package reference",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryParenthesesForMethodCallWithClosure": {
+					"scope": "resource",
+					"description": "Unnecessary parentheses for method call with closure",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryPublicModifier": {
+					"scope": "resource",
+					"description": "Unnecessary public modifier",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryReturnKeyword": {
+					"scope": "resource",
+					"description": "Unnecessary return keyword",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessarySafeNavigationOperator": {
+					"scope": "resource",
+					"description": "Unnecessary safe navigation operator",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessarySelfAssignment": {
+					"scope": "resource",
+					"description": "Unnecessary self assignment",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessarySemicolon": {
+					"scope": "resource",
+					"description": "Unnecessary semicolon",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessarySetter": {
+					"scope": "resource",
+					"description": "Unnecessary setter",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryStringInstantiation": {
+					"scope": "resource",
+					"description": "Unnecessary string instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessarySubstring": {
+					"scope": "resource",
+					"description": "Unnecessary substring",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryTernaryExpression": {
+					"scope": "resource",
+					"description": "Unnecessary ternary expression",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryToString": {
+					"scope": "resource",
+					"description": "Unnecessary to string",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unnecessary.UnnecessaryTransientModifier": {
+					"scope": "resource",
+					"description": "Unnecessary transient modifier",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unused.UnusedArray": {
+					"scope": "resource",
+					"description": "Unused array",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unused.UnusedMethodParameter": {
+					"scope": "resource",
+					"description": "Unused method parameter",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unused.UnusedObject": {
+					"scope": "resource",
+					"description": "Unused object",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unused.UnusedPrivateField": {
+					"scope": "resource",
+					"description": "Unused private field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unused.UnusedPrivateMethod": {
+					"scope": "resource",
+					"description": "Unused private method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unused.UnusedPrivateMethodParameter": {
+					"scope": "resource",
+					"description": "Unused private method parameter",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Groovy.custom.rules.unused.UnusedVariable": {
+					"scope": "resource",
+					"description": "Unused variable",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile": {
 					"scope": "resource",
 					"type": "string",
 					"enum": [
 						"recommended",
+						"same as groovy ruleset",
 						"custom"
 					],
 					"enumDescriptions": [
 						"Default npm-groovy-lint RuleSet-Jenskinsfile",
 						"Custom"
 					],
-					"default": "default",
+					"default": "recommended",
 					"description": "RuleSet to use for Jenkinsfile"
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.AssertWithinFinallyBlock": {
+					"scope": "resource",
+					"description": "Assert within finally block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.AssignmentInConditional": {
+					"scope": "resource",
+					"description": "Assignment in conditional",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.BigDecimalInstantiation": {
+					"scope": "resource",
+					"description": "Big decimal instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.BitwiseOperatorInConditional": {
+					"scope": "resource",
+					"description": "Bitwise operator in conditional",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.BooleanGetBoolean": {
+					"scope": "resource",
+					"description": "Boolean get boolean",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.BrokenNullCheck": {
+					"scope": "resource",
+					"description": "Broken null check",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.BrokenOddnessCheck": {
+					"scope": "resource",
+					"description": "Broken oddness check",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.ClassForName": {
+					"scope": "resource",
+					"description": "Class for name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.ComparisonOfTwoConstants": {
+					"scope": "resource",
+					"description": "Comparison of two constants",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.ComparisonWithSelf": {
+					"scope": "resource",
+					"description": "Comparison with self",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.ConstantAssertExpression": {
+					"scope": "resource",
+					"description": "Constant assert expression",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.ConstantIfExpression": {
+					"scope": "resource",
+					"description": "Constant if expression",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.ConstantTernaryExpression": {
+					"scope": "resource",
+					"description": "Constant ternary expression",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.DeadCode": {
+					"scope": "resource",
+					"description": "Dead code",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.DoubleNegative": {
+					"scope": "resource",
+					"description": "Double negative",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.DuplicateCaseStatement": {
+					"scope": "resource",
+					"description": "Duplicate case statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.DuplicateMapKey": {
+					"scope": "resource",
+					"description": "Duplicate map key",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.DuplicateSetValue": {
+					"scope": "resource",
+					"description": "Duplicate set value",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.EmptyCatchBlock": {
+					"scope": "resource",
+					"description": "Empty catch block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.EmptyClass": {
+					"scope": "resource",
+					"description": "Empty class",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.EmptyElseBlock": {
+					"scope": "resource",
+					"description": "Empty else block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.EmptyFinallyBlock": {
+					"scope": "resource",
+					"description": "Empty finally block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.EmptyForStatement": {
+					"scope": "resource",
+					"description": "Empty for statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.EmptyIfStatement": {
+					"scope": "resource",
+					"description": "Empty if statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.EmptyInstanceInitializer": {
+					"scope": "resource",
+					"description": "Empty instance initializer",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.EmptyMethod": {
+					"scope": "resource",
+					"description": "Empty method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.EmptyStaticInitializer": {
+					"scope": "resource",
+					"description": "Empty static initializer",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.EmptySwitchStatement": {
+					"scope": "resource",
+					"description": "Empty switch statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.EmptySynchronizedStatement": {
+					"scope": "resource",
+					"description": "Empty synchronized statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.EmptyTryBlock": {
+					"scope": "resource",
+					"description": "Empty try block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.EmptyWhileStatement": {
+					"scope": "resource",
+					"description": "Empty while statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.EqualsAndHashCode": {
+					"scope": "resource",
+					"description": "Equals and hash code",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.EqualsOverloaded": {
+					"scope": "resource",
+					"description": "Equals overloaded",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.ExplicitGarbageCollection": {
+					"scope": "resource",
+					"description": "Explicit garbage collection",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.ForLoopShouldBeWhileLoop": {
+					"scope": "resource",
+					"description": "For loop should be while loop",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.HardCodedWindowsFileSeparator": {
+					"scope": "resource",
+					"description": "Hard coded windows file separator",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.HardCodedWindowsRootDirectory": {
+					"scope": "resource",
+					"description": "Hard coded windows root directory",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.IntegerGetInteger": {
+					"scope": "resource",
+					"description": "Integer get integer",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.MultipleUnaryOperators": {
+					"scope": "resource",
+					"description": "Multiple unary operators",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.RandomDoubleCoercedToZero": {
+					"scope": "resource",
+					"description": "Random double coerced to zero",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.RemoveAllOnSelf": {
+					"scope": "resource",
+					"description": "Remove all on self",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.ReturnFromFinallyBlock": {
+					"scope": "resource",
+					"description": "Return from finally block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.basic.ThrowExceptionFromFinallyBlock": {
+					"scope": "resource",
+					"description": "Throw exception from finally block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.braces.ElseBlockBraces": {
+					"scope": "resource",
+					"description": "Else block braces",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.braces.ForStatementBraces": {
+					"scope": "resource",
+					"description": "For statement braces",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.braces.IfStatementBraces": {
+					"scope": "resource",
+					"description": "If statement braces",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.braces.WhileStatementBraces": {
+					"scope": "resource",
+					"description": "While statement braces",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.comments.ClassJavadoc": {
+					"scope": "resource",
+					"description": "Class javadoc",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.comments.JavadocConsecutiveEmptyLines": {
+					"scope": "resource",
+					"description": "Javadoc consecutive empty lines",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.comments.JavadocEmptyAuthorTag": {
+					"scope": "resource",
+					"description": "Javadoc empty author tag",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.comments.JavadocEmptyExceptionTag": {
+					"scope": "resource",
+					"description": "Javadoc empty exception tag",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.comments.JavadocEmptyFirstLine": {
+					"scope": "resource",
+					"description": "Javadoc empty first line",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.comments.JavadocEmptyLastLine": {
+					"scope": "resource",
+					"description": "Javadoc empty last line",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.comments.JavadocEmptyParamTag": {
+					"scope": "resource",
+					"description": "Javadoc empty param tag",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.comments.JavadocEmptyReturnTag": {
+					"scope": "resource",
+					"description": "Javadoc empty return tag",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.comments.JavadocEmptySeeTag": {
+					"scope": "resource",
+					"description": "Javadoc empty see tag",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.comments.JavadocEmptySinceTag": {
+					"scope": "resource",
+					"description": "Javadoc empty since tag",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.comments.JavadocEmptyThrowsTag": {
+					"scope": "resource",
+					"description": "Javadoc empty throws tag",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.comments.JavadocEmptyVersionTag": {
+					"scope": "resource",
+					"description": "Javadoc empty version tag",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.comments.JavadocMissingExceptionDescription": {
+					"scope": "resource",
+					"description": "Javadoc missing exception description",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.comments.JavadocMissingParamDescription": {
+					"scope": "resource",
+					"description": "Javadoc missing param description",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.comments.JavadocMissingThrowsDescription": {
+					"scope": "resource",
+					"description": "Javadoc missing throws description",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.BusyWait": {
+					"scope": "resource",
+					"description": "Busy wait",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.DoubleCheckedLocking": {
+					"scope": "resource",
+					"description": "Double checked locking",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.InconsistentPropertyLocking": {
+					"scope": "resource",
+					"description": "Inconsistent property locking",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.InconsistentPropertySynchronization": {
+					"scope": "resource",
+					"description": "Inconsistent property synchronization",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.NestedSynchronization": {
+					"scope": "resource",
+					"description": "Nested synchronization",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.StaticCalendarField": {
+					"scope": "resource",
+					"description": "Static calendar field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.StaticConnection": {
+					"scope": "resource",
+					"description": "Static connection",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.StaticDateFormatField": {
+					"scope": "resource",
+					"description": "Static date format field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.StaticMatcherField": {
+					"scope": "resource",
+					"description": "Static matcher field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.StaticSimpleDateFormatField": {
+					"scope": "resource",
+					"description": "Static simple date format field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.SynchronizedMethod": {
+					"scope": "resource",
+					"description": "Synchronized method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.SynchronizedOnBoxedPrimitive": {
+					"scope": "resource",
+					"description": "Synchronized on boxed primitive",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.SynchronizedOnGetClass": {
+					"scope": "resource",
+					"description": "Synchronized on get class",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.SynchronizedOnReentrantLock": {
+					"scope": "resource",
+					"description": "Synchronized on reentrant lock",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.SynchronizedOnString": {
+					"scope": "resource",
+					"description": "Synchronized on string",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.SynchronizedOnThis": {
+					"scope": "resource",
+					"description": "Synchronized on this",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.SynchronizedReadObjectMethod": {
+					"scope": "resource",
+					"description": "Synchronized read object method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.SystemRunFinalizersOnExit": {
+					"scope": "resource",
+					"description": "System run finalizers on exit",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.ThisReferenceEscapesConstructor": {
+					"scope": "resource",
+					"description": "This reference escapes constructor",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.ThreadGroup": {
+					"scope": "resource",
+					"description": "Thread group",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.ThreadLocalNotStaticFinal": {
+					"scope": "resource",
+					"description": "Thread local not static final",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.ThreadYield": {
+					"scope": "resource",
+					"description": "Thread yield",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.UseOfNotifyMethod": {
+					"scope": "resource",
+					"description": "Use of notify method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.VolatileArrayField": {
+					"scope": "resource",
+					"description": "Volatile array field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.VolatileLongOrDoubleField": {
+					"scope": "resource",
+					"description": "Volatile long or double field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.concurrency.WaitOutsideOfWhileLoop": {
+					"scope": "resource",
+					"description": "Wait outside of while loop",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.CompileStatic": {
+					"scope": "resource",
+					"description": "Compile static",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.ConfusingTernary": {
+					"scope": "resource",
+					"description": "Confusing ternary",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.CouldBeElvis": {
+					"scope": "resource",
+					"description": "Could be elvis",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.CouldBeSwitchStatement": {
+					"scope": "resource",
+					"description": "Could be switch statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.FieldTypeRequired": {
+					"scope": "resource",
+					"description": "Field type required",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.HashtableIsObsolete": {
+					"scope": "resource",
+					"description": "Hashtable is obsolete",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.IfStatementCouldBeTernary": {
+					"scope": "resource",
+					"description": "If statement could be ternary",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.InvertedCondition": {
+					"scope": "resource",
+					"description": "Inverted condition",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.InvertedIfElse": {
+					"scope": "resource",
+					"description": "Inverted if else",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.LongLiteralWithLowerCaseL": {
+					"scope": "resource",
+					"description": "Long literal with lower case l",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.MethodParameterTypeRequired": {
+					"scope": "resource",
+					"description": "Method parameter type required",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.MethodReturnTypeRequired": {
+					"scope": "resource",
+					"description": "Method return type required",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.NoDef": {
+					"scope": "resource",
+					"description": "No def",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.NoJavaUtilDate": {
+					"scope": "resource",
+					"description": "No java util date",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.NoTabCharacter": {
+					"scope": "resource",
+					"description": "No tab character",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.ParameterReassignment": {
+					"scope": "resource",
+					"description": "Parameter reassignment",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.PublicMethodsBeforeNonPublicMethods": {
+					"scope": "resource",
+					"description": "Public methods before non public methods",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.StaticFieldsBeforeInstanceFields": {
+					"scope": "resource",
+					"description": "Static fields before instance fields",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.StaticMethodsBeforeInstanceMethods": {
+					"scope": "resource",
+					"description": "Static methods before instance methods",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.TernaryCouldBeElvis": {
+					"scope": "resource",
+					"description": "Ternary could be elvis",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.TrailingComma": {
+					"scope": "resource",
+					"description": "Trailing comma",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.VariableTypeRequired": {
+					"scope": "resource",
+					"description": "Variable type required",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.convention.VectorIsObsolete": {
+					"scope": "resource",
+					"description": "Vector is obsolete",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.AbstractClassWithPublicConstructor": {
+					"scope": "resource",
+					"description": "Abstract class with public constructor",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.AbstractClassWithoutAbstractMethod": {
+					"scope": "resource",
+					"description": "Abstract class without abstract method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.AssignmentToStaticFieldFromInstanceMethod": {
+					"scope": "resource",
+					"description": "Assignment to static field from instance method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.BooleanMethodReturnsNull": {
+					"scope": "resource",
+					"description": "Boolean method returns null",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.BuilderMethodWithSideEffects": {
+					"scope": "resource",
+					"description": "Builder method with side effects",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.CloneableWithoutClone": {
+					"scope": "resource",
+					"description": "Cloneable without clone",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.CloseWithoutCloseable": {
+					"scope": "resource",
+					"description": "Close without closeable",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.CompareToWithoutComparable": {
+					"scope": "resource",
+					"description": "Compare to without comparable",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.ConstantsOnlyInterface": {
+					"scope": "resource",
+					"description": "Constants only interface",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.EmptyMethodInAbstractClass": {
+					"scope": "resource",
+					"description": "Empty method in abstract class",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.FinalClassWithProtectedMember": {
+					"scope": "resource",
+					"description": "Final class with protected member",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.ImplementationAsType": {
+					"scope": "resource",
+					"description": "Implementation as type",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.Instanceof": {
+					"scope": "resource",
+					"description": "Instanceof",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.LocaleSetDefault": {
+					"scope": "resource",
+					"description": "Locale set default",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.NestedForLoop": {
+					"scope": "resource",
+					"description": "Nested for loop",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.PrivateFieldCouldBeFinal": {
+					"scope": "resource",
+					"description": "Private field could be final",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.PublicInstanceField": {
+					"scope": "resource",
+					"description": "Public instance field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.ReturnsNullInsteadOfEmptyArray": {
+					"scope": "resource",
+					"description": "Returns null instead of empty array",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.ReturnsNullInsteadOfEmptyCollection": {
+					"scope": "resource",
+					"description": "Returns null instead of empty collection",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.SimpleDateFormatMissingLocale": {
+					"scope": "resource",
+					"description": "Simple date format missing locale",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.StatelessSingleton": {
+					"scope": "resource",
+					"description": "Stateless singleton",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.design.ToStringReturnsNull": {
+					"scope": "resource",
+					"description": "To string returns null",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.dry.DuplicateListLiteral": {
+					"scope": "resource",
+					"description": "Duplicate list literal",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.dry.DuplicateMapLiteral": {
+					"scope": "resource",
+					"description": "Duplicate map literal",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.dry.DuplicateNumberLiteral": {
+					"scope": "resource",
+					"description": "Duplicate number literal",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.dry.DuplicateStringLiteral": {
+					"scope": "resource",
+					"description": "Duplicate string literal",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.enhanced.CloneWithoutCloneable": {
+					"scope": "resource",
+					"description": "Clone without cloneable",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.enhanced.JUnitAssertEqualsConstantActualValue": {
+					"scope": "resource",
+					"description": "J unit assert equals constant actual value",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.enhanced.MissingOverrideAnnotation": {
+					"scope": "resource",
+					"description": "Missing override annotation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.enhanced.UnsafeImplementationAsMap": {
+					"scope": "resource",
+					"description": "Unsafe implementation as map",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.CatchArrayIndexOutOfBoundsException": {
+					"scope": "resource",
+					"description": "Catch array index out of bounds exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.CatchError": {
+					"scope": "resource",
+					"description": "Catch error",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.CatchException": {
+					"scope": "resource",
+					"description": "Catch exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.CatchIllegalMonitorStateException": {
+					"scope": "resource",
+					"description": "Catch illegal monitor state exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.CatchIndexOutOfBoundsException": {
+					"scope": "resource",
+					"description": "Catch index out of bounds exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.CatchNullPointerException": {
+					"scope": "resource",
+					"description": "Catch null pointer exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.CatchRuntimeException": {
+					"scope": "resource",
+					"description": "Catch runtime exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.CatchThrowable": {
+					"scope": "resource",
+					"description": "Catch throwable",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.ConfusingClassNamedException": {
+					"scope": "resource",
+					"description": "Confusing class named exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.ExceptionExtendsError": {
+					"scope": "resource",
+					"description": "Exception extends error",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.ExceptionExtendsThrowable": {
+					"scope": "resource",
+					"description": "Exception extends throwable",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.ExceptionNotThrown": {
+					"scope": "resource",
+					"description": "Exception not thrown",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.MissingNewInThrowStatement": {
+					"scope": "resource",
+					"description": "Missing new in throw statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.ReturnNullFromCatchBlock": {
+					"scope": "resource",
+					"description": "Return null from catch block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.SwallowThreadDeath": {
+					"scope": "resource",
+					"description": "Swallow thread death",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.ThrowError": {
+					"scope": "resource",
+					"description": "Throw error",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.ThrowException": {
+					"scope": "resource",
+					"description": "Throw exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.ThrowNullPointerException": {
+					"scope": "resource",
+					"description": "Throw null pointer exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.ThrowRuntimeException": {
+					"scope": "resource",
+					"description": "Throw runtime exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.exceptions.ThrowThrowable": {
+					"scope": "resource",
+					"description": "Throw throwable",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.BlankLineBeforePackage": {
+					"scope": "resource",
+					"description": "Blank line before package",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.BlockEndsWithBlankLine": {
+					"scope": "resource",
+					"description": "Block ends with blank line",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.BlockStartsWithBlankLine": {
+					"scope": "resource",
+					"description": "Block starts with blank line",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.BracesForClass": {
+					"scope": "resource",
+					"description": "Braces for class",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.BracesForForLoop": {
+					"scope": "resource",
+					"description": "Braces for for loop",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.BracesForIfElse": {
+					"scope": "resource",
+					"description": "Braces for if else",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.BracesForMethod": {
+					"scope": "resource",
+					"description": "Braces for method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.BracesForTryCatchFinally": {
+					"scope": "resource",
+					"description": "Braces for try catch finally",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.ClassEndsWithBlankLine": {
+					"scope": "resource",
+					"description": "Class ends with blank line",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.ClassStartsWithBlankLine": {
+					"scope": "resource",
+					"description": "Class starts with blank line",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.ClosureStatementOnOpeningLineOfMultipleLineClosure": {
+					"scope": "resource",
+					"description": "Closure statement on opening line of multiple line closure",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.ConsecutiveBlankLines": {
+					"scope": "resource",
+					"description": "Consecutive blank lines",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.FileEndsWithoutNewline": {
+					"scope": "resource",
+					"description": "File ends without newline",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.Indentation": {
+					"scope": "resource",
+					"description": "Indentation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.LineLength": {
+					"scope": "resource",
+					"description": "Line length",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.MissingBlankLineAfterImports": {
+					"scope": "resource",
+					"description": "Missing blank line after imports",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.MissingBlankLineAfterPackage": {
+					"scope": "resource",
+					"description": "Missing blank line after package",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.SpaceAfterCatch": {
+					"scope": "resource",
+					"description": "Space after catch",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.SpaceAfterClosingBrace": {
+					"scope": "resource",
+					"description": "Space after closing brace",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.SpaceAfterComma": {
+					"scope": "resource",
+					"description": "Space after comma",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.SpaceAfterFor": {
+					"scope": "resource",
+					"description": "Space after for",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.SpaceAfterIf": {
+					"scope": "resource",
+					"description": "Space after if",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.SpaceAfterOpeningBrace": {
+					"scope": "resource",
+					"description": "Space after opening brace",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.SpaceAfterSemicolon": {
+					"scope": "resource",
+					"description": "Space after semicolon",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.SpaceAfterSwitch": {
+					"scope": "resource",
+					"description": "Space after switch",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.SpaceAfterWhile": {
+					"scope": "resource",
+					"description": "Space after while",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.SpaceAroundClosureArrow": {
+					"scope": "resource",
+					"description": "Space around closure arrow",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.SpaceAroundMapEntryColon": {
+					"scope": "resource",
+					"description": "Space around map entry colon",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.SpaceAroundOperator": {
+					"scope": "resource",
+					"description": "Space around operator",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.SpaceBeforeClosingBrace": {
+					"scope": "resource",
+					"description": "Space before closing brace",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.SpaceBeforeOpeningBrace": {
+					"scope": "resource",
+					"description": "Space before opening brace",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.formatting.TrailingWhitespace": {
+					"scope": "resource",
+					"description": "Trailing whitespace",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.generic.IllegalClassMember": {
+					"scope": "resource",
+					"description": "Illegal class member",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.generic.IllegalClassReference": {
+					"scope": "resource",
+					"description": "Illegal class reference",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.generic.IllegalPackageReference": {
+					"scope": "resource",
+					"description": "Illegal package reference",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.generic.IllegalRegex": {
+					"scope": "resource",
+					"description": "Illegal regex",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.generic.IllegalString": {
+					"scope": "resource",
+					"description": "Illegal string",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.generic.IllegalSubclass": {
+					"scope": "resource",
+					"description": "Illegal subclass",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.generic.RequiredRegex": {
+					"scope": "resource",
+					"description": "Required regex",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.generic.RequiredString": {
+					"scope": "resource",
+					"description": "Required string",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.generic.StatelessClass": {
+					"scope": "resource",
+					"description": "Stateless class",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.grails.GrailsDomainHasEquals": {
+					"scope": "resource",
+					"description": "Grails domain has equals",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.grails.GrailsDomainHasToString": {
+					"scope": "resource",
+					"description": "Grails domain has to string",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.grails.GrailsDomainReservedSqlKeywordName": {
+					"scope": "resource",
+					"description": "Grails domain reserved sql keyword name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.grails.GrailsDomainStringPropertyMaxSize": {
+					"scope": "resource",
+					"description": "Grails domain string property max size",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.grails.GrailsDomainWithServiceReference": {
+					"scope": "resource",
+					"description": "Grails domain with service reference",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.grails.GrailsDuplicateConstraint": {
+					"scope": "resource",
+					"description": "Grails duplicate constraint",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.grails.GrailsDuplicateMapping": {
+					"scope": "resource",
+					"description": "Grails duplicate mapping",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.grails.GrailsMassAssignment": {
+					"scope": "resource",
+					"description": "Grails mass assignment",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.grails.GrailsPublicControllerMethod": {
+					"scope": "resource",
+					"description": "Grails public controller method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.grails.GrailsServletContextReference": {
+					"scope": "resource",
+					"description": "Grails servlet context reference",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.grails.GrailsStatelessService": {
+					"scope": "resource",
+					"description": "Grails stateless service",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.AssignCollectionSort": {
+					"scope": "resource",
+					"description": "Assign collection sort",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.AssignCollectionUnique": {
+					"scope": "resource",
+					"description": "Assign collection unique",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ClosureAsLastMethodParameter": {
+					"scope": "resource",
+					"description": "Closure as last method parameter",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.CollectAllIsDeprecated": {
+					"scope": "resource",
+					"description": "Collect all is deprecated",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ConfusingMultipleReturns": {
+					"scope": "resource",
+					"description": "Confusing multiple returns",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitArrayListInstantiation": {
+					"scope": "resource",
+					"description": "Explicit array list instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitCallToAndMethod": {
+					"scope": "resource",
+					"description": "Explicit call to and method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitCallToCompareToMethod": {
+					"scope": "resource",
+					"description": "Explicit call to compare to method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitCallToDivMethod": {
+					"scope": "resource",
+					"description": "Explicit call to div method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitCallToEqualsMethod": {
+					"scope": "resource",
+					"description": "Explicit call to equals method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitCallToGetAtMethod": {
+					"scope": "resource",
+					"description": "Explicit call to get at method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitCallToLeftShiftMethod": {
+					"scope": "resource",
+					"description": "Explicit call to left shift method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitCallToMinusMethod": {
+					"scope": "resource",
+					"description": "Explicit call to minus method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitCallToModMethod": {
+					"scope": "resource",
+					"description": "Explicit call to mod method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitCallToMultiplyMethod": {
+					"scope": "resource",
+					"description": "Explicit call to multiply method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitCallToOrMethod": {
+					"scope": "resource",
+					"description": "Explicit call to or method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitCallToPlusMethod": {
+					"scope": "resource",
+					"description": "Explicit call to plus method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitCallToPowerMethod": {
+					"scope": "resource",
+					"description": "Explicit call to power method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitCallToPutAtMethod": {
+					"scope": "resource",
+					"description": "Explicit call to put at method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitCallToRightShiftMethod": {
+					"scope": "resource",
+					"description": "Explicit call to right shift method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitCallToXorMethod": {
+					"scope": "resource",
+					"description": "Explicit call to xor method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitHashMapInstantiation": {
+					"scope": "resource",
+					"description": "Explicit hash map instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitHashSetInstantiation": {
+					"scope": "resource",
+					"description": "Explicit hash set instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitLinkedHashMapInstantiation": {
+					"scope": "resource",
+					"description": "Explicit linked hash map instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitLinkedListInstantiation": {
+					"scope": "resource",
+					"description": "Explicit linked list instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitStackInstantiation": {
+					"scope": "resource",
+					"description": "Explicit stack instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.ExplicitTreeSetInstantiation": {
+					"scope": "resource",
+					"description": "Explicit tree set instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.GStringAsMapKey": {
+					"scope": "resource",
+					"description": "G string as map key",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.GStringExpressionWithinString": {
+					"scope": "resource",
+					"description": "G string expression within string",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.GetterMethodCouldBeProperty": {
+					"scope": "resource",
+					"description": "Getter method could be property",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.GroovyLangImmutable": {
+					"scope": "resource",
+					"description": "Groovy lang immutable",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.UseCollectMany": {
+					"scope": "resource",
+					"description": "Use collect many",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.groovyism.UseCollectNested": {
+					"scope": "resource",
+					"description": "Use collect nested",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.imports.DuplicateImport": {
+					"scope": "resource",
+					"description": "Duplicate import",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.imports.ImportFromSamePackage": {
+					"scope": "resource",
+					"description": "Import from same package",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.imports.ImportFromSunPackages": {
+					"scope": "resource",
+					"description": "Import from sun packages",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.imports.MisorderedStaticImports": {
+					"scope": "resource",
+					"description": "Misordered static imports",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.imports.NoWildcardImports": {
+					"scope": "resource",
+					"description": "No wildcard imports",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.imports.UnnecessaryGroovyImport": {
+					"scope": "resource",
+					"description": "Unnecessary groovy import",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.jdbc.DirectConnectionManagement": {
+					"scope": "resource",
+					"description": "Direct connection management",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.jdbc.JdbcConnectionReference": {
+					"scope": "resource",
+					"description": "Jdbc connection reference",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.jdbc.JdbcResultSetReference": {
+					"scope": "resource",
+					"description": "Jdbc result set reference",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.jdbc.JdbcStatementReference": {
+					"scope": "resource",
+					"description": "Jdbc statement reference",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.ChainedTest": {
+					"scope": "resource",
+					"description": "Chained test",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.CoupledTestCase": {
+					"scope": "resource",
+					"description": "Coupled test case",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.JUnitAssertAlwaysFails": {
+					"scope": "resource",
+					"description": "J unit assert always fails",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.JUnitAssertAlwaysSucceeds": {
+					"scope": "resource",
+					"description": "J unit assert always succeeds",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.JUnitFailWithoutMessage": {
+					"scope": "resource",
+					"description": "J unit fail without message",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.JUnitLostTest": {
+					"scope": "resource",
+					"description": "J unit lost test",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.JUnitPublicField": {
+					"scope": "resource",
+					"description": "J unit public field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.JUnitPublicNonTestMethod": {
+					"scope": "resource",
+					"description": "J unit public non test method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.JUnitPublicProperty": {
+					"scope": "resource",
+					"description": "J unit public property",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.JUnitSetUpCallsSuper": {
+					"scope": "resource",
+					"description": "J unit set up calls super",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.JUnitStyleAssertions": {
+					"scope": "resource",
+					"description": "J unit style assertions",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.JUnitTearDownCallsSuper": {
+					"scope": "resource",
+					"description": "J unit tear down calls super",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.JUnitTestMethodWithoutAssert": {
+					"scope": "resource",
+					"description": "J unit test method without assert",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.JUnitUnnecessarySetUp": {
+					"scope": "resource",
+					"description": "J unit unnecessary set up",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.JUnitUnnecessaryTearDown": {
+					"scope": "resource",
+					"description": "J unit unnecessary tear down",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.JUnitUnnecessaryThrowsException": {
+					"scope": "resource",
+					"description": "J unit unnecessary throws exception",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.SpockIgnoreRestUsed": {
+					"scope": "resource",
+					"description": "Spock ignore rest used",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.UnnecessaryFail": {
+					"scope": "resource",
+					"description": "Unnecessary fail",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.UseAssertEqualsInsteadOfAssertTrue": {
+					"scope": "resource",
+					"description": "Use assert equals instead of assert true",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.UseAssertFalseInsteadOfNegation": {
+					"scope": "resource",
+					"description": "Use assert false instead of negation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.UseAssertNullInsteadOfAssertEquals": {
+					"scope": "resource",
+					"description": "Use assert null instead of assert equals",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.UseAssertSameInsteadOfAssertTrue": {
+					"scope": "resource",
+					"description": "Use assert same instead of assert true",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.UseAssertTrueInsteadOfAssertEquals": {
+					"scope": "resource",
+					"description": "Use assert true instead of assert equals",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.junit.UseAssertTrueInsteadOfNegation": {
+					"scope": "resource",
+					"description": "Use assert true instead of negation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.logging.LoggerForDifferentClass": {
+					"scope": "resource",
+					"description": "Logger for different class",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.logging.LoggerWithWrongModifiers": {
+					"scope": "resource",
+					"description": "Logger with wrong modifiers",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.logging.LoggingSwallowsStacktrace": {
+					"scope": "resource",
+					"description": "Logging swallows stacktrace",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.logging.MultipleLoggers": {
+					"scope": "resource",
+					"description": "Multiple loggers",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.logging.PrintStackTrace": {
+					"scope": "resource",
+					"description": "Print stack trace",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.logging.Println": {
+					"scope": "resource",
+					"description": "Println",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.logging.SystemErrPrint": {
+					"scope": "resource",
+					"description": "System err print",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.logging.SystemOutPrint": {
+					"scope": "resource",
+					"description": "System out print",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.naming.AbstractClassName": {
+					"scope": "resource",
+					"description": "Abstract class name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.naming.ClassName": {
+					"scope": "resource",
+					"description": "Class name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.naming.ClassNameSameAsFilename": {
+					"scope": "resource",
+					"description": "Class name same as filename",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.naming.ClassNameSameAsSuperclass": {
+					"scope": "resource",
+					"description": "Class name same as superclass",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.naming.ConfusingMethodName": {
+					"scope": "resource",
+					"description": "Confusing method name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.naming.FactoryMethodName": {
+					"scope": "resource",
+					"description": "Factory method name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.naming.FieldName": {
+					"scope": "resource",
+					"description": "Field name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.naming.InterfaceName": {
+					"scope": "resource",
+					"description": "Interface name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.naming.InterfaceNameSameAsSuperInterface": {
+					"scope": "resource",
+					"description": "Interface name same as super interface",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.naming.MethodName": {
+					"scope": "resource",
+					"description": "Method name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.naming.ObjectOverrideMisspelledMethodName": {
+					"scope": "resource",
+					"description": "Object override misspelled method name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.naming.PackageName": {
+					"scope": "resource",
+					"description": "Package name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.naming.PackageNameMatchesFilePath": {
+					"scope": "resource",
+					"description": "Package name matches file path",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.naming.ParameterName": {
+					"scope": "resource",
+					"description": "Parameter name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.naming.PropertyName": {
+					"scope": "resource",
+					"description": "Property name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.naming.VariableName": {
+					"scope": "resource",
+					"description": "Variable name",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.security.FileCreateTempFile": {
+					"scope": "resource",
+					"description": "File create temp file",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.security.InsecureRandom": {
+					"scope": "resource",
+					"description": "Insecure random",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.security.JavaIoPackageAccess": {
+					"scope": "resource",
+					"description": "Java io package access",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.security.NonFinalPublicField": {
+					"scope": "resource",
+					"description": "Non final public field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.security.NonFinalSubclassOfSensitiveInterface": {
+					"scope": "resource",
+					"description": "Non final subclass of sensitive interface",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.security.ObjectFinalize": {
+					"scope": "resource",
+					"description": "Object finalize",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.security.PublicFinalizeMethod": {
+					"scope": "resource",
+					"description": "Public finalize method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.security.SystemExit": {
+					"scope": "resource",
+					"description": "System exit",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.security.UnsafeArrayDeclaration": {
+					"scope": "resource",
+					"description": "Unsafe array declaration",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.serialization.EnumCustomSerializationIgnored": {
+					"scope": "resource",
+					"description": "Enum custom serialization ignored",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.serialization.SerialPersistentFields": {
+					"scope": "resource",
+					"description": "Serial persistent fields",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.serialization.SerialVersionUID": {
+					"scope": "resource",
+					"description": "Serial version u i d",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.serialization.SerializableClassMustDefineSerialVersionUID": {
+					"scope": "resource",
+					"description": "Serializable class must define serial version u i d",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.size.ClassSize": {
+					"scope": "resource",
+					"description": "Class size",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.size.MethodCount": {
+					"scope": "resource",
+					"description": "Method count",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.size.MethodSize": {
+					"scope": "resource",
+					"description": "Method size",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.size.NestedBlockDepth": {
+					"scope": "resource",
+					"description": "Nested block depth",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.size.ParameterCount": {
+					"scope": "resource",
+					"description": "Parameter count",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.AddEmptyString": {
+					"scope": "resource",
+					"description": "Add empty string",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.ConsecutiveLiteralAppends": {
+					"scope": "resource",
+					"description": "Consecutive literal appends",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.ConsecutiveStringConcatenation": {
+					"scope": "resource",
+					"description": "Consecutive string concatenation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryBigDecimalInstantiation": {
+					"scope": "resource",
+					"description": "Unnecessary big decimal instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryBigIntegerInstantiation": {
+					"scope": "resource",
+					"description": "Unnecessary big integer instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryBooleanExpression": {
+					"scope": "resource",
+					"description": "Unnecessary boolean expression",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryBooleanInstantiation": {
+					"scope": "resource",
+					"description": "Unnecessary boolean instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryCallForLastElement": {
+					"scope": "resource",
+					"description": "Unnecessary call for last element",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryCallToSubstring": {
+					"scope": "resource",
+					"description": "Unnecessary call to substring",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryCast": {
+					"scope": "resource",
+					"description": "Unnecessary cast",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryCatchBlock": {
+					"scope": "resource",
+					"description": "Unnecessary catch block",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryCollectCall": {
+					"scope": "resource",
+					"description": "Unnecessary collect call",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryCollectionCall": {
+					"scope": "resource",
+					"description": "Unnecessary collection call",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryConstructor": {
+					"scope": "resource",
+					"description": "Unnecessary constructor",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryDefInFieldDeclaration": {
+					"scope": "resource",
+					"description": "Unnecessary def in field declaration",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryDefInMethodDeclaration": {
+					"scope": "resource",
+					"description": "Unnecessary def in method declaration",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryDefInVariableDeclaration": {
+					"scope": "resource",
+					"description": "Unnecessary def in variable declaration",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryDotClass": {
+					"scope": "resource",
+					"description": "Unnecessary dot class",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryDoubleInstantiation": {
+					"scope": "resource",
+					"description": "Unnecessary double instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryElseStatement": {
+					"scope": "resource",
+					"description": "Unnecessary else statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryFinalOnPrivateMethod": {
+					"scope": "resource",
+					"description": "Unnecessary final on private method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryFloatInstantiation": {
+					"scope": "resource",
+					"description": "Unnecessary float instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryGString": {
+					"scope": "resource",
+					"description": "Unnecessary g string",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryGetter": {
+					"scope": "resource",
+					"description": "Unnecessary getter",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryIfStatement": {
+					"scope": "resource",
+					"description": "Unnecessary if statement",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryInstanceOfCheck": {
+					"scope": "resource",
+					"description": "Unnecessary instance of check",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryInstantiationToGetClass": {
+					"scope": "resource",
+					"description": "Unnecessary instantiation to get class",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryIntegerInstantiation": {
+					"scope": "resource",
+					"description": "Unnecessary integer instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryLongInstantiation": {
+					"scope": "resource",
+					"description": "Unnecessary long instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryModOne": {
+					"scope": "resource",
+					"description": "Unnecessary mod one",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryNullCheck": {
+					"scope": "resource",
+					"description": "Unnecessary null check",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryNullCheckBeforeInstanceOf": {
+					"scope": "resource",
+					"description": "Unnecessary null check before instance of",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryObjectReferences": {
+					"scope": "resource",
+					"description": "Unnecessary object references",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryOverridingMethod": {
+					"scope": "resource",
+					"description": "Unnecessary overriding method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryPackageReference": {
+					"scope": "resource",
+					"description": "Unnecessary package reference",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryParenthesesForMethodCallWithClosure": {
+					"scope": "resource",
+					"description": "Unnecessary parentheses for method call with closure",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryPublicModifier": {
+					"scope": "resource",
+					"description": "Unnecessary public modifier",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryReturnKeyword": {
+					"scope": "resource",
+					"description": "Unnecessary return keyword",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessarySafeNavigationOperator": {
+					"scope": "resource",
+					"description": "Unnecessary safe navigation operator",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessarySelfAssignment": {
+					"scope": "resource",
+					"description": "Unnecessary self assignment",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessarySemicolon": {
+					"scope": "resource",
+					"description": "Unnecessary semicolon",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessarySetter": {
+					"scope": "resource",
+					"description": "Unnecessary setter",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryStringInstantiation": {
+					"scope": "resource",
+					"description": "Unnecessary string instantiation",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessarySubstring": {
+					"scope": "resource",
+					"description": "Unnecessary substring",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryTernaryExpression": {
+					"scope": "resource",
+					"description": "Unnecessary ternary expression",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryToString": {
+					"scope": "resource",
+					"description": "Unnecessary to string",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unnecessary.UnnecessaryTransientModifier": {
+					"scope": "resource",
+					"description": "Unnecessary transient modifier",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unused.UnusedArray": {
+					"scope": "resource",
+					"description": "Unused array",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unused.UnusedMethodParameter": {
+					"scope": "resource",
+					"description": "Unused method parameter",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unused.UnusedObject": {
+					"scope": "resource",
+					"description": "Unused object",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unused.UnusedPrivateField": {
+					"scope": "resource",
+					"description": "Unused private field",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unused.UnusedPrivateMethod": {
+					"scope": "resource",
+					"description": "Unused private method",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unused.UnusedPrivateMethodParameter": {
+					"scope": "resource",
+					"description": "Unused private method parameter",
+					"type": "boolean",
+					"default": true
+				},
+				"groovyLint.ruleset.Jenkinsfile.custom.rules.unused.UnusedVariable": {
+					"scope": "resource",
+					"description": "Unused variable",
+					"type": "boolean",
+					"default": true
 				}
 			}
 		}
-	},
-	"scripts": {
-		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
-		"compile": "tsc -b",
-		"watch": "tsc -b -w",
-		"lint": "eslint client/src --ext ts && eslint server/src --ext ts",
-		"lint:fix": "eslint client/src --ext ts --fix && eslint server/src --ext ts --fix",
-		"pretest": "npm run compile && npm run lint",
-		"test": "node ./out/test/runTest.js",
-		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
-	},
-	"devDependencies": {
-		"@types/glob": "^7.1.1",
-		"@types/mocha": "^7.0.1",
-		"@types/node": "^12.11.7",
-		"eslint": "^6.8.0",
-		"@typescript-eslint/parser": "^2.18.0",
-		"@typescript-eslint/eslint-plugin": "^2.18.0",
-		"glob": "^7.1.6",
-		"mocha": "^7.0.1",
-		"typescript": "^3.7.5",
-		"vscode-test": "^1.3.0"
-	},
-	"dependencies": {}
+	}
 }
