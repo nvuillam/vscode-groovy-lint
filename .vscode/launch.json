@@ -10,6 +10,9 @@
 			"args": [
 				"--extensionDevelopmentPath=${workspaceRoot}"
 			],
+			"env": {
+				"DEBUG": "vscode-groovy-lint,npm-groovy-lint"
+			},
 			"outFiles": [
 				"${workspaceRoot}/client/out/**/*.js"
 			],
@@ -39,6 +42,9 @@
 				"--extensionTestsPath=${workspaceRoot}/client/out/test",
 				"${workspaceRoot}/client/testFixture"
 			],
+			"env": {
+				"DEBUG": "vscode-groovy-lint,npm-groovy-lint"
+			},
 			"outFiles": [
 				"${workspaceRoot}/client/out/test/**/*.js"
 			]

@@ -1,11 +1,12 @@
 /* eslint-disable eqeqeq */
 import { Command, Diagnostic, DiagnosticSeverity, ShowMessageRequestParams, MessageType, NotificationType } from 'vscode-languageserver';
-import { TextDocument, DocumentUri } from 'vscode-languageserver-textdocument';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
 
 import { DocumentsManager } from './DocumentsManager';
 import { applyTextDocumentEditOnWorkspace } from './clientUtils';
 const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
+const debug = require("debug")("vscode-groovy-lint");
 const { performance } = require('perf_hooks');
 
 // Status notifications
@@ -26,15 +27,19 @@ namespace StatusNotification {
 // Create commands
 const COMMAND_LINT = Command.create('GroovyLint: Lint', 'groovyLint.lint');
 const COMMAND_LINT_FIX = Command.create('GroovyLint: Lint and fix all', 'groovyLint.lintFix');
-const COMMAND_LINT_QUICKFIX = Command.create('GroovyLint: Lint and fix all', 'groovyLint.quickFix');
+const COMMAND_LINT_QUICKFIX = Command.create('GroovyLint: Quick fix', 'groovyLint.quickFix');
+const COMMAND_LINT_QUICKFIX_FILE = Command.create('GroovyLint: Quick fix in file', 'groovyLint.quickFixFile');
 const COMMAND_SUPPRESS_WARNING_LINE = Command.create('GroovyLint: Ignore this error', 'groovyLint.addSuppressWarning');
-const COMMAND_SUPPRESS_WARNING_FILE = Command.create('GroovyLint: Ignore this error type in all file', 'groovyLint.addSuppressWarningFile');
+const COMMAND_SUPPRESS_WARNING_FILE = Command.create('GroovyLint: Ignore this error in file', 'groovyLint.addSuppressWarningFile');
+const COMMAND_IGNORE_ERROR_FOR_ALL_FILES = Command.create('GroovyLint: Ignore this error in all files', 'groovyLint.alwaysIgnoreError');
 export const commands = [
 	COMMAND_LINT,
 	COMMAND_LINT_FIX,
 	COMMAND_LINT_QUICKFIX,
+	COMMAND_LINT_QUICKFIX_FILE,
 	COMMAND_SUPPRESS_WARNING_LINE,
-	COMMAND_SUPPRESS_WARNING_FILE
+	COMMAND_SUPPRESS_WARNING_FILE,
+	COMMAND_IGNORE_ERROR_FOR_ALL_FILES
 ];
 
 // Validate a groovy file
@@ -47,6 +52,9 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		return;
 	}
 
+	// In case lint was queues, get most recent version of textDocument
+	textDocument = docManager.getUpToDateTextDocument(textDocument);
+
 	// Propose to replace tabs by spaces if there are, because CodeNarc hates tabs :/
 	let source: string = textDocument.getText();
 	let fileNm = path.basename(textDocument.uri);
@@ -55,6 +63,9 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	if (source === 'cancel') {
 		return;
 	}
+
+	// Remove already existing diagnostics
+	await docManager.resetDiagnostics(textDocument.uri);
 
 	// Build NmpGroovyLint config
 	const npmGroovyLintConfig = {
@@ -67,6 +78,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 
 	// Process NpmGroovyLint
 	const linter = new NpmGroovyLint(npmGroovyLintConfig, {});
+	debug(`Start linting ${textDocument.uri}`);
 	docManager.connection.sendNotification(StatusNotification.type, {
 		state: 'lint.start' + ((opts.fix === true) ? '.fix' : ''),
 		documents: [{ documentUri: textDocument.uri }],
@@ -78,6 +90,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		docManager.setDocLinter(textDocument.uri, linter);
 	} catch (e) {
 		console.error('VsCode Groovy Lint error: ' + e.message + '\n' + e.stack);
+		debug(`Error linting ${textDocument.uri}` + e.message + '\n' + e.stack);
 		docManager.connection.sendNotification(StatusNotification.type, {
 			state: 'lint.error',
 			documents: [{ documentUri: textDocument.uri }],
@@ -85,13 +98,14 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		});
 		return;
 	}
+	debug(`Completed linting ${textDocument.uri} in ${(performance.now() - perfStart).toFixed(0)}`);
 
 	// Parse results
 	const lintResults = linter.lintResult || {};
 	const diagnostics: Diagnostic[] = parseLinterResultsIntoDiagnostics(lintResults, source, textDocument, docManager);
 
 	// Send diagnostics to client
-	docManager.updateDiagnostics(textDocument.uri, diagnostics);
+	await docManager.updateDiagnostics(textDocument.uri, diagnostics);
 
 	// Send updated sources to client 
 	if (opts.fix === true && linter.status === 0) {
@@ -118,6 +132,7 @@ export function parseLinterResultsIntoDiagnostics(lintResults: any, source: stri
 	// Build diagnostics
 	let diagnostics: Diagnostic[] = [];
 	const docQuickFixes: any = {};
+	debug(`Parsing results of ${textDocument.uri} (${Object.keys(lintResults.files).length} in lintResults)`);
 	if (lintResults.files && lintResults.files[0] && lintResults.files[0].errors) {
 		// Get each error for the file
 		let pos = 0;
@@ -217,6 +232,7 @@ async function manageFixSourceBeforeCallingLinter(source: string, textDocument: 
 			const replaceChars = " ".repeat(docManager.indentLength);
 			source = source.replace(/\t/g, replaceChars);
 			await applyTextDocumentEditOnWorkspace(docManager, textDocument, source);
+			debug(`Replaces tabs by spaces in ${textDocument.uri}`);
 		}
 	}
 	return source;

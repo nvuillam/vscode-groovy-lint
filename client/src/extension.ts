@@ -44,7 +44,10 @@ export function activate(context: ExtensionContext) {
 		debug: {
 			module: serverModule,
 			transport: TransportKind.ipc,
-			options: { execArgv: ['--nolazy', '--inspect=6009'] }
+			options: {
+				execArgv: ['--nolazy', '--inspect=6009'],
+				env: { "DEBUG": "vscode-groovy-lint,npm-groovy-lint" }
+			}
 		}
 	};
 	// Options to control the language client
