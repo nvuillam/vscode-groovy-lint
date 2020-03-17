@@ -29,10 +29,12 @@
   "homepage": "https://github.com/nvuillam/vscode-groovy-lint#readme",
   "dependencies": {
     "debug": "^4.1.1",
-    "npm-groovy-lint": "^3.0.0-beta.7",
+    "fs-extra": "^8.1.0",
+    "npm-groovy-lint": "^3.0.1-beta.4",
     "vscode-languageserver": "^6.1.1"
   },
   "devDependencies": {
+    "@types/fs-extra": "^8.1.0",
     "vscode-languageserver-textdocument": "^1.0.1"
   }
 }

@@ -219,7 +219,21 @@ async function manageFixSourceBeforeCallingLinter(source: string, textDocument: 
 					{ title: "No" },
 					{ title: "Never" }]
 			};
-			let req: any = await docManager.connection.sendRequest('window/showMessageRequest', msg);
+			let req: any;
+			let msgResponseReceived = false;
+			// When message box closes after no action, Promise is never fullfilled, so track that case to unlock linter queue
+			setTimeout(async () => {
+				if (msgResponseReceived === false) {
+					await docManager.cancelDocumentValidation(textDocument.uri);
+				}
+			}, 10000);
+			try {
+				req = await docManager.connection.sendRequest('window/showMessageRequest', msg);
+				msgResponseReceived = true;
+			} catch (e) {
+				debug('No response from showMessageRequest: ' + e.message);
+				req = null;
+			}
 			if (req == null) {
 				return 'cancel';
 			} else if (req.title === "Always (recommended)") {

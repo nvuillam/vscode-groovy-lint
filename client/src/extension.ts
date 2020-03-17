@@ -6,8 +6,7 @@ import {
 	LanguageClientOptions,
 	ServerOptions,
 	TransportKind,
-	NotificationType,
-	TextDocument
+	NotificationType
 } from 'vscode-languageclient';
 
 const DIAGNOSTICS_COLLECTION_NAME = 'GroovyLint';
@@ -72,10 +71,8 @@ export function activate(context: ExtensionContext) {
 
 	// Manage status bar item
 	statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-	statusBarItem.command = 'groovyLint.lint';
-	statusBarItem.text = 'GroovyLint $(zap)';
+	statusBarItem.text = 'Starting GroovyLint $(clock~spin)';
 	statusBarItem.show();
-	context.subscriptions.push(statusBarItem);
 
 	client.registerProposedFeatures();
 
@@ -86,10 +83,24 @@ export function activate(context: ExtensionContext) {
 	// Actions after client is ready
 	client.onReady().then(() => {
 
+		// Show status bar item to display & run groovy lint
+		statusBarItem.command = 'groovyLint.lint';
+		statusBarItem.text = 'GroovyLint $(zap)';
+
+		context.subscriptions.push(statusBarItem);
+
 		// Manage status notifications
 		client.onNotification(StatusNotification.type, (status) => {
 			updateClient(status);
 		});
+
+		// Open file in workspace when language server requests it
+		client.onNotification("vscode-groovy-lint/openDocument", async (notifParams: any) => {
+			const openPath = vscode.Uri.parse("file:///" + notifParams.file); //A request file path
+			const doc = await vscode.workspace.openTextDocument(openPath);
+			await vscode.window.showTextDocument(doc);
+		});
+
 	});
 }
 
@@ -112,7 +123,7 @@ async function updateClient(status: StatusParams): Promise<any> {
 		statusBarItem.color = new vscode.ThemeColor('statusBar.debuggingForeground');
 	}
 	else if (status.state === 'lint.start.fix') {
-		statusBarItem.text = `GroovyLint $(sync~spin)`;
+		statusBarItem.text = `GroovyLint $(circuit-board~spin)`;
 		statusBarItem.tooltip = 'GroovyLint is fixing ' + status.lastFileName;
 		statusBarItem.color = new vscode.ThemeColor('statusBar.debuggingForeground');
 	}
@@ -129,4 +140,3 @@ async function updateClient(status: StatusParams): Promise<any> {
 		statusBarItem.color = new vscode.ThemeColor('errorForeground');
 	}
 }
-

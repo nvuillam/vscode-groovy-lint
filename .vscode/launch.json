@@ -19,7 +19,11 @@
 			"preLaunchTask": {
 				"type": "npm",
 				"script": "watch"
-			}
+			},
+			"smartStep": true,
+			"skipFiles": [
+				"<node_internals>/**"
+			]
 		},
 		{
 			"type": "node",
@@ -29,6 +33,10 @@
 			"restart": true,
 			"outFiles": [
 				"${workspaceRoot}/server/out/**/*.js"
+			],
+			"smartStep": true,
+			"skipFiles": [
+				"<node_internals>/**"
 			],
 			"timeout": 60000
 		},
@@ -47,6 +55,10 @@
 			},
 			"outFiles": [
 				"${workspaceRoot}/client/out/test/**/*.js"
+			],
+			"smartStep": true,
+			"skipFiles": [
+				"<node_internals>/**"
 			]
 		}
 	],

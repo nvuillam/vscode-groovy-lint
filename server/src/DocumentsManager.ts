@@ -1,7 +1,7 @@
 import { TextDocuments, Diagnostic } from 'vscode-languageserver';
 import { TextDocument, DocumentUri } from 'vscode-languageserver-textdocument';
 import { executeLinter } from './linter';
-import { applyQuickFixes, applyQuickFixesInFile, addSuppressWarning } from './codeActions';
+import { applyQuickFixes, applyQuickFixesInFile, addSuppressWarning, alwaysIgnoreError } from './codeActions';
 const debug = require("debug")("vscode-groovy-lint");
 
 // Usable settings
@@ -61,6 +61,10 @@ export class DocumentsManager {
 		else if (params.command === 'groovyLint.addSuppressWarningFile') {
 			const [diagnostic, textDocumentUri] = params.arguments!;
 			await addSuppressWarning(diagnostic, textDocumentUri, 'file', this);
+		}
+		else if (params.command === 'groovyLint.alwaysIgnoreError') {
+			const [diagnostic, textDocumentUri] = params.arguments!;
+			await alwaysIgnoreError(diagnostic, textDocumentUri, this);
 		}
 	}
 
@@ -134,6 +138,15 @@ export class DocumentsManager {
 			debug(`${textDocument.uri} is already being linted: add request in queue`);
 		}
 
+	}
+
+	// Cancels a document validation
+	async cancelDocumentValidation(textDocumentUri: string) {
+		// Remove duplicates in queue ( ref: https://stackoverflow.com/a/56757215/7113625 )
+		this.queuedLints = this.queuedLints.filter((v, i, a) => a.findIndex(t => (JSON.stringify(t) === JSON.stringify(v))) === i);
+		this.queuedLints = this.queuedLints.filter((queuedLint) => queuedLint.uri !== textDocumentUri);
+		// Find currently linted document
+		this.currentlyLinted = this.currentlyLinted.filter((currLinted) => currLinted.uri !== textDocumentUri);
 	}
 
 	// Return quick fixes associated to a document

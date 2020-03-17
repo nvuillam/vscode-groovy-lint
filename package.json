@@ -144,24 +144,10 @@
 					"default": false,
 					"description": "Verbose logs"
 				},
-				"groovyLint.ruleset.origin": {
+				"groovyLint.basic.config": {
 					"scope": "resource",
 					"type": "string",
-					"enum": [
-						"default",
-						"custom"
-					],
-					"enumDescriptions": [
-						"Project .groovylintrc.js/json/yml/package.json config file, or default npm-groovy-lint config if not defined",
-						"Custom (set config parameter Ruleset File)"
-					],
-					"default": "recommended",
-					"description": "RuleSet to use for Groovy files"
-				},
-				"groovyLint.ruleset.file": {
-					"scope": "resource",
-					"type": "string",
-					"description": "If custom ruleset, path to the json config file"
+					"description": "Override Config file to use for linter"
 				}
 			}
 		}
