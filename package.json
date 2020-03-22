@@ -5,7 +5,7 @@
 	"publisher": "NicolasVuillamy",
 	"version": "0.2.0",
 	"license": "MIT",
-	"icon": "./images/icon.png",
+	"icon": "icon.png",
 	"engines": {
 		"vscode": "^1.42.0"
 	},
