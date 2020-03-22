@@ -6,6 +6,8 @@ This extension is based on [npm-groovy-lint](https://github.com/nvuillam/npm-gro
 
 Autofixing is still experimental, please post an [issue](https://github.com/nvuillam/vscode-groovy-lint/issues) if you detect any problem
 
+![https://github.com/nvuillam/vscode-groovy-lint/raw/master/images/screenshot.png](https://github.com/nvuillam/vscode-groovy-lint/raw/master/images/screenshot.png)
+
 ## Features
 
 | Command                         | Description                                                                                    | Access                                                                                                   |
@@ -32,9 +34,15 @@ Autofixing is still experimental, please post an [issue](https://github.com/nvui
 As CodeNarc is runned in background with java/groovy, performances could be improved on large files (do not hesitate to provide advices !)
 But do not worry, as the groovy linting is provided by a background local server, your VsCode won't be slowed
 
+## Contribute
+
+Contributions are very welcome on :
+- [VsCode Groovy Lint](https://github.com/nvuillam/vscode-groovy-lint)
+- [NPM Groovy Lint](https://github.com/nvuillam/npm-groovy-lint) (linter called by this extension)
+
 ## Release Notes
 
-### 0.1.0
+### 0.3.0
 
 Initial release of VsCode Groovy Lint
 
