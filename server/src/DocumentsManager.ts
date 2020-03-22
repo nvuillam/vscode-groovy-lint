@@ -15,6 +15,8 @@ export class DocumentsManager {
 	documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 	// connection to client
 	connection: any;
+	// Counter for job id
+	currentTaskId: number = 0;
 
 	indentLength = 4; // TODO: Nice to set as config later... when we'll be able to generate RuleSets from vsCode config
 	autoFixTabs = false;
@@ -169,6 +171,11 @@ export class DocumentsManager {
 	// Delete stored doc linter
 	deleteDocLinter(textDocumentUri: string) {
 		this.docLinters.delete(textDocumentUri);
+	}
+	// Get task id from counter
+	getNewTaskId() {
+		this.currentTaskId++;
+		return this.currentTaskId;
 	}
 
 	// If document has been updated during an operation, get its most recent state

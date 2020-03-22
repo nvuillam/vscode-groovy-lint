@@ -12,11 +12,11 @@ import {
 import { isNullOrUndefined } from "util";
 import * as fse from "fs-extra";
 import { DocumentsManager } from './DocumentsManager';
-import { applyTextDocumentEditOnWorkspace } from './clientUtils';
+import { applyTextDocumentEditOnWorkspace, getUpdatedSource } from './clientUtils';
 import { parseLinterResultsIntoDiagnostics } from './linter';
 const debug = require("debug")("vscode-groovy-lint");
 
-const lintAgainAfterQuickFix: boolean = false; // Lint after fix is performed by npm-groovy-lint fixer
+const lintAgainAfterQuickFix: boolean = true; // Lint after fix is performed by npm-groovy-lint fixer
 
 // Status notifications
 interface StatusParams {
@@ -70,11 +70,11 @@ function createQuickFixCodeActions(diagnostic: Diagnostic, quickFix: any, textDo
 
 	// Quick fix only this error
 	const quickFixAction: CodeAction = {
-		title: quickFix.label,
+		title: 'Fix: ' + quickFix.label,
 		kind: CodeActionKind.QuickFix,
 		command: {
 			command: 'groovyLint.quickFix',
-			title: quickFix.label,
+			title: 'Fix: ' + quickFix.label,
 			arguments: [diagnostic, textDocumentUri]
 		},
 		diagnostics: [diagnostic],
@@ -84,11 +84,11 @@ function createQuickFixCodeActions(diagnostic: Diagnostic, quickFix: any, textDo
 
 	// Quick fix error in file
 	const quickFixActionAllFile: CodeAction = {
-		title: quickFix.label + ' in file',
+		title: 'Fix: ' + quickFix.label + ' in file',
 		kind: CodeActionKind.QuickFix,
 		command: {
 			command: 'groovyLint.quickFixFile',
-			title: quickFix.label + ' in file',
+			title: 'Fix: ' + quickFix.label + ' in file',
 			arguments: [diagnostic, textDocumentUri]
 		},
 		diagnostics: [diagnostic],
@@ -173,7 +173,7 @@ export async function applyQuickFixes(diagnostics: Diagnostic[], textDocumentUri
 	await docLinter.fixErrors(errorIds);
 	if (docLinter.status === 0) {
 		// Apply updates to textDocument
-		await applyTextDocumentEditOnWorkspace(docManager, textDocument, docLinter.lintResult.files[0].updatedSource);
+		await applyTextDocumentEditOnWorkspace(docManager, textDocument, getUpdatedSource(docLinter, textDocument.getText()));
 
 		if (lintAgainAfterQuickFix === true) {
 			await docManager.validateTextDocument(textDocument);
@@ -181,7 +181,8 @@ export async function applyQuickFixes(diagnostics: Diagnostic[], textDocumentUri
 		else {
 			// NV: Faster but experimental... does not work that much so let's lint again after a fix
 			const diagnostics: Diagnostic[] = parseLinterResultsIntoDiagnostics(docLinter.lintResult,
-				docLinter.lintResult.files[0].updatedSource, textDocument, docManager);
+				getUpdatedSource(docLinter, textDocument.getText()),
+				textDocument, docManager);
 			// Send diagnostics to client
 			await docManager.updateDiagnostics(textDocument.uri, diagnostics);
 		}

@@ -4,13 +4,14 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
 
 import { DocumentsManager } from './DocumentsManager';
-import { applyTextDocumentEditOnWorkspace } from './clientUtils';
+import { applyTextDocumentEditOnWorkspace, getUpdatedSource } from './clientUtils';
 const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
 const debug = require("debug")("vscode-groovy-lint");
 const { performance } = require('perf_hooks');
 
 // Status notifications
 interface StatusParams {
+	id: number,
 	state: string;
 	documents: [
 		{
@@ -25,13 +26,13 @@ namespace StatusNotification {
 }
 
 // Create commands
-const COMMAND_LINT = Command.create('GroovyLint: Lint', 'groovyLint.lint');
-const COMMAND_LINT_FIX = Command.create('GroovyLint: Lint and fix all', 'groovyLint.lintFix');
-const COMMAND_LINT_QUICKFIX = Command.create('GroovyLint: Quick fix', 'groovyLint.quickFix');
-const COMMAND_LINT_QUICKFIX_FILE = Command.create('GroovyLint: Quick fix in file', 'groovyLint.quickFixFile');
-const COMMAND_SUPPRESS_WARNING_LINE = Command.create('GroovyLint: Ignore this error', 'groovyLint.addSuppressWarning');
-const COMMAND_SUPPRESS_WARNING_FILE = Command.create('GroovyLint: Ignore this error in file', 'groovyLint.addSuppressWarningFile');
-const COMMAND_IGNORE_ERROR_FOR_ALL_FILES = Command.create('GroovyLint: Ignore this error in all files', 'groovyLint.alwaysIgnoreError');
+const COMMAND_LINT = Command.create('Lint', 'groovyLint.lint');
+const COMMAND_LINT_FIX = Command.create('Lint and fix errors', 'groovyLint.lintFix');
+const COMMAND_LINT_QUICKFIX = Command.create('Quick fix', 'groovyLint.quickFix');
+const COMMAND_LINT_QUICKFIX_FILE = Command.create('Quick fix in file', 'groovyLint.quickFixFile');
+const COMMAND_SUPPRESS_WARNING_LINE = Command.create('Ignore this error', 'groovyLint.addSuppressWarning');
+const COMMAND_SUPPRESS_WARNING_FILE = Command.create('Ignore this error in file', 'groovyLint.addSuppressWarningFile');
+const COMMAND_IGNORE_ERROR_FOR_ALL_FILES = Command.create('Ignore this error in all files', 'groovyLint.alwaysIgnoreError');
 export const commands = [
 	COMMAND_LINT,
 	COMMAND_LINT_FIX,
@@ -67,6 +68,18 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	// Remove already existing diagnostics
 	await docManager.resetDiagnostics(textDocument.uri);
 
+	// Get a new task id
+	const linterTaskId = docManager.getNewTaskId();
+
+	// Notify client that lint is starting
+	debug(`Start linting ${textDocument.uri}`);
+	docManager.connection.sendNotification(StatusNotification.type, {
+		id: linterTaskId,
+		state: 'lint.start' + ((opts.fix === true) ? '.fix' : ''),
+		documents: [{ documentUri: textDocument.uri }],
+		lastFileName: fileNm
+	});
+
 	// Build NmpGroovyLint config
 	const npmGroovyLintConfig = {
 		source: source,
@@ -76,29 +89,24 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		verbose: settings.basic.verbose
 	};
 
-	// Process NpmGroovyLint
+	// Run npm-groovy-lint linter/fixer
 	const linter = new NpmGroovyLint(npmGroovyLintConfig, {});
-	debug(`Start linting ${textDocument.uri}`);
-	docManager.connection.sendNotification(StatusNotification.type, {
-		state: 'lint.start' + ((opts.fix === true) ? '.fix' : ''),
-		documents: [{ documentUri: textDocument.uri }],
-		lastFileName: fileNm
-	});
-
 	try {
 		await linter.run();
 		docManager.setDocLinter(textDocument.uri, linter);
 	} catch (e) {
+		// If error, send notification to client
 		console.error('VsCode Groovy Lint error: ' + e.message + '\n' + e.stack);
 		debug(`Error linting ${textDocument.uri}` + e.message + '\n' + e.stack);
 		docManager.connection.sendNotification(StatusNotification.type, {
+			id: linterTaskId,
 			state: 'lint.error',
 			documents: [{ documentUri: textDocument.uri }],
 			lastFileName: fileNm
 		});
 		return;
 	}
-	debug(`Completed linting ${textDocument.uri} in ${(performance.now() - perfStart).toFixed(0)}`);
+	console.info(`Completed linting ${textDocument.uri} in ${(performance.now() - perfStart).toFixed(0)}`);
 
 	// Parse results
 	const lintResults = linter.lintResult || {};
@@ -109,10 +117,11 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 
 	// Send updated sources to client 
 	if (opts.fix === true && linter.status === 0) {
-		await applyTextDocumentEditOnWorkspace(docManager, textDocument, linter.lintResult.files[0].updatedSource);
+		await applyTextDocumentEditOnWorkspace(docManager, textDocument, getUpdatedSource(linter, source));
 	}
 	// Just Notify client of end of linting 
 	docManager.connection.sendNotification(StatusNotification.type, {
+		id: linterTaskId,
 		state: 'lint.end',
 		documents: [{
 			documentUri: textDocument.uri

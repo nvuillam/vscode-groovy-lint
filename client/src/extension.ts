@@ -10,11 +10,14 @@ import {
 } from 'vscode-languageclient';
 
 const DIAGNOSTICS_COLLECTION_NAME = 'GroovyLint';
+let diagnosticsCollection: vscode.DiagnosticCollection;
 
 let client: LanguageClient;
 let statusBarItem: vscode.StatusBarItem;
+let statusList: StatusParams[] = [];
 
 interface StatusParams {
+	id: number;
 	state: string;
 	documents: [
 		{
@@ -29,6 +32,9 @@ namespace StatusNotification {
 }
 
 export function activate(context: ExtensionContext) {
+
+	// Create diagnostics collection
+	diagnosticsCollection = vscode.languages.createDiagnosticCollection(DIAGNOSTICS_COLLECTION_NAME);
 
 	///////////////////////////////////////////////
 	/////////////// Server + client ///////////////
@@ -67,15 +73,16 @@ export function activate(context: ExtensionContext) {
 		serverOptions,
 		clientOptions
 	);
-	// Start the client. This will also launch the server
 
-	// Manage status bar item
+
+	// Manage status bar item (with loading icon)
 	statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-	statusBarItem.text = 'Starting GroovyLint $(clock~spin)';
+	statusBarItem.text = 'GroovyLint $(clock~spin)';
 	statusBarItem.show();
 
 	client.registerProposedFeatures();
 
+	// Start the client. This will also launch the server
 	context.subscriptions.push(
 		client.start(),
 	);
@@ -84,14 +91,11 @@ export function activate(context: ExtensionContext) {
 	client.onReady().then(() => {
 
 		// Show status bar item to display & run groovy lint
-		statusBarItem.command = 'groovyLint.lint';
-		statusBarItem.text = 'GroovyLint $(zap)';
-
-		context.subscriptions.push(statusBarItem);
+		refreshStatusBar();
 
 		// Manage status notifications
-		client.onNotification(StatusNotification.type, (status) => {
-			updateClient(status);
+		client.onNotification(StatusNotification.type, async (status) => {
+			await updateStatus(status);
 		});
 
 		// Open file in workspace when language server requests it
@@ -113,30 +117,65 @@ export function deactivate(): Thenable<void> {
 	return client.stop();
 }
 
-// Update text editor & status bar
-async function updateClient(status: StatusParams): Promise<any> {
-
-	// Start linting: update status bar and freeze text editors while fixing (if fix requested)
-	if (status.state === 'lint.start') {
-		statusBarItem.text = 'GroovyLint $(sync~spin)';
-		statusBarItem.tooltip = 'GroovyLint is analyzing ' + status.lastFileName;
-		statusBarItem.color = new vscode.ThemeColor('statusBar.debuggingForeground');
+// Update status list
+async function updateStatus(status: StatusParams): Promise<any> {
+	// Start linting / fixing, or notify error
+	if (['lint.start', 'lint.start.fix', 'lint.error'].includes(status.state)) {
+		statusList.push(status);
+		// Really open document, so tab will not be replaced by next preview
+		for (const docDef of status.documents) {
+			const docs = vscode.workspace.textDocuments.filter(txtDoc => txtDoc.uri.toString() === docDef.documentUri);
+			if (docs && docs[0]) {
+				await vscode.window.showTextDocument(docs[0], { preview: false });
+			}
+		}
 	}
-	else if (status.state === 'lint.start.fix') {
-		statusBarItem.text = `GroovyLint $(circuit-board~spin)`;
-		statusBarItem.tooltip = 'GroovyLint is fixing ' + status.lastFileName;
-		statusBarItem.color = new vscode.ThemeColor('statusBar.debuggingForeground');
-	}
-	// End linting:  and 
+	// End linting/fixing: remove frrom status list, and remove previous errors on same file if necessary
 	else if (status.state === 'lint.end') {
-		// update status bar
-		statusBarItem.text = 'GroovyLint $(zap)';
-		statusBarItem.tooltip = 'Groovylint analyzed ' + status.lastFileName + ' in ' + Math.floor(status.lastLintTimeMs) + 'ms';
-		statusBarItem.color = new vscode.ThemeColor('statusBarItem.prominentForeground');
+		statusList = statusList.filter(statusObj => statusObj.id !== status.id);
+		statusList = statusList.filter(statusObj => !(statusObj.state === 'lint.error' && statusObj.lastFileName === status.lastFileName));
+		// If document has been closed, to not display its diagnostics
+		for (const docDef of status.documents) {
+			const docs = vscode.workspace.textDocuments.filter(txtDoc => txtDoc.uri.toString() === docDef.documentUri);
+			if (!(docs && docs[0])) {
+				diagnosticsCollection.set(vscode.Uri.parse(docDef.documentUri), []);
+			}
+		}
 	}
-	else {
+	// Show GroovyLint status bar as ready
+	await refreshStatusBar();
+}
+
+// Update text editor & status bar
+async function refreshStatusBar(): Promise<any> {
+
+	// Fix running
+	if (statusList.filter(status => status.state === 'lint.start.fix').length > 0) {
+		statusBarItem.text = `GroovyLint $(debug-step-over~spin)`;
+		statusBarItem.color = new vscode.ThemeColor('statusBar.debuggingForeground');
+	}
+	// Lint running
+	else if (statusList.filter(status => status.state === 'lint.start').length > 0) {
+		statusBarItem.text = 'GroovyLint $(sync~spin)';
+		statusBarItem.color = new vscode.ThemeColor('statusBar.debuggingForeground');
+	}
+	// No lint running but pending error(s)
+	else if (statusList.filter(status => status.state === 'lint.error').length > 0) {
 		statusBarItem.text = 'GroovyLint $(error)';
-		statusBarItem.tooltip = 'There has been an error during linting ' + status.lastFileName;
 		statusBarItem.color = new vscode.ThemeColor('errorForeground');
 	}
+	else {
+		statusBarItem.text = 'GroovyLint $(zap)';
+		statusBarItem.color = new vscode.ThemeColor('statusBarItem.prominentForeground');
+	}
+
+	// Compute and display job statuses
+	const tooltips = statusList.map((status) => {
+		return (status.state === 'lint.start') ? 'Analyzing ' + status.lastFileName :
+			(status.state === 'lint.start.fix') ? 'Fixing ' + status.lastFileName :
+				(status.state === 'lint.start.error') ? 'Error while processing ' + status.lastFileName :
+					'ERROR in GroovyLint: unknown status (plz contact developers if you see that';
+	});
+	statusBarItem.tooltip = tooltips.join('\n');
+
 }

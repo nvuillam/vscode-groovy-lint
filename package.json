@@ -32,6 +32,9 @@
 		"jenkinsfile",
 		"codenarc",
 		"linter",
+		"npm-groovy-lint",
+		"autofix",
+		"fix",
 		"format",
 		"package",
 		"wrapper",
@@ -65,11 +68,11 @@
 		"commands": [
 			{
 				"command": "groovyLint.lint",
-				"title": "GroovyLint: Lint"
+				"title": "GroovyLint: Analyze code"
 			},
 			{
 				"command": "groovyLint.lintFix",
-				"title": "GroovyLint: Lint and fix errors"
+				"title": "GroovyLint: Fix errors"
 			}
 		],
 		"menus": {
@@ -96,6 +99,20 @@
 				}
 			]
 		},
+		"keybindings": [
+			{
+				"command": "groovyLint.lint",
+				"key": "ctrl+shift+F9",
+				"mac": "cmd+shift+F9",
+				"when": "editorFocus && resourceLangId == groovy"
+			},
+			{
+				"command": "groovyLint.lintFix",
+				"key": "ctrl+shift+F10",
+				"mac": "cmd+shift+F10",
+				"when": "editorFocus && resourceLangId == groovy"
+			}
+		],
 		"configuration": {
 			"type": "object",
 			"title": "Groovy Lint",
@@ -120,7 +137,7 @@
 					"scope": "resource",
 					"type": "boolean",
 					"default": false,
-					"description": "Turns auto fix on save on or off."
+					"description": "Turns auto fix on save on or off"
 				},
 				"groovyLint.basic.loglevel": {
 					"scope": "resource",

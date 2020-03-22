@@ -61,3 +61,11 @@ export function createTextDocumentEdit(docManager: DocumentsManager, textDocumen
 	return textDocEdit;
 }
 
+export function getUpdatedSource(docLinter: any, prevSource: string) {
+	if (docLinter && docLinter.lintResult && docLinter.lintResult.files && docLinter.lintResult.files.length > 0) {
+		return docLinter.lintResult.files[0].updatedSource;
+	}
+	else {
+		return prevSource;
+	}
+}

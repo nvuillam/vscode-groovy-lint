@@ -53,7 +53,7 @@ connection.onInitialize((params: InitializeParams) => {
 });
 
 // Register workspace actions when server is initialized
-connection.onInitialized(() => {
+connection.onInitialized(async () => {
     // Register for the client notifications we can use
     connection.client.register(DidChangeConfigurationNotification.type);
     connection.client.register(DidSaveTextDocumentNotification.type);
