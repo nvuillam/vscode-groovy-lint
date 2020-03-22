@@ -10,11 +10,11 @@ Autofixing is still experimental, please post an [issue](https://github.com/nvui
 
 | Command                         | Description                                                                                    | Access                                                                                                   |
 |---------------------------------|------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
-| **Analyze code**                | Lint the code of the current tab                                                               | Ctrl+Shit+F9<br/>Editor contextual menu</br>Status bar GroovyLint item<br/>Command pannel (Ctrl+Shipf+P) |
-| **Fix all errors**              | Fix the code of the current tab                                                                | Ctrl+Shit+F10<br/>Editor contextual menu</br>Command pannel (Ctrl+Shipf+P)                                |
-| Fix single error                | Apply quick fix for a single error                                                             | Quick Fix contextual menu<br/>Diagnostic contextual menu                                                 |
-| Fix _errorType_ in file         | Apply quick fix for all errors of the same type in the currrent tab                            | Quick Fix contextual menu<br/>Diagnostic contextual menu                                                 |
-| Ignore _errorType_ in all files | Updates configuration file (usually .groovylintrc.js in root folder) to ignore this error type | Quick Fix contextual menu<br/>Diagnostic contextual menu                                                 |
+| **Analyze code**                | Lint the code of the current tab                                                               | Ctrl+Shit+F9<br/>Editor contextual menu</br>Status bar<br/>Command pannel |
+| **Fix all errors**              | Fix the code of the current tab                                                                | Ctrl+Shit+F10<br/>Editor contextual menu</br>Command pannel                                |
+| Fix single error                | Apply quick fix for a single error                                                             | Quick Fix menu<br/>Diagnostic menu                                                 |
+| Fix _errorType_ in file         | Apply quick fix for all errors of the same type in the currrent tab                            | Quick Fix menu<br/>Diagnostic menu                                                 |
+| Ignore _errorType_ in all files | Updates configuration file (usually .groovylintrc.js in root folder) to ignore this error type | Quick Fix menu<br/>Diagnostic menu                                                 |
 
 ## Extension Settings
 
