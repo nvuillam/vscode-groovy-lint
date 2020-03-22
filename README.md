@@ -34,8 +34,6 @@ But do not worry, as the groovy linting is provided by a background local server
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
 ### 0.1.0
 
 Initial release of VsCode Groovy Lint

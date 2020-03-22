@@ -5,6 +5,7 @@
 	"publisher": "NicolasVuillamy",
 	"version": "0.1.0",
 	"license": "MIT",
+	"icon": "./images/icon.png",
 	"engines": {
 		"vscode": "^1.42.0"
 	},
@@ -24,7 +25,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/nvuillam/vscode-groovy-lint.git"
+		"url": "https://github.com/nvuillam/vscode-groovy-lint.git"
 	},
 	"keywords": [
 		"groovy",
