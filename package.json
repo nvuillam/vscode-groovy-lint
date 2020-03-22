@@ -1,0 +1,172 @@
+{
+	"name": "vscode-groovy-lint",
+	"displayName": "GroovyLint (and Fix!)",
+	"description": "VSCode extension to lint and fix groovy and Jenkinsfile",
+	"publisher": "NicolasVuillamy",
+	"version": "0.0.1",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.42.0"
+	},
+	"scripts": {
+		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
+		"compile": "tsc -b",
+		"watch": "tsc -b -w",
+		"lint": "eslint client/src --ext ts && eslint server/src --ext ts",
+		"lint:fix": "eslint client/src --ext ts --fix && eslint server/src --ext ts --fix",
+		"pretest": "npm run compile && npm run lint",
+		"test": "node ./out/test/runTest.js",
+		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
+	},
+	"categories": [
+		"Programming Languages",
+		"Linters"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/nvuillam/vscode-groovy-lint.git"
+	},
+	"keywords": [
+		"groovy",
+		"lint",
+		"jenkinsfile",
+		"codenarc",
+		"linter",
+		"npm-groovy-lint",
+		"autofix",
+		"fix",
+		"format",
+		"package",
+		"wrapper",
+		"vscode",
+		"extension"
+	],
+	"bugs": {
+		"url": "https://github.com/nvuillam/vscode-groovy-lint/issues"
+	},
+	"homepage": "https://github.com/nvuillam/vscode-groovy-lint#readme",
+	"devDependencies": {
+		"@types/glob": "^7.1.1",
+		"@types/mocha": "^7.0.1",
+		"@types/node": "^12.11.7",
+		"eslint": "^6.8.0",
+		"@typescript-eslint/parser": "^2.18.0",
+		"@typescript-eslint/eslint-plugin": "^2.18.0",
+		"glob": "^7.1.6",
+		"mocha": "^7.0.1",
+		"typescript": "^3.7.5",
+		"vscode-test": "^1.3.0"
+	},
+	"dependencies": {},
+	"activationEvents": [
+		"onLanguage:groovy",
+		"workspaceContains:**/Jenkins*",
+		"onCommand:groovyLint.lint"
+	],
+	"main": "./client/out/extension",
+	"contributes": {
+		"commands": [
+			{
+				"command": "groovyLint.lint",
+				"title": "GroovyLint: Analyze code"
+			},
+			{
+				"command": "groovyLint.lintFix",
+				"title": "GroovyLint: Fix errors"
+			}
+		],
+		"menus": {
+			"commandPalette": [
+				{
+					"when": "resourceLangId == groovy",
+					"command": "groovyLint.lint"
+				},
+				{
+					"when": "resourceLangId == groovy",
+					"command": "groovyLint.lintFix"
+				}
+			],
+			"editor/context": [
+				{
+					"when": "resourceLangId == groovy",
+					"command": "groovyLint.lint",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == groovy",
+					"command": "groovyLint.lintFix",
+					"group": "navigation"
+				}
+			]
+		},
+		"keybindings": [
+			{
+				"command": "groovyLint.lint",
+				"key": "ctrl+shift+F9",
+				"mac": "cmd+shift+F9",
+				"when": "editorFocus && resourceLangId == groovy"
+			},
+			{
+				"command": "groovyLint.lintFix",
+				"key": "ctrl+shift+F10",
+				"mac": "cmd+shift+F10",
+				"when": "editorFocus && resourceLangId == groovy"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "Groovy Lint",
+			"properties": {
+				"groovyLint.basic.enable": {
+					"scope": "resource",
+					"type": "boolean",
+					"default": true,
+					"description": "Controls whether GroovyLint is enabled or not."
+				},
+				"groovyLint.basic.run": {
+					"scope": "resource",
+					"type": "string",
+					"enum": [
+						"onSave",
+						"onType"
+					],
+					"default": "onSave",
+					"description": "Run the linter on save (onSave) or on type (onType)"
+				},
+				"groovyLint.basic.autoFixOnSave": {
+					"scope": "resource",
+					"type": "boolean",
+					"default": false,
+					"description": "Turns auto fix on save on or off"
+				},
+				"groovyLint.basic.loglevel": {
+					"scope": "resource",
+					"type": "string",
+					"enum": [
+						"error",
+						"warning",
+						"info"
+					],
+					"enumDescriptions": [
+						"Only error messages",
+						"Error and warning messages",
+						"Error,Warning and info messages"
+					],
+					"default": "info",
+					"description": "Linting error level"
+				},
+				"groovyLint.basic.verbose": {
+					"scope": "resource",
+					"type": "boolean",
+					"default": false,
+					"description": "Verbose logs"
+				},
+				"groovyLint.basic.config": {
+					"scope": "resource",
+					"type": "string",
+					"description": "Override Config file to use for linter"
+				}
+			}
+		}
+	}
+}
