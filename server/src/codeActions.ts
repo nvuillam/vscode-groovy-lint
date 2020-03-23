@@ -9,11 +9,13 @@ import {
 	ShowMessageRequestParams,
 	NotificationType
 } from 'vscode-languageserver';
+import { URI } from 'vscode-uri';
 import { isNullOrUndefined } from "util";
 import * as fse from "fs-extra";
 import { DocumentsManager } from './DocumentsManager';
 import { applyTextDocumentEditOnWorkspace, getUpdatedSource } from './clientUtils';
 import { parseLinterResultsIntoDiagnostics } from './linter';
+import path = require('path');
 const debug = require("debug")("vscode-groovy-lint");
 
 const lintAgainAfterQuickFix: boolean = true; // Lint after fix is performed by npm-groovy-lint fixer
@@ -249,7 +251,9 @@ export async function alwaysIgnoreError(diagnostic: Diagnostic, textDocumentUri:
 
 	// Get or create configuration file path using NpmGroovyLint instance associated to this document
 	const docLinter = docManager.getDocLinter(textDocument.uri);
-	let configFilePath: string = await docLinter.getConfigFilePath();
+	const textDocumentFilePath: string = URI.parse(textDocument.uri).fsPath;
+	const startPath = path.dirname(textDocumentFilePath);
+	let configFilePath: string = await docLinter.getConfigFilePath(startPath);
 	let configFileContent = JSON.parse(fse.readFileSync(configFilePath, "utf8").toString());
 	if (configFilePath.endsWith(".groovylintrc-recommended.json")) {
 		configFilePath = process.cwd() + '/.groovylintrc.json';

@@ -16,6 +16,7 @@ let client: LanguageClient;
 let statusBarItem: vscode.StatusBarItem;
 let statusList: StatusParams[] = [];
 
+// Lint/fix Status notifications received from language server
 interface StatusParams {
 	id: number;
 	state: string;
@@ -29,6 +30,14 @@ interface StatusParams {
 }
 namespace StatusNotification {
 	export const type = new NotificationType<StatusParams, void>('groovylint/status');
+}
+
+// Active Document notifications to language server
+interface ActiveDocumentNotificationParams {
+	uri: string
+}
+namespace ActiveDocumentNotification {
+	export const type = new NotificationType<ActiveDocumentNotificationParams, void>('groovylint/activedocument');
 }
 
 export function activate(context: ExtensionContext) {
@@ -77,6 +86,7 @@ export function activate(context: ExtensionContext) {
 
 	// Manage status bar item (with loading icon)
 	statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+	statusBarItem.command = 'groovyLint.lint';
 	statusBarItem.text = 'GroovyLint $(clock~spin)';
 	statusBarItem.show();
 
@@ -103,6 +113,12 @@ export function activate(context: ExtensionContext) {
 			const openPath = vscode.Uri.parse("file:///" + notifParams.file); //A request file path
 			const doc = await vscode.workspace.openTextDocument(openPath);
 			await vscode.window.showTextDocument(doc);
+		});
+
+		// Refresh status bar when active tab changes
+		vscode.window.onDidChangeActiveTextEditor(async () => {
+			await refreshStatusBar();
+			await notifyDocumentToServer();
 		});
 
 	});
@@ -146,6 +162,15 @@ async function updateStatus(status: StatusParams): Promise<any> {
 	await refreshStatusBar();
 }
 
+// Notify language server of the currently viewed document
+async function notifyDocumentToServer(): Promise<any> {
+	const textEditor = vscode.window.activeTextEditor;
+	const docUri = (textEditor && textEditor.document && textEditor.document.uri) ? textEditor.document.uri.toString() : '';
+	client.sendNotification(ActiveDocumentNotification.type, {
+		uri: docUri
+	});
+}
+
 // Update text editor & status bar
 async function refreshStatusBar(): Promise<any> {
 
@@ -176,6 +201,25 @@ async function refreshStatusBar(): Promise<any> {
 				(status.state === 'lint.start.error') ? 'Error while processing ' + status.lastFileName :
 					'ERROR in GroovyLint: unknown status (plz contact developers if you see that';
 	});
-	statusBarItem.tooltip = tooltips.join('\n');
+	if (tooltips.length > 0) {
+		statusBarItem.tooltip = tooltips.join('\n');
+	}
+	else {
+		statusBarItem.tooltip = 'No current task';
+	}
 
+	// Show/Hide status bar depending on file type and current tasks
+	const textEditor = vscode.window.activeTextEditor;
+	const isGroovy = textEditor && textEditor.document && textEditor.document.languageId === 'groovy';
+	if (statusList.length > 0 && !isGroovy) {
+		statusBarItem.show();
+		statusBarItem.command = null;
+	}
+	else if (isGroovy) {
+		statusBarItem.show();
+		statusBarItem.command = 'groovyLint.lint';
+	}
+	else {
+		statusBarItem.hide();
+	}
 }

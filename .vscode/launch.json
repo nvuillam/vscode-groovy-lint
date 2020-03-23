@@ -64,7 +64,7 @@
 	],
 	"compounds": [
 		{
-			"name": "GL: Client + Server",
+			"name": "Groovy Lint debug",
 			"configurations": [
 				"Launch Client",
 				"Attach to Server"
