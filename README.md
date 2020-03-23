@@ -40,11 +40,24 @@ Contributions are very welcome on :
 - [VsCode Groovy Lint](https://github.com/nvuillam/vscode-groovy-lint)
 - [NPM Groovy Lint](https://github.com/nvuillam/npm-groovy-lint) (linter called by this extension)
 
+Please follow [Contribution instructions](https://github.com/nvuillam/vscode-groovy-lint/blob/master/CONTRIBUTING.md)
+
 ## Release Notes
 
-### 0.3.0
+### [0.3.2] 2020-03-23
+
+- Upgrade to npm-groovy-lint v3.1.3
+- Hide GroovyLint status bar item when the active VsCode file is not Groovy code (and if no GroovyLint action in progress)
+- Add screenshot image in README
+- Add CONTRIBUTING section
+- Fix issue when creating/updating .groovylintrc.js file when the VsCode Workspace has multiple folders
+- Fix tabs navigation issue
+
+### 0.3.0 2020-03-22
 
 Initial release of VsCode Groovy Lint
+
+_See complete [CHANGELOG](https://github.com/nvuillam/vscode-groovy-lint/blob/master/CHANGELOG.md)_
 
 -----------------------------------------------------------------------------------------------------------
 

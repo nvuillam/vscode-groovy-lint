@@ -10,14 +10,14 @@
 		"vscode": "^1.42.0"
 	},
 	"scripts": {
-		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
 		"lint": "eslint client/src --ext ts && eslint server/src --ext ts",
 		"lint:fix": "eslint client/src --ext ts --fix && eslint server/src --ext ts --fix",
 		"pretest": "npm run compile && npm run lint",
 		"test": "node ./out/test/runTest.js",
-		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
+		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile"
 	},
 	"categories": [
 		"Programming Languages",

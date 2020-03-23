@@ -10,7 +10,8 @@ import {
     CodeAction,
     CodeActionKind,
     CodeActionParams,
-    ExecuteCommandParams
+    ExecuteCommandParams,
+    NotificationType
 } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 const { performance } = require("perf_hooks");
@@ -20,6 +21,14 @@ import { provideQuickFixCodeActions } from './codeActions';
 import { DocumentsManager } from './DocumentsManager';
 const debug = require("debug")("vscode-groovy-lint");
 const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
+
+// Active Document notifications to language server
+interface ActiveDocumentNotificationParams {
+    uri: string
+}
+namespace ActiveDocumentNotification {
+    export const type = new NotificationType<ActiveDocumentNotificationParams, void>('groovylint/activedocument');
+}
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -57,6 +66,7 @@ connection.onInitialized(async () => {
     // Register for the client notifications we can use
     connection.client.register(DidChangeConfigurationNotification.type);
     connection.client.register(DidSaveTextDocumentNotification.type);
+    connection.client.register(ActiveDocumentNotification.type);
     debug('GroovyLint: initialized server');
 });
 
@@ -107,9 +117,15 @@ connection.onCodeAction(async (codeActionParams: CodeActionParams): Promise<Code
     return [];
 });
 
+// Notification from client that active window has changed
+connection.onNotification(ActiveDocumentNotification.type, (params) => {
+    debug(`Active text editor has changed to ${params.uri}`);
+    docManager.setCurrentDocumentUri(params.uri);
+});
+
 // Lint groovy doc on open
 docManager.documents.onDidOpen(async (event) => {
-    debug(`file open event received for ${event.document.uri}`);
+    debug(`File open event received for ${event.document.uri}`);
     const textDocument: TextDocument = docManager.getDocumentFromUri(event.document.uri, true);
     await docManager.validateTextDocument(textDocument);
 });
