@@ -2,7 +2,7 @@
 
 **Lint** and **fix** your groovy files and Jenkinsfile 
 
-This extension is based on [npm-groovy-lint](https://github.com/nvuillam/npm-groovy-lint#README) package, itself based on [CodeNarc](https://codenarc.github.io/CodeNarc/) groovy linter
+This [VsCode extension](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint) is based on [npm-groovy-lint](https://github.com/nvuillam/npm-groovy-lint#README) package, itself based on [CodeNarc](https://codenarc.github.io/CodeNarc/) groovy linter
 
 Autofixing is still experimental, please post an [issue](https://github.com/nvuillam/vscode-groovy-lint/issues) if you detect any problem
 
@@ -44,7 +44,12 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
-### [0.3.2] 2020-03-23
+### [0.4.1] 2020-03-23
+
+- Fix blocking issue when using QuickFix Action (source was not replaced). If someone knows how to make good automated tests for a VsCode extension, please contact me !
+- Change README
+
+### [0.4.0] 2020-03-23
 
 - Upgrade to npm-groovy-lint v3.1.3
 - Hide GroovyLint status bar item when the active VsCode file is not Groovy code (and if no GroovyLint action in progress)
@@ -55,7 +60,7 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ### 0.3.0 2020-03-22
 
-Initial release of VsCode Groovy Lint
+- Initial release of VsCode Groovy Lint
 
 _See complete [CHANGELOG](https://github.com/nvuillam/vscode-groovy-lint/blob/master/CHANGELOG.md)_
 
