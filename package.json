@@ -3,7 +3,7 @@
 	"displayName": "GroovyLint (and Fix!)",
 	"description": "VSCode extension to lint and fix groovy and Jenkinsfile",
 	"publisher": "NicolasVuillamy",
-	"version": "0.3.1",
+	"version": "0.4.0",
 	"license": "MIT",
 	"icon": "icon.png",
 	"engines": {
