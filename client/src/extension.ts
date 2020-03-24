@@ -136,7 +136,7 @@ export function deactivate(): Thenable<void> {
 // Update status list
 async function updateStatus(status: StatusParams): Promise<any> {
 	// Start linting / fixing, or notify error
-	if (['lint.start', 'lint.start.fix', 'lint.error'].includes(status.state)) {
+	if (['lint.start', 'lint.start.fix', 'lint.start.format', 'lint.error'].includes(status.state)) {
 		statusList.push(status);
 		// Really open document, so tab will not be replaced by next preview
 		for (const docDef of status.documents) {
@@ -176,7 +176,12 @@ async function refreshStatusBar(): Promise<any> {
 
 	// Fix running
 	if (statusList.filter(status => status.state === 'lint.start.fix').length > 0) {
-		statusBarItem.text = `GroovyLint $(debug-step-over~spin)`;
+		statusBarItem.text = `GroovyLint $(gear~spin)`;
+		statusBarItem.color = new vscode.ThemeColor('statusBar.debuggingForeground');
+	}
+	// Format running
+	else if (statusList.filter(status => status.state === 'lint.start.format').length > 0) {
+		statusBarItem.text = `GroovyLint $(smiley~spin)`;
 		statusBarItem.color = new vscode.ThemeColor('statusBar.debuggingForeground');
 	}
 	// Lint running
@@ -196,10 +201,11 @@ async function refreshStatusBar(): Promise<any> {
 
 	// Compute and display job statuses
 	const tooltips = statusList.map((status) => {
-		return (status.state === 'lint.start') ? 'Analyzing ' + status.lastFileName :
-			(status.state === 'lint.start.fix') ? 'Fixing ' + status.lastFileName :
-				(status.state === 'lint.start.error') ? 'Error while processing ' + status.lastFileName :
-					'ERROR in GroovyLint: unknown status (plz contact developers if you see that';
+		return (status.state === 'lint.start') ? '• analyzing ' + status.lastFileName + ' ...' :
+			(status.state === 'lint.start.fix') ? '• fixing ' + status.lastFileName + ' ...' :
+				(status.state === 'lint.start.format') ? '• formatting ' + status.lastFileName + ' ...' :
+					(status.state === 'lint.start.error') ? 'Error while processing ' + status.lastFileName :
+						'ERROR in GroovyLint: unknown status (plz contact developers if you see that';
 	});
 	if (tooltips.length > 0) {
 		statusBarItem.tooltip = tooltips.join('\n');

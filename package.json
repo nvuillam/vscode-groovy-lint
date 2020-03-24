@@ -118,27 +118,55 @@
 			"type": "object",
 			"title": "Groovy Lint",
 			"properties": {
-				"groovyLint.basic.enable": {
+				"groovyLint.enable": {
 					"scope": "resource",
 					"type": "boolean",
 					"default": true,
 					"description": "Controls whether GroovyLint is enabled or not."
 				},
-				"groovyLint.basic.run": {
+				"groovyLint.lint.trigger": {
 					"scope": "resource",
 					"type": "string",
 					"enum": [
 						"onSave",
-						"onType"
+						"onType",
+						"user"
 					],
 					"default": "onSave",
-					"description": "Run the linter on save (onSave) or on type (onType)"
+					"description": "Run the linter on save (onSave), on type (onType) or after user request (user)"
 				},
-				"groovyLint.basic.autoFixOnSave": {
+				"groovyLint.fix.enable": {
 					"scope": "resource",
 					"type": "boolean",
-					"default": false,
-					"description": "Turns auto fix on save on or off"
+					"default": true,
+					"description": "Enables GroovyLint as an error fixer"
+				},
+				"groovyLint.fix.trigger": {
+					"scope": "resource",
+					"type": "boolean",
+					"enum": [
+						"onSave",
+						"user"
+					],
+					"description": "Fix errors on save (onSave) or after user request (user)",
+					"default": "user"
+				},
+				"groovyLint.format.enable": {
+					"scope": "resource",
+					"type": "boolean",
+					"default": true,
+					"description": "Enables GroovyLint as a formatter."
+				},
+				"groovyLint.format.trigger": {
+					"scope": "resource",
+					"type": "boolean",
+					"enum": [
+						"onSave",
+						"onType",
+						"user"
+					],
+					"description": "Fix errors on save (onSave), on type (onType) or after user request (user)",
+					"default": "onSave"
 				},
 				"groovyLint.basic.loglevel": {
 					"scope": "resource",

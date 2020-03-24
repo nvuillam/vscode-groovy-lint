@@ -1,5 +1,5 @@
 import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument';
-import { TextDocumentEdit, WorkspaceEdit, Diagnostic } from 'vscode-languageserver';
+import { TextDocumentEdit, WorkspaceEdit } from 'vscode-languageserver';
 import { DocumentsManager } from './DocumentsManager';
 
 // Apply updated source into the client TextDocument
@@ -15,6 +15,12 @@ export async function applyTextDocumentEditOnWorkspace(docManager: DocumentsMana
 
 // Create a TextDocumentEdit that will be applied on client workspace
 export function createTextDocumentEdit(docManager: DocumentsManager, textDocument: TextDocument, updatedSource: string, where: any = {}): TextDocumentEdit {
+	const textEdit: TextEdit = createTestEdit(docManager, textDocument, updatedSource, where);
+	const textDocEdit: TextDocumentEdit = TextDocumentEdit.create({ uri: textDocument.uri, version: textDocument.version }, [textEdit]);
+	return textDocEdit;
+}
+
+export function createTestEdit(docManager: DocumentsManager, textDocument: TextDocument, updatedSource: string, where: any = {}): TextEdit {
 	const allLines = docManager.getTextDocumentLines(textDocument);
 	// If range is not sent, replace all file lines
 	let textEdit: TextEdit;
@@ -56,11 +62,10 @@ export function createTextDocumentEdit(docManager: DocumentsManager, textDocumen
 			newText: updatedSource
 		};
 	}
-
-	const textDocEdit: TextDocumentEdit = TextDocumentEdit.create({ uri: textDocument.uri, version: textDocument.version }, [textEdit]);
-	return textDocEdit;
+	return textEdit;
 }
 
+// Return updated source
 export function getUpdatedSource(docLinter: any, prevSource: string) {
 	if (docLinter && docLinter.lintResult && docLinter.lintResult.files && docLinter.lintResult.files[0]) {
 		return docLinter.lintResult.files[0].updatedSource;

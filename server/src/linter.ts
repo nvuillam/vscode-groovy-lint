@@ -1,10 +1,10 @@
 /* eslint-disable eqeqeq */
 import { Command, Diagnostic, DiagnosticSeverity, ShowMessageRequestParams, MessageType, NotificationType } from 'vscode-languageserver';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
 
 import { DocumentsManager } from './DocumentsManager';
-import { applyTextDocumentEditOnWorkspace, getUpdatedSource } from './clientUtils';
+import { applyTextDocumentEditOnWorkspace, getUpdatedSource, createTestEdit } from './clientUtils';
 const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
 const debug = require("debug")("vscode-groovy-lint");
 const { performance } = require('perf_hooks');
@@ -44,13 +44,22 @@ export const commands = [
 ];
 
 // Validate a groovy file
-export async function executeLinter(textDocument: TextDocument, docManager: DocumentsManager, opts: any = { fix: false }): Promise<void> {
+export async function executeLinter(textDocument: TextDocument, docManager: DocumentsManager, opts: any = { fix: false, format: false }): Promise<TextEdit[]> {
 	const perfStart = performance.now();
 
-	// In this simple example we get the settings for every validate run.
+	// Get settings and stop if action not enabled
 	let settings = await docManager.getDocumentSettings(textDocument.uri);
-	if (settings.basic.enable === false) {
-		return;
+	// Linter disabled
+	if (settings.enable === false) {
+		return Promise.resolve([]);
+	}
+	// Formatter disabled
+	if (opts.format && settings.format.enable === false) {
+		return Promise.resolve([]);
+	}
+	// Fixer disabled
+	if (opts.fix && settings.fix.enable === false) {
+		return Promise.resolve([]);
 	}
 
 	// In case lint was queues, get most recent version of textDocument
@@ -62,11 +71,13 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	source = await manageFixSourceBeforeCallingLinter(source, textDocument, docManager);
 	// If user was prompted and did not respond, do not lint
 	if (source === 'cancel') {
-		return;
+		return Promise.resolve([]);
 	}
 
-	// Remove already existing diagnostics
-	await docManager.resetDiagnostics(textDocument.uri);
+	// Remove already existing diagnostics except if format
+	if (!opts.format) {
+		await docManager.resetDiagnostics(textDocument.uri);
+	}
 
 	// Get a new task id
 	const linterTaskId = docManager.getNewTaskId();
@@ -75,25 +86,34 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	debug(`Start linting ${textDocument.uri}`);
 	docManager.connection.sendNotification(StatusNotification.type, {
 		id: linterTaskId,
-		state: 'lint.start' + ((opts.fix === true) ? '.fix' : ''),
+		state: 'lint.start' + (opts.fix ? '.fix' : opts.format ? '.format' : ''),
 		documents: [{ documentUri: textDocument.uri }],
 		lastFileName: fileNm
 	});
 
 	// Build NmpGroovyLint config
-	const npmGroovyLintConfig = {
+	const npmGroovyLintConfig: any = {
 		source: source,
-		fix: (opts.fix) ? true : false,
 		loglevel: settings.basic.loglevel,
 		output: 'none',
 		verbose: settings.basic.verbose
 	};
+	// Add format param if necessary
+	if (opts.format) {
+		npmGroovyLintConfig.format = true;
+	}
+	// Add fix param if necessary
+	if (opts.fix) {
+		npmGroovyLintConfig.fix = true;
+	}
 
 	// Run npm-groovy-lint linter/fixer
 	const linter = new NpmGroovyLint(npmGroovyLintConfig, {});
 	try {
 		await linter.run();
-		docManager.setDocLinter(textDocument.uri, linter);
+		if (!opts.format) {
+			docManager.setDocLinter(textDocument.uri, linter);
+		}
 	} catch (e) {
 		// If error, send notification to client
 		console.error('VsCode Groovy Lint error: ' + e.message + '\n' + e.stack);
@@ -104,7 +124,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 			documents: [{ documentUri: textDocument.uri }],
 			lastFileName: fileNm
 		});
-		return;
+		return Promise.resolve([]);
 	}
 	console.info(`Completed linting ${textDocument.uri} in ${(performance.now() - perfStart).toFixed(0)}`);
 
@@ -112,10 +132,25 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	const lintResults = linter.lintResult || {};
 	const diagnostics: Diagnostic[] = parseLinterResultsIntoDiagnostics(lintResults, source, textDocument, docManager);
 
-	// Send diagnostics to client
-	await docManager.updateDiagnostics(textDocument.uri, diagnostics);
+	// Send diagnostics to client except if format
+	if (!opts.format) {
+		await docManager.updateDiagnostics(textDocument.uri, diagnostics);
+	}
 
-	// Send updated sources to client 
+	let textEdits: TextEdit[] = [];
+
+	// Send updated sources to client if fix mode
+	if (opts.format === true && linter.status === 0) {
+		if (opts.applyNow) {
+			await applyTextDocumentEditOnWorkspace(docManager, textDocument, getUpdatedSource(linter, source));
+		}
+		else {
+			const textEdit = createTestEdit(docManager, textDocument, getUpdatedSource(linter, source));
+			textEdits.push(textEdit);
+		}
+	}
+
+	// Send updated sources to client if fix mode
 	if (opts.fix === true && linter.status === 0) {
 		await applyTextDocumentEditOnWorkspace(docManager, textDocument, getUpdatedSource(linter, source));
 	}
@@ -129,6 +164,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		lastFileName: fileNm,
 		lastLintTimeMs: performance.now() - perfStart
 	});
+	return Promise.resolve(textEdits);
 }
 
 // Parse results into VsCode diagnostic

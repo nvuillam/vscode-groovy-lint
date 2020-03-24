@@ -205,7 +205,6 @@ export async function applyQuickFixesInFile(diagnostics: Diagnostic[], textDocum
 	const fixRules = (diagnostics[0].code as string).split('-')[0];
 	debug(`Request apply QuickFixes in file for all ${fixRules} error in ${textDocumentUri}`);
 	await docManager.validateTextDocument(textDocument, { fix: true, fixrules: fixRules });
-
 }
 
 // Add suppress warning
