@@ -108,3 +108,5 @@ server/out/
 client/out/
 
 *.vsix
+
+.vscode-test/

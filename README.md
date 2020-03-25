@@ -1,10 +1,10 @@
-# VsCode GroovyLint (and fix!)
+# VsCode Groovy Lint, Format and Fix
 
-**Lint** and **fix** your groovy files and Jenkinsfile 
+**Lint** , **Format** and **Auto-fix** your groovy files and Jenkinsfile 
 
 This [VsCode extension](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint) is based on [npm-groovy-lint](https://github.com/nvuillam/npm-groovy-lint#README) package, itself based on [CodeNarc](https://codenarc.github.io/CodeNarc/) groovy linter
 
-Autofixing is still experimental, please post an [issue](https://github.com/nvuillam/vscode-groovy-lint/issues) if you detect any problem
+Autofixing is still in beta version, please post an [issue](https://github.com/nvuillam/vscode-groovy-lint/issues) if you detect any problem
 
 ![https://github.com/nvuillam/vscode-groovy-lint/raw/master/images/screenshot.png](https://github.com/nvuillam/vscode-groovy-lint/raw/master/images/screenshot.png)
 
@@ -12,11 +12,12 @@ Autofixing is still experimental, please post an [issue](https://github.com/nvui
 
 | Command                         | Description                                                                                    | Access                                                                                                   |
 |---------------------------------|------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
-| **Analyze code**                | Lint the code of the current tab                                                               | Ctrl+Shit+F9<br/>Editor contextual menu</br>Status bar<br/>Command pannel |
-| **Fix all errors**              | Fix the code of the current tab                                                                | Ctrl+Shit+F10<br/>Editor contextual menu</br>Command pannel                                |
-| Fix single error                | Apply quick fix for a single error                                                             | Quick Fix menu<br/>Diagnostic menu                                                 |
-| Fix _errorType_ in file         | Apply quick fix for all errors of the same type in the currrent tab                            | Quick Fix menu<br/>Diagnostic menu                                                 |
-| Ignore _errorType_ in all files | Updates configuration file (usually .groovylintrc.js in root folder) to ignore this error type | Quick Fix menu<br/>Diagnostic menu                                                 |
+| **Analyze code**                | Lint the code of the current tab                                                               | Ctrl+Shit+F9<br/>Contextual menu</br>Status bar<br/>Commands                                             |
+| **Format**                      | Format the code of the current tab                                                             | Ctrl+Shit+F10<br/>Contextual menu</br>Commands                                                           |
+| **Fix all errors**              | Fix the code of the current tab                                                                | Shift+Alt+F<br/>Contextual menu</br>Commands                                                           |
+| Fix single error                | Apply quick fix for a single error                                                             | Quick Fix menu<br/>Diagnostic menu                                                                       |
+| Fix _errorType_ in file         | Apply quick fix for all errors of the same type in the currrent tab                            | Quick Fix menu<br/>Diagnostic menu                                                                       |
+| Ignore _errorType_ in all files | Updates configuration file (usually .groovylintrc.js in root folder) to ignore this error type | Quick Fix menu<br/>Diagnostic menu                                                                       |
 
 ## Extension Settings
 

@@ -13,7 +13,6 @@ import {
     ExecuteCommandParams,
     NotificationType,
     DocumentFormattingParams,
-    TextDocumentIdentifier,
     TextDocumentChangeEvent
 } from 'vscode-languageserver';
 import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument';
@@ -108,8 +107,17 @@ connection.onExecuteCommand(async (params: ExecuteCommandParams) => {
 // Handle formatting request from client
 connection.onDocumentFormatting(async (params: DocumentFormattingParams): Promise<TextEdit[]> => {
     const { textDocument } = params;
+    debug(`Formatting request received from client for ${textDocument.uri}`);
     const document = docManager.getDocumentFromUri(textDocument.uri);
-    return await docManager.formatTextDocument(document);
+    const textEdits: TextEdit[] = await docManager.formatTextDocument(document);
+    // If document has been updated, lint again the sources
+    if (textEdits.length > 0) {
+        setTimeout(async () => {
+            const documentUpdated = docManager.getDocumentFromUri(textDocument.uri);
+            await docManager.validateTextDocument(documentUpdated);
+        }, 500);
+    }
+    return textEdits;
 });
 
 // Manage to provide code actions (QuickFixes) when the user selects a part of the source code containing diagnostics
@@ -121,6 +129,7 @@ connection.onCodeAction(async (codeActionParams: CodeActionParams): Promise<Code
     if (document == null) {
         return [];
     }
+    debug(`Code action request received from client for ${document.uri}`);
     const docQuickFixes: any = docManager.getDocQuickFixes(codeActionParams.textDocument.uri);
     if (docQuickFixes && Object.keys(docQuickFixes).length > 0) {
         return provideQuickFixCodeActions(document, codeActionParams, docQuickFixes);
@@ -149,9 +158,6 @@ docManager.documents.onDidChangeContent(async (change: TextDocumentChangeEvent<T
     if (settings.lint.trigger === 'onType') {
         await docManager.validateTextDocument(change.document);
     }
-    if (settings.format.trigger === 'onType') {
-        await docManager.validateTextDocument(change.document, { format: true, applyNow: true });
-    }
 });
 
 // Lint on save if it has been configured
@@ -161,9 +167,6 @@ docManager.documents.onDidSave(async event => {
     const settings = await docManager.getDocumentSettings(textDocument.uri);
     if (settings.fix.trigger === 'onSave') {
         await docManager.validateTextDocument(textDocument, { fix: true });
-    }
-    else if (settings.format.trigger === 'onSave') {
-        await docManager.validateTextDocument(textDocument, { format: true, applyNow: true });
     }
     else if (settings.lint.trigger === 'onSave') {
         await docManager.validateTextDocument(textDocument);

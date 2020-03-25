@@ -1,7 +1,7 @@
 {
 	"name": "vscode-groovy-lint",
-	"displayName": "Groovy Lint (and Fix!)",
-	"description": "Lint and fix groovy and Jenkinsfile",
+	"displayName": "Groovy Lint, Format and Fix",
+	"description": "Lint, format and auto-fix groovy and Jenkinsfile",
 	"publisher": "NicolasVuillamy",
 	"version": "0.4.1",
 	"license": "MIT",
@@ -15,7 +15,7 @@
 		"lint": "eslint client/src --ext ts && eslint server/src --ext ts",
 		"lint:fix": "eslint client/src --ext ts --fix && eslint server/src --ext ts --fix",
 		"pretest": "npm run compile && npm run lint",
-		"test": "node ./out/test/runTest.js",
+		"test": "node ./client/out/test/runTest.js",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
 		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile"
 	},
@@ -156,17 +156,6 @@
 					"type": "boolean",
 					"default": true,
 					"description": "Enables GroovyLint as a formatter."
-				},
-				"groovyLint.format.trigger": {
-					"scope": "resource",
-					"type": "boolean",
-					"enum": [
-						"onSave",
-						"onType",
-						"user"
-					],
-					"description": "Fix errors on save (onSave), on type (onType) or after user request (user)",
-					"default": "onSave"
 				},
 				"groovyLint.basic.loglevel": {
 					"scope": "resource",

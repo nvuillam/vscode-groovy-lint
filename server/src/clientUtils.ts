@@ -74,3 +74,8 @@ export function getUpdatedSource(docLinter: any, prevSource: string) {
 		return prevSource;
 	}
 }
+
+// Check if we are in test mode
+export function isTest() {
+	return process.env.npm_lifecycle_event && process.env.npm_lifecycle_event === 'test';
+}

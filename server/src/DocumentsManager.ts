@@ -2,6 +2,7 @@ import { TextDocuments, Diagnostic, TextDocumentIdentifier } from 'vscode-langua
 import { TextDocument, DocumentUri, TextEdit } from 'vscode-languageserver-textdocument';
 import { executeLinter } from './linter';
 import { applyQuickFixes, applyQuickFixesInFile, addSuppressWarning, alwaysIgnoreError } from './codeActions';
+import { isTest } from './clientUtils';
 const debug = require("debug")("vscode-groovy-lint");
 
 // Usable settings
@@ -40,6 +41,9 @@ export class DocumentsManager {
 	// Initialize documentManager
 	constructor(cnx: any) {
 		this.connection = cnx;
+		if (isTest()) {
+			this.autoFixTabs = true;
+		}
 	}
 
 	// Commands execution

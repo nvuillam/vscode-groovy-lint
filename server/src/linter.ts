@@ -139,21 +139,23 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 
 	let textEdits: TextEdit[] = [];
 
-	// Send updated sources to client if fix mode
-	if (opts.format === true && linter.status === 0) {
+	// Send updated sources to client if format mode
+	if (opts.format === true && linter.status === 0 && linter.lintResult.summary.totalFixedNumber > 0) {
+		const updatedSource = getUpdatedSource(linter, source);
 		if (opts.applyNow) {
-			await applyTextDocumentEditOnWorkspace(docManager, textDocument, getUpdatedSource(linter, source));
+			await applyTextDocumentEditOnWorkspace(docManager, textDocument, updatedSource);
 		}
 		else {
-			const textEdit = createTestEdit(docManager, textDocument, getUpdatedSource(linter, source));
+			const textEdit = createTestEdit(docManager, textDocument, updatedSource);
 			textEdits.push(textEdit);
 		}
 	}
-
 	// Send updated sources to client if fix mode
-	if (opts.fix === true && linter.status === 0) {
-		await applyTextDocumentEditOnWorkspace(docManager, textDocument, getUpdatedSource(linter, source));
+	else if (opts.fix === true && linter.status === 0 && linter.lintResult.summary.totalFixedNumber > 0) {
+		const updatedSource = getUpdatedSource(linter, source);
+		await applyTextDocumentEditOnWorkspace(docManager, textDocument, updatedSource);
 	}
+
 	// Just Notify client of end of linting 
 	docManager.connection.sendNotification(StatusNotification.type, {
 		id: linterTaskId,
