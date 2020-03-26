@@ -140,7 +140,7 @@ async function waitUntil(testFunction: Function, mode = 'sync', timeout_ms = 20 
 		// wait until the result is truthy, or timeout
 		while (result === undefined || result === false || result === null || result.length === 0) {  // for non arrays, length is undefined, so != 0
 			if ((performance.now() - start) > timeout_ms) {
-				console.error('Timeout : ' + test);
+				console.error('Timeout : ' + testFunction);
 				reject(false);
 				return;
 			}
