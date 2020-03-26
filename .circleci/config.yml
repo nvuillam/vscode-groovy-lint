@@ -1,0 +1,61 @@
+  version: 2.1
+
+  orbs:
+    win: circleci/windows@2.2.0
+
+  jobs:
+    debian: 
+      docker:
+        - image: circleci/openjdk:8-jdk-buster-node-browsers
+      steps:
+        - checkout
+        - run:
+            name: Install dependencies
+            command: npm install --unsafe-perm
+        - run:
+            name: Lint
+            command: npm run lint
+        - run:
+            name: Compile
+            command: npm run compile
+        - run:
+            name: Test & Code Coverage
+            command: npm run test:coverage
+        - run:
+            name: Submitting code coverage to codecov
+            command: |
+              ./node_modules/.bin/nyc report --reporter text-lcov > coverage.lcov
+              curl -s https://codecov.io/bash | bash
+
+    windows: 
+      executor:
+        name: win/default # executor type
+        size: "medium" # resource class, can be "medium", "large", "xlarge", "2xlarge", defaults to "medium" if not specified
+        shell: bash.exe
+      steps:
+        - checkout
+        - run:
+            name: Install dependencies
+            command: npm install --unsafe-perm
+        - run:
+            name: Lint
+            command: npm run lint
+        - run:
+            name: Compile
+            command: npm run compile
+        - run:
+            name: Test & Code Coverage
+            command: npm run test:coverage
+        - run:
+            name: Submitting code coverage to codecov
+            command: |
+              ./node_modules/.bin/nyc report --reporter text-lcov > coverage.lcov
+              curl -s https://codecov.io/bash | bash
+ 
+  workflows:
+    version: 2
+    "vscode-groovy-lint-build-test":
+      jobs:
+        - debian
+        - windows
+

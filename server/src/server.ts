@@ -11,9 +11,11 @@ import {
     CodeActionKind,
     CodeActionParams,
     ExecuteCommandParams,
-    NotificationType
+    NotificationType,
+    DocumentFormattingParams,
+    TextDocumentChangeEvent
 } from 'vscode-languageserver';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument';
 const { performance } = require("perf_hooks");
 import { commands } from './linter';
 import { provideQuickFixCodeActions } from './codeActions';
@@ -50,6 +52,7 @@ connection.onInitialize((params: InitializeParams) => {
                 openClose: true,
                 willSaveWaitUntil: true
             },
+            documentFormattingProvider: true,
             executeCommandProvider: {
                 commands: commands.map(command => command.command),
                 dynamicRegistration: true
@@ -101,6 +104,22 @@ connection.onExecuteCommand(async (params: ExecuteCommandParams) => {
     await docManager.executeCommand(params);
 });
 
+// Handle formatting request from client
+connection.onDocumentFormatting(async (params: DocumentFormattingParams): Promise<TextEdit[]> => {
+    const { textDocument } = params;
+    debug(`Formatting request received from client for ${textDocument.uri}`);
+    const document = docManager.getDocumentFromUri(textDocument.uri);
+    const textEdits: TextEdit[] = await docManager.formatTextDocument(document);
+    // If document has been updated, lint again the sources
+    if (textEdits.length > 0) {
+        setTimeout(async () => {
+            const documentUpdated = docManager.getDocumentFromUri(textDocument.uri);
+            await docManager.validateTextDocument(documentUpdated);
+        }, 500);
+    }
+    return textEdits;
+});
+
 // Manage to provide code actions (QuickFixes) when the user selects a part of the source code containing diagnostics
 connection.onCodeAction(async (codeActionParams: CodeActionParams): Promise<CodeAction[]> => {
     if (!codeActionParams.context.diagnostics.length) {
@@ -110,6 +129,7 @@ connection.onCodeAction(async (codeActionParams: CodeActionParams): Promise<Code
     if (document == null) {
         return [];
     }
+    debug(`Code action request received from client for ${document.uri}`);
     const docQuickFixes: any = docManager.getDocQuickFixes(codeActionParams.textDocument.uri);
     if (docQuickFixes && Object.keys(docQuickFixes).length > 0) {
         return provideQuickFixCodeActions(document, codeActionParams, docQuickFixes);
@@ -132,10 +152,10 @@ docManager.documents.onDidOpen(async (event) => {
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
-docManager.documents.onDidChangeContent(async change => {
+docManager.documents.onDidChangeContent(async (change: TextDocumentChangeEvent<TextDocument>) => {
     docManager.setCurrentDocumentUri(change.document.uri);
     const settings = await docManager.getDocumentSettings(change.document.uri);
-    if (settings.basic.run === 'onType') {
+    if (settings.lint.trigger === 'onType') {
         await docManager.validateTextDocument(change.document);
     }
 });
@@ -145,7 +165,10 @@ docManager.documents.onDidSave(async event => {
     debug(`save event received for ${event.document.uri}`);
     const textDocument: TextDocument = docManager.getDocumentFromUri(event.document.uri, true);
     const settings = await docManager.getDocumentSettings(textDocument.uri);
-    if (settings.basic.run === 'onSave') {
+    if (settings.fix.trigger === 'onSave') {
+        await docManager.validateTextDocument(textDocument, { fix: true });
+    }
+    else if (settings.lint.trigger === 'onSave') {
         await docManager.validateTextDocument(textDocument);
     }
 });

@@ -1,10 +1,17 @@
-# VsCode GroovyLint (and fix!)
+# VsCode Groovy Lint, Format and Fix
 
-**Lint** and **fix** your groovy files and Jenkinsfile 
+[![Badge for version for Visual Studio Code extension VsCode Groovy Lint](https://vsmarketplacebadge.apphb.com/version/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
+[![Badge for installs for Visual Studio Code extension VsCode Groovy Lint](https://vsmarketplacebadge.apphb.com/installs/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
+[![CircleCI](https://circleci.com/gh/nvuillam/vscode-groovy-lint/tree/master.svg?style=shield)](https://circleci.com/gh/nvuillam/vscode-groovy-lint/tree/master)
+[![GitHub license](https://img.shields.io/github/license/nvuillam/vscode-groovy-lint.svg)](https://github.com/nvuillam/vscode-groovy-lint/blob/master/LICENSE)
 
-This [VsCode extension](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint) is based on [npm-groovy-lint](https://github.com/nvuillam/npm-groovy-lint#README) package, itself based on [CodeNarc](https://codenarc.github.io/CodeNarc/) groovy linter
+**Lint** , **Format** and **Auto-fix** your groovy files and Jenkinsfile 
 
-Autofixing is still experimental, please post an [issue](https://github.com/nvuillam/vscode-groovy-lint/issues) if you detect any problem
+[Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint) embedding [npm-groovy-lint](https://github.com/nvuillam/npm-groovy-lint#README), itself embedding [CodeNarc](https://codenarc.github.io/CodeNarc/)
+
+You can [configure the rules](https://github.com/nvuillam/npm-groovy-lint#configuration) by defining a `.groovylintrc.json` file
+
+Formatting and Auto-fix are still in beta version, please post an [issue](https://github.com/nvuillam/vscode-groovy-lint/issues) if you detect any problem
 
 ![https://github.com/nvuillam/vscode-groovy-lint/raw/master/images/screenshot.png](https://github.com/nvuillam/vscode-groovy-lint/raw/master/images/screenshot.png)
 
@@ -12,11 +19,18 @@ Autofixing is still experimental, please post an [issue](https://github.com/nvui
 
 | Command                         | Description                                                                                    | Access                                                                                                   |
 |---------------------------------|------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
-| **Analyze code**                | Lint the code of the current tab                                                               | Ctrl+Shit+F9<br/>Editor contextual menu</br>Status bar<br/>Command pannel |
-| **Fix all errors**              | Fix the code of the current tab                                                                | Ctrl+Shit+F10<br/>Editor contextual menu</br>Command pannel                                |
-| Fix single error                | Apply quick fix for a single error                                                             | Quick Fix menu<br/>Diagnostic menu                                                 |
-| Fix _errorType_ in file         | Apply quick fix for all errors of the same type in the currrent tab                            | Quick Fix menu<br/>Diagnostic menu                                                 |
-| Ignore _errorType_ in all files | Updates configuration file (usually .groovylintrc.js in root folder) to ignore this error type | Quick Fix menu<br/>Diagnostic menu                                                 |
+| **Analyze code**                | Lint the code of the current tab                                                               | Ctrl+Shit+F9<br/>Contextual</br>Status bar<br/>Commands                                             |
+| **Format**                      | Format the code of the current tab                                                             | Shift+Alt+F<br/>Contextual</br>Commands                                                           |
+| **Fix all errors**              | Fix the code of the current tab                                                                | Ctrl+Shit+F10<br/>Contextual</br>Commands                                                           |
+| Fix single error                | Apply quick fix for a single error                                                             | Quick Fix<br/>Diagnostic                                                                       |
+| Fix _errorType_ in file         | Apply quick fix for all errors of the same type in the currrent tab                            | Quick Fix<br/>Diagnostic                                                                       |
+| Ignore _errorType_ in all files | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to ignore this error type) | Quick Fix<br/>Diagnostic                                                                       |
+
+- Contextual: right click in the source code
+- Commands: Ctrl+Shift+P then type command name
+- Status bar: GroovyLint status item at the bottom right
+- Quick Fix: Hover an underlined part of the code after a lint, click Quick Fix then select action to perform
+- Diagnostic: Right click on a diagnostic in Problems section
 
 ## Extension Settings
 
@@ -44,10 +58,21 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+### [0.5.0] 2020-03-26
+
+- New command "Format" (Right click in code editor -> format, or Shift+Alt+F)
+- [Automated tests](https://github.com/nvuillam/vscode-groovy-lint/blob/master/client/src/test/suite/extension.test.ts) with mocha and vscode-test
+- [CI Integration (CircleCI)](https://app.circleci.com/pipelines/github/nvuillam/vscode-groovy-lint), build & run tests on Linux & Windows
+- If hidden, show Diagnostics panel after first lint result. If closed again by the user, it won't be reopened
+- Update README (doc + badges)
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v3.2.0
+- Fixes 
+  - Tab focus should not be disrupted by VsCode Groovy Lint
+
 ### [0.4.1] 2020-03-23
 
 - Fix blocking issue when using QuickFix Action (source was not replaced). If someone knows how to make good automated tests for a VsCode extension, please contact me !
-- Change README
+- Update README
 
 ### [0.4.0] 2020-03-23
 

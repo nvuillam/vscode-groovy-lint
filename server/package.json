@@ -2,11 +2,12 @@
   "name": "vscode-groovy-lint-server",
   "version": "0.0.1",
   "description": "VSCode Groovy Lint extension server",
+  "publisher": "NicolasVuillamy",
   "engines": {
     "node": "*"
   },
   "author": "Nicolas Vuillamy",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nvuillam/vscode-groovy-lint.git"
@@ -35,7 +36,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^8.1.0",
-    "npm-groovy-lint": "^3.1.3",
+    "npm-groovy-lint": "^3.2.0",
     "vscode-languageserver-textdocument": "^1.0.1"
   }
 }

@@ -2,6 +2,7 @@
   "name": "vscode-groovy-lint-client",
   "version": "0.0.1",
   "description": "VsCode Groovy Lint extension client",
+  "publisher": "NicolasVuillamy",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nvuillam/vscode-groovy-lint.git"
@@ -30,7 +31,7 @@
     "vscode": "^1.42.0"
   },
   "author": "Nicolas Vuillamy",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "dependencies": {
     "vscode-languageclient": "^6.1.1"
   },

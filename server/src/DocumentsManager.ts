@@ -1,11 +1,16 @@
-import { TextDocuments, Diagnostic } from 'vscode-languageserver';
-import { TextDocument, DocumentUri } from 'vscode-languageserver-textdocument';
+import { TextDocuments, Diagnostic, TextDocumentIdentifier } from 'vscode-languageserver';
+import { TextDocument, DocumentUri, TextEdit } from 'vscode-languageserver-textdocument';
 import { executeLinter } from './linter';
 import { applyQuickFixes, applyQuickFixesInFile, addSuppressWarning, alwaysIgnoreError } from './codeActions';
+import { isTest } from './clientUtils';
 const debug = require("debug")("vscode-groovy-lint");
 
 // Usable settings
 export interface VsCodeGroovyLintSettings {
+	enable: boolean;
+	lint: any;
+	fix: any;
+	format: any;
 	basic: any;
 }
 
@@ -29,12 +34,16 @@ export class DocumentsManager {
 	private docLinters: Map<String, any> = new Map<String, any>();
 	private docsDiagnostics: Map<String, Diagnostic[]> = new Map<String, Diagnostic[]>();
 	private docsDiagsQuickFixes: Map<String, any[]> = new Map<String, any[]>();
+	// Lint/fix queue
 	private currentlyLinted: any[] = [];
 	private queuedLints: any[] = [];
 
 	// Initialize documentManager
 	constructor(cnx: any) {
 		this.connection = cnx;
+		if (isTest()) {
+			this.autoFixTabs = true;
+		}
 	}
 
 	// Commands execution
@@ -106,9 +115,13 @@ export class DocumentsManager {
 		}
 	}
 
-	// Validate a text document by calling linter
-	async validateTextDocument(textDocument: TextDocument, opts: any = undefined): Promise<void> {
+	// Format a text document
+	async formatTextDocument(textDocument: TextDocument): Promise<TextEdit[]> {
+		return await this.validateTextDocument(textDocument, { format: true });
+	}
 
+	// Validate a text document by calling linter
+	async validateTextDocument(textDocument: TextDocument, opts: any = undefined): Promise<TextEdit[]> {
 		// Remove duplicates in queue ( ref: https://stackoverflow.com/a/56757215/7113625 )
 		this.queuedLints = this.queuedLints.filter((v, i, a) => a.findIndex(t => (JSON.stringify(t) === JSON.stringify(v))) === i);
 
@@ -138,6 +151,7 @@ export class DocumentsManager {
 			// This file is already linted: add lint in queue , it will be processed when the response will arrive
 			this.queuedLints.push({ uri: textDocument.uri, options: opts });
 			debug(`${textDocument.uri} is already being linted: add request in queue`);
+			return Promise.resolve([]);
 		}
 
 	}
