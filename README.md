@@ -65,6 +65,7 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 - [CI Integration (CircleCI)](https://app.circleci.com/pipelines/github/nvuillam/vscode-groovy-lint), build & run tests on Linux & Windows
 - If hidden, show Diagnostics panel after first lint result. If closed again by the user, it won't be reopened
 - Update README (doc + badges)
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v3.2.0
 - Fixes 
   - Tab focus should not be disrupted by VsCode Groovy Lint 
 
