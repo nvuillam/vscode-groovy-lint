@@ -31,7 +31,7 @@
     "vscode": "^1.42.0"
   },
   "author": "Nicolas Vuillamy",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "dependencies": {
     "vscode-languageclient": "^6.1.1"
   },

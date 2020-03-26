@@ -4,7 +4,7 @@
 	"description": "Lint, format and auto-fix groovy and Jenkinsfile",
 	"publisher": "NicolasVuillamy",
 	"version": "0.4.1",
-	"license": "MIT",
+	"license": "GPL-3.0-only",
 	"icon": "icon.png",
 	"engines": {
 		"vscode": "^1.42.0"

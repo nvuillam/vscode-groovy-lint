@@ -1,10 +1,13 @@
 # VsCode Groovy Lint, Format and Fix
 
+[![Badge for version for Visual Studio Code extension VsCode Groovy Lint](https://vsmarketplacebadge.apphb.com/version/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
+[![Badge for installs for Visual Studio Code extension VsCode Groovy Lint](https://vsmarketplacebadge.apphb.com/installs/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
 [![CircleCI](https://circleci.com/gh/nvuillam/vscode-groovy-lint/tree/DevFormat.svg?style=shield)](https://circleci.com/gh/nvuillam/vscode-groovy-lint/tree/DevFormat)
+[![GitHub license](https://img.shields.io/github/license/nvuillam/vscode-groovy-lint.svg)](https://github.com/nvuillam/vscode-groovy-lint/blob/master/LICENSE)
 
 **Lint** , **Format** and **Auto-fix** your groovy files and Jenkinsfile 
 
-[VsCode extension](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint) based on [npm-groovy-lint](https://github.com/nvuillam/npm-groovy-lint#README) package, itself based on [CodeNarc](https://codenarc.github.io/CodeNarc/) Groovy linter
+[Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint) based on [npm-groovy-lint](https://github.com/nvuillam/npm-groovy-lint#README) package, itself based on [CodeNarc](https://codenarc.github.io/CodeNarc/) Groovy linter
 
 You can [configure the rules](https://github.com/nvuillam/npm-groovy-lint#configuration) by defining a `.groovylintrc.js` file
 
@@ -59,11 +62,11 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 - New command "Format" (Right click in code editor -> format, or Shift+Alt+F)
 - [Automated tests](https://github.com/nvuillam/vscode-groovy-lint/blob/master/client/src/test/suite/extension.test.ts) with mocha and vscode-test
-- CI Integration (CircleCI)
+- [CI Integration (CircleCI)](https://app.circleci.com/pipelines/github/nvuillam/vscode-groovy-lint), build & run tests on Linux & Windows
 - If hidden, show Diagnostics panel after first lint result. If closed again by the user, it won't be reopened
-- Update README
-- Fixes
-  - Tab focus should not be disrupted by VsCode Groovy Lint
+- Update README (doc + badges)
+- Fixes 
+  - Tab focus should not be disrupted by VsCode Groovy Lint 
 
 ### [0.4.1] 2020-03-23
 

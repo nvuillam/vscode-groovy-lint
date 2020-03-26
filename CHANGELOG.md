@@ -4,9 +4,9 @@
 
 - New command "Format" (Right click in code editor -> format, or Shift+Alt+F)
 - [Automated tests](https://github.com/nvuillam/vscode-groovy-lint/blob/master/client/src/test/suite/extension.test.ts) with mocha and vscode-test
-- CI Integration (CircleCI)
+- [CI Integration (CircleCI)](https://app.circleci.com/pipelines/github/nvuillam/vscode-groovy-lint), build & run tests on Linux & Windows
 - If hidden, show Diagnostics panel after first lint result. If closed again by the user, it won't be reopened
-- Update README
+- Update README (doc + badges)
 - Fixes 
   - Tab focus should not be disrupted by VsCode Groovy Lint 
 
