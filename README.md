@@ -62,7 +62,7 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 - CI Integration (CircleCI)
 - If hidden, show Diagnostics panel after first lint result. If closed again by the user, it won't be reopened
 - Update README
-- Fixes 
+- Fixes
   - Tab focus should not be disrupted by VsCode Groovy Lint
 
 ### [0.4.1] 2020-03-23

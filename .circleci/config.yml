@@ -3,23 +3,24 @@
   jobs:
     node-12-jdk-8: 
       docker:
-        - image: openjdk:8-jdk-stretch
+        - image: openjdk-8-tools-deps-stretch-node-browsers
      # working_directory: ~/cli
       steps:
         - checkout
         - run: 
             name: Install base tools
-            command: apt-get update && apt-get upgrade -y && apt-get -y install wget zip unzip sudo libgtk2.0-0 libgtk-3-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb && apt-get clean && echo 'Installed wget zip unzip' 
-        - run:
-            name: Install node
-            command: curl -sL https://deb.nodesource.com/setup_12.x | bash - && apt-get update && apt-get install -y nodejs
-        - run:
+            command: apt-get update && apt-get upgrade -y && apt-get -y install wget zip unzip sudo && apt-get clean && echo 'Installed wget zip unzip' 
+#            command: apt-get update && apt-get upgrade -y && apt-get -y install wget zip unzip sudo libgtk2.0-0 libgtk-3-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb && apt-get clean && echo 'Installed wget zip unzip' 
+#        - run:
+#            name: Install node
+#            command: curl -sL https://deb.nodesource.com/setup_12.x | bash - && apt-get update && apt-get install -y nodejs
+#        - run:
             name: Install dependencies
             command: npm install --unsafe-perm
-        - run:
-            name: Initialize virtual Display with xvfb
-            command: Xvfb -ac :99 -screen 0 1280x1024x16 +extension RANDR > /dev/null 2>&1
-            background: true
+#        - run:
+#            name: Initialize virtual Display with xvfb
+#            command: Xvfb -ac :99 -screen 0 1280x1024x16 +extension RANDR > /dev/null 2>&1
+#            background: true
         - run:
             name: Lint
             command: npm run lint
@@ -29,7 +30,7 @@
         - run:
             name: Test & Code Coverage
             command: |
-              export DISPLAY=:99
+#              export DISPLAY=:99
               npm run test:coverage
         - run:
             name: Submitting code coverage to codecov
