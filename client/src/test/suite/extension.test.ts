@@ -44,11 +44,11 @@ suite('VsCode GroovyLint Test Suite', async () => {
 	test("2.0 Lint big document", async () => {
 		await vscode.window.showTextDocument(bigDocument);
 		await vscode.commands.executeCommand('groovyLint.lint');
-		await waitUntil(() => diagnosticsReceived(bigDocument.uri), 'sync', 60000);
+		await waitUntil(() => diagnosticsReceived(bigDocument.uri), 'sync', 120000);
 		const docDiagnostics = vscode.languages.getDiagnostics(bigDocument.uri);
 
 		assert(docDiagnostics.length === numberOfDiagnosticsForBigGroovyLint, `${numberOfDiagnosticsForBigGroovyLint} GroovyLint diagnostics found after lint (${docDiagnostics.length} returned)`);
-	}).timeout(100000);
+	}).timeout(180000);
 
 	// Format document without updating diagnostics
 	test("2.1. Format big document", async () => {
@@ -56,37 +56,37 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		const textBefore = getActiveEditorText();
 		const textEdits = await vscode.commands.executeCommand('vscode.executeFormatDocumentProvider', bigDocument.uri, {});
 		await applyTextEditsOnDoc(bigDocument.uri, textEdits as vscode.TextEdit[]);
-		await waitUntil(() => documentHasBeenUpdated(bigDocument.uri, textBefore), 'async', 60000);
+		await waitUntil(() => documentHasBeenUpdated(bigDocument.uri, textBefore), 'async', 120000);
 		await sleepPromise(2000);
 		await waitUntil(() => diagnosticsReceived(bigDocument.uri), 'sync', 60000); // Wait for linter to lint again after fix
 		const textAfter = getActiveEditorText();
 		assert(textBefore !== textAfter, 'TextDocument text must be updated after format');
-	}).timeout(120000);
+	}).timeout(180000);
 
 	// Fix document
 	test("2.2. Fix big document", async () => {
 		await vscode.window.showTextDocument(bigDocument);
 		const textBefore = getActiveEditorText();
 		await vscode.commands.executeCommand('groovyLint.lintFix');
-		await waitUntil(() => documentHasBeenUpdated(bigDocument.uri, textBefore), 'async', 60000);
+		await waitUntil(() => documentHasBeenUpdated(bigDocument.uri, textBefore), 'async', 120000);
 		await sleepPromise(2000);
-		await waitUntil(() => diagnosticsReceived(bigDocument.uri), 'sync', 60000); // Wait for linter to lint again after fix
+		await waitUntil(() => diagnosticsReceived(bigDocument.uri), 'sync', 80000); // Wait for linter to lint again after fix
 		const docDiagnostics = vscode.languages.getDiagnostics(bigDocument.uri);
 		const textAfter = getActiveEditorText();
 
 		assert(textBefore !== textAfter, 'TextDocument text must be updated after fix');
 		assert(docDiagnostics.length === numberOfDiagnosticsForBigGroovyLintFix, `${numberOfDiagnosticsForBigGroovyLintFix} GroovyLint diagnostics found after lint (${docDiagnostics.length} returned)`);
-	}).timeout(120000);
+	}).timeout(180000);
 
 	// Lint tiny document
 	test("3.0 Lint tiny document", async () => {
 		tinyDocument = await openDocument('tinyGroovy');
 		await vscode.commands.executeCommand('groovyLint.lint');
-		await waitUntil(() => diagnosticsReceived(tinyDocument.uri), 'sync', 60000);
+		await waitUntil(() => diagnosticsReceived(tinyDocument.uri), 'sync', 100000);
 		const docDiagnostics = vscode.languages.getDiagnostics(tinyDocument.uri);
 
 		assert(docDiagnostics.length === numberOfDiagnosticsForTinyGroovyLint, `${numberOfDiagnosticsForTinyGroovyLint} GroovyLint diagnostics found after lint (${docDiagnostics.length} returned)`);
-	}).timeout(100000);
+	}).timeout(180000);
 
 	// Format tiny document
 	test("3.1. Format tiny document", async () => {
@@ -95,11 +95,11 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		const textEdits = await vscode.commands.executeCommand('vscode.executeFormatDocumentProvider', tinyDocument.uri, {});
 		console.debug('Returned textEdits: ' + JSON.stringify(textEdits));
 		await applyTextEditsOnDoc(tinyDocument.uri, textEdits as vscode.TextEdit[]);
-		await waitUntil(() => documentHasBeenUpdated(tinyDocument.uri, textBefore), 'async', 15000);
+		await waitUntil(() => documentHasBeenUpdated(tinyDocument.uri, textBefore), 'async', 100000);
 		const textAfter = getActiveEditorText();
 
 		assert(textBefore !== textAfter, 'TextDocument text must be updated after format');
-	}).timeout(20000);
+	}).timeout(180000);
 });
 
 async function openDocument(docExample: string) {
