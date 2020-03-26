@@ -1,5 +1,12 @@
 # Change Log
 
+### [0.5.0] 2020-03-25
+
+- New command "Format" (Right click in code editor -> format, or Shift+Alt+F)
+- [Automated tests](https://github.com/nvuillam/vscode-groovy-lint/blob/master/client/src/test/suite/extension.test.ts) with mocha and vscode-test
+- CI Integration (CircleCI)
+- Update README
+
 ### [0.4.1] 2020-03-23
 
 - Fix blocking issue when using QuickFix Action (source was not replaced). If someone knows how to make good automated tests for a VsCode extension, please contact me !

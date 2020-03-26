@@ -16,6 +16,7 @@
 		"lint:fix": "eslint client/src --ext ts --fix && eslint server/src --ext ts --fix",
 		"pretest": "npm run compile && npm run lint",
 		"test": "node ./client/out/test/runTest.js",
+		"test:coverage": "env NYC_COVERAGE=activated node ./client/out/test/runTest.js --codecoverage",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
 		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile"
 	},
@@ -50,11 +51,12 @@
 		"@types/glob": "^7.1.1",
 		"@types/mocha": "^7.0.1",
 		"@types/node": "^12.11.7",
-		"eslint": "^6.8.0",
-		"@typescript-eslint/parser": "^2.18.0",
 		"@typescript-eslint/eslint-plugin": "^2.18.0",
+		"@typescript-eslint/parser": "^2.18.0",
+		"eslint": "^6.8.0",
 		"glob": "^7.1.6",
 		"mocha": "^7.0.1",
+		"nyc": "^15.0.0",
 		"typescript": "^3.7.5",
 		"vscode-test": "^1.3.0"
 	},

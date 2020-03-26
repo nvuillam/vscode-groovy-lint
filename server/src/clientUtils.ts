@@ -77,5 +77,6 @@ export function getUpdatedSource(docLinter: any, prevSource: string) {
 
 // Check if we are in test mode
 export function isTest() {
-	return process.env.npm_lifecycle_event && process.env.npm_lifecycle_event === 'test';
+	return (process.env.npm_lifecycle_event && process.env.npm_lifecycle_event === 'test') ||
+		(process.env.NYC_COVERAGE && process.env.NYC_COVERAGE === 'activated');
 }

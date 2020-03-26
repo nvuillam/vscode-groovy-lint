@@ -133,11 +133,6 @@ export function deactivate(): Thenable<void> {
 	return client.stop();
 }
 
-// Returns diagnostics collection
-export function getDiagnosticsCollection() {
-	return diagnosticsCollection;
-}
-
 // Update status list
 async function updateStatus(status: StatusParams): Promise<any> {
 	// Start linting / fixing, or notify error

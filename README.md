@@ -13,11 +13,11 @@ Autofixing is still in beta version, please post an [issue](https://github.com/n
 | Command                         | Description                                                                                    | Access                                                                                                   |
 |---------------------------------|------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
 | **Analyze code**                | Lint the code of the current tab                                                               | Ctrl+Shit+F9<br/>Contextual menu</br>Status bar<br/>Commands                                             |
-| **Format**                      | Format the code of the current tab                                                             | Ctrl+Shit+F10<br/>Contextual menu</br>Commands                                                           |
-| **Fix all errors**              | Fix the code of the current tab                                                                | Shift+Alt+F<br/>Contextual menu</br>Commands                                                           |
+| **Format**                      | Format the code of the current tab                                                             | Shift+Alt+F<br/>Contextual menu</br>Commands                                                           |
+| **Fix all errors**              | Fix the code of the current tab                                                                | Ctrl+Shit+F10<br/>Contextual menu</br>Commands                                                           |
 | Fix single error                | Apply quick fix for a single error                                                             | Quick Fix menu<br/>Diagnostic menu                                                                       |
 | Fix _errorType_ in file         | Apply quick fix for all errors of the same type in the currrent tab                            | Quick Fix menu<br/>Diagnostic menu                                                                       |
-| Ignore _errorType_ in all files | Updates configuration file (usually .groovylintrc.js in root folder) to ignore this error type | Quick Fix menu<br/>Diagnostic menu                                                                       |
+| Ignore _errorType_ in all files | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to ignore this error type) | Quick Fix menu<br/>Diagnostic menu                                                                       |
 
 ## Extension Settings
 
@@ -45,10 +45,17 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+### [0.5.0] 2020-03-25
+
+- New command "Format" (Right click in code editor -> format, or Shift+Alt+F)
+- [Automated tests](https://github.com/nvuillam/vscode-groovy-lint/blob/master/client/src/test/suite/extension.test.ts) with mocha and vscode-test
+- CI Integration (CircleCI)
+- Update README
+
 ### [0.4.1] 2020-03-23
 
 - Fix blocking issue when using QuickFix Action (source was not replaced). If someone knows how to make good automated tests for a VsCode extension, please contact me !
-- Change README
+- Update README
 
 ### [0.4.0] 2020-03-23
 
