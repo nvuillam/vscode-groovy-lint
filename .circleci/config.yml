@@ -15,7 +15,7 @@
             command: curl -sL https://deb.nodesource.com/setup_12.x | bash - && apt-get update && apt-get install -y nodejs
         - run:
             name: Install dependencies
-            command: npm install
+            command: npm install --unsafe-perm
         - run:
             name: Lint
             command: npm run lint
