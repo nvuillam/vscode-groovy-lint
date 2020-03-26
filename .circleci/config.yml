@@ -8,11 +8,8 @@
       executor:
         name: win/default # executor type
         size: "medium" # resource class, can be "medium", "large", "xlarge", "2xlarge", defaults to "medium" if not specified
-  
-#      docker:
-#        - image: circleci/openjdk:8-jdk-buster-node-browsers
       steps:
-        - checkout:
+        - checkout
         - run:
             name: Install dependencies
             command: npm install --unsafe-perm
