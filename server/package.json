@@ -1,7 +1,7 @@
 {
   "name": "vscode-groovy-lint-server",
   "version": "0.0.1",
-  "description": "VSCode Groovy Lint extension server",
+  "description": "VSCode Groovy Lint server (LSP protocol)",
   "publisher": "NicolasVuillamy",
   "engines": {
     "node": "*"
@@ -22,7 +22,8 @@
     "npm",
     "linter",
     "package",
-    "wrapper"
+    "wrapper",
+    "lsp"
   ],
   "bugs": {
     "url": "https://github.com/nvuillam/vscode-groovy-lint/issues"
