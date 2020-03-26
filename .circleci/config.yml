@@ -9,7 +9,7 @@
         - checkout
         - run: 
             name: Install base tools
-            command: apt-get update && apt-get upgrade -y && apt-get -y install wget zip unzip sudo xvfb libgtk-3-dev && apt-get clean && echo 'Installed wget zip unzip' 
+            command: apt-get update && apt-get upgrade -y && apt-get -y install wget zip unzip sudo xvfb libgtk-3-dev libnss3-dev && apt-get clean && echo 'Installed wget zip unzip' 
         - run:
             name: Install node
             command: curl -sL https://deb.nodesource.com/setup_12.x | bash - && apt-get update && apt-get install -y nodejs
