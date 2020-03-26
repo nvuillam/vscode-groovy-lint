@@ -6,7 +6,7 @@
         - image: openjdk-8-tools-deps-stretch-node-browsers
      # working_directory: ~/cli
       steps:
-        - checkout
+        - checkout:
         - run: 
             name: Install base tools
             command: apt-get update && apt-get upgrade -y && apt-get -y install wget zip unzip sudo && apt-get clean && echo 'Installed wget zip unzip' 
