@@ -67,7 +67,7 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 - Update README (doc + badges)
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v3.2.0
 - Fixes 
-  - Tab focus should not be disrupted by VsCode Groovy Lint 
+  - Tab focus should not be disrupted by VsCode Groovy Lint
 
 ### [0.4.1] 2020-03-23
 
