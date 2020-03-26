@@ -6,7 +6,7 @@
   jobs:
     debian: 
       docker:
-        - image: circleci/openjdk-8-stretch-node-browsers
+        - image: circleci/openjdk:8-jdk-buster-node-browsers
       steps:
         - checkout
         - run:
