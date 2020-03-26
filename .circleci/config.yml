@@ -3,7 +3,7 @@
   jobs:
     node-12-jdk-8: 
       docker:
-        - image: openjdk-8-tools-deps-stretch-node-browsers
+        - image: openjdk-8-stretch-node-browsers
      # working_directory: ~/cli
       steps:
         - checkout:
