@@ -1,9 +1,11 @@
 # VsCode Groovy Lint, Format and Fix
 
+<!--
 [![Badge for version for Visual Studio Code extension VsCode Groovy Lint](https://vsmarketplacebadge.apphb.com/version/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
 [![Badge for installs for Visual Studio Code extension VsCode Groovy Lint](https://vsmarketplacebadge.apphb.com/installs/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
 [![CircleCI](https://circleci.com/gh/nvuillam/vscode-groovy-lint/tree/master.svg?style=shield)](https://circleci.com/gh/nvuillam/vscode-groovy-lint/tree/master)
-[![GitHub license](https://img.shields.io/github/license/nvuillam/vscode-groovy-lint.svg)](https://github.com/nvuillam/vscode-groovy-lint/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/nvuillam/vscode-groovy-lint.svg)](https://github.com/nvuillam/vscode-groovy-lint/blob/master/LICENSE) 
+-->
 
 **Lint** , **Format** and **Auto-fix** your groovy files and Jenkinsfile 
 

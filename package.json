@@ -26,7 +26,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/nvuillam/vscode-groovy-lint.git"
+		"url": "https://github.com/nvuillam/vscode-groovy-lint"
 	},
 	"keywords": [
 		"groovy",
@@ -47,6 +47,28 @@
 		"url": "https://github.com/nvuillam/vscode-groovy-lint/issues"
 	},
 	"homepage": "https://github.com/nvuillam/vscode-groovy-lint#readme",
+	"badges": [
+		{
+			"url": "https://vsmarketplacebadge.apphb.com/version/NicolasVuillamy.vscode-groovy-lint.svg",
+			"href": "https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint",
+			"description": "Badge for version for Visual Studio Code extension VsCode Groovy Lint"
+		},
+		{
+			"url": "https://vsmarketplacebadge.apphb.com/installs/NicolasVuillamy.vscode-groovy-lint.svg",
+			"href": "https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint",
+			"description": "Badge for installs for Visual Studio Code extension VsCode Groovy Lint"
+		},
+		{
+			"url": "https://circleci.com/gh/nvuillam/vscode-groovy-lint/tree/master.svg?style=shield",
+			"href": "https://circleci.com/gh/nvuillam/vscode-groovy-lint/tree/master",
+			"description": "CircleCI"
+		},
+		{
+			"url": "https://img.shields.io/github/license/nvuillam/vscode-groovy-lint.svg",
+			"href": "https://github.com/nvuillam/vscode-groovy-lint/blob/master/LICENSE",
+			"description": "GitHub license"
+		}
+	],
 	"devDependencies": {
 		"@types/glob": "^7.1.1",
 		"@types/mocha": "^7.0.1",
