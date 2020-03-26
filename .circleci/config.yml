@@ -7,7 +7,8 @@
     node-12-jdk-8: 
       executor:
         name: win/default # executor type
-        size: "medium" # resource class, can be "medium", "large", "xlarge", "2xlarge", defaults to "medium" if not specified
+        size: "xlarge" # resource class, can be "medium", "large", "xlarge", "2xlarge", defaults to "medium" if not specified
+        shell: bash.exe
       steps:
         - checkout
         - run:
