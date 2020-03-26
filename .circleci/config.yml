@@ -29,7 +29,7 @@
             command: npm run compile
         - run:
             name: Test & Code Coverage
-            command: |
+            command:
 #              export DISPLAY=:99
               npm run test:coverage
         - run:
