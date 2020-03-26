@@ -18,8 +18,7 @@ async function main() {
 		const nyc = new NYC({
 			cwd: path.join(__dirname, '..', '..', '..'), // in debugging sessions, the cwd seems to be unset
 			include: [
-				"./client/src/*.ts",
-				"./server/src/*.ts"
+				"**/*.ts",
 			],
 			exclude: [
 				"coverage/**",
