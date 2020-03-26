@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as path from "path";
 import * as vscode from 'vscode';
-import { TextEdit } from 'vscode-languageclient';
+//import { TextEdit } from 'vscode-languageclient';
 const debug = require("debug")("vscode-groovy-lint");
 const { performance } = require('perf_hooks');
 
@@ -132,7 +132,7 @@ async function applyTextEditsOnDoc(docUri: vscode.Uri, textEdits: vscode.TextEdi
 	return applyRes;
 }
 
-async function waitUntil(test: Function, mode = 'sync', timeout_ms = 20 * 1000): Promise<boolean> {
+async function waitUntil(testFunction: Function, mode = 'sync', timeout_ms = 20 * 1000): Promise<boolean> {
 	return new Promise(async (resolve, reject) => {
 		let start = performance.now();
 		let freq = 300;
@@ -146,15 +146,20 @@ async function waitUntil(test: Function, mode = 'sync', timeout_ms = 20 * 1000):
 			}
 			await sleepPromise(freq);
 			if (mode === 'async') {
-				result = await test();
+				result = await testFunction();
 			}
 			else {
-				result = test();
+				result = testFunction();
 			}
 		}
-		// return result if test passed
+		// return result if testFunction passed
+		console.debug('Waiting time: ' + performance.now() + ' for ' + testFunction);
 		resolve(result);
 	});
+}
+
+async function waitUntilOneOf(functionList: Function[]) {
+
 }
 
 function diagnosticsReceived(docUri: vscode.Uri): boolean {
