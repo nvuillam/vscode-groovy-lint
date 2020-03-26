@@ -7,9 +7,6 @@
      # working_directory: ~/cli
       steps:
         - checkout:
-        - run: 
-            name: Install base tools
-            command: sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get -y install wget zip unzip && sudo apt-get clean && echo 'Installed wget zip unzip' 
         - run:
             name: Install dependencies
             command: npm install --unsafe-perm
