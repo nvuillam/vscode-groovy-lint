@@ -6,6 +6,8 @@
 
 [VsCode extension](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint) based on [npm-groovy-lint](https://github.com/nvuillam/npm-groovy-lint#README) package, itself based on [CodeNarc](https://codenarc.github.io/CodeNarc/) Groovy linter
 
+You can [configure the rules](https://github.com/nvuillam/npm-groovy-lint#configuration) by defining a `.groovylintrc.js` file
+
 Formatting and Auto-fix are still in beta version, please post an [issue](https://github.com/nvuillam/vscode-groovy-lint/issues) if you detect any problem
 
 ![https://github.com/nvuillam/vscode-groovy-lint/raw/master/images/screenshot.png](https://github.com/nvuillam/vscode-groovy-lint/raw/master/images/screenshot.png)
