@@ -153,7 +153,7 @@ async function waitUntil(testFunction: Function, mode = 'sync', timeout_ms = 20 
 			}
 		}
 		// return result if testFunction passed
-		console.debug('Waiting time: ' + performance.now() + ' for ' + testFunction);
+		debug('Waiting time: ' + performance.now() + ' for ' + testFunction);
 		resolve(result);
 	});
 }
