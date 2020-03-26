@@ -16,6 +16,8 @@ let client: LanguageClient;
 let statusBarItem: vscode.StatusBarItem;
 let statusList: StatusParams[] = [];
 
+let outputChannelShowedOnce = false;
+
 // Lint/fix Status notifications received from language server
 interface StatusParams {
 	id: number;
@@ -110,9 +112,11 @@ export function activate(context: ExtensionContext) {
 
 		// Open file in workspace when language server requests it
 		client.onNotification("vscode-groovy-lint/openDocument", async (notifParams: any) => {
-			const openPath = vscode.Uri.parse("file:///" + notifParams.file); //A request file path
-			const doc = await vscode.workspace.openTextDocument(openPath);
-			await vscode.window.showTextDocument(doc);
+			if (notifParams.file.endsWith('.groovy') || notifParams.file.tolowerCase().includes('Jenkinsfile')) {
+				const openPath = vscode.Uri.parse("file:///" + notifParams.file); //A request file path
+				const doc = await vscode.workspace.openTextDocument(openPath);
+				await vscode.window.showTextDocument(doc, { preserveFocus: true });
+			}
 		});
 
 		// Refresh status bar when active tab changes
@@ -140,9 +144,9 @@ async function updateStatus(status: StatusParams): Promise<any> {
 		statusList.push(status);
 		// Really open document, so tab will not be replaced by next preview
 		for (const docDef of status.documents) {
-			const docs = vscode.workspace.textDocuments.filter(txtDoc => txtDoc.uri.toString() === docDef.documentUri);
-			if (docs && docs[0]) {
-				await vscode.window.showTextDocument(docs[0], { preview: false });
+			const documentTextEditors = vscode.window.visibleTextEditors.filter(txtDoc => txtDoc.document.uri.toString() === docDef.documentUri);
+			if (documentTextEditors && documentTextEditors[0]) {
+				await vscode.window.showTextDocument(documentTextEditors[0].document, { preview: false, preserveFocus: true });
 			}
 		}
 	}
@@ -156,6 +160,11 @@ async function updateStatus(status: StatusParams): Promise<any> {
 			if (!(docs && docs[0])) {
 				diagnosticsCollection.set(vscode.Uri.parse(docDef.documentUri), []);
 			}
+		}
+		// Show markers panel just once (after the user can choose to close it)
+		if (outputChannelShowedOnce === false) {
+			vscode.commands.executeCommand('workbench.panel.markers.view.focus');
+			outputChannelShowedOnce = true;
 		}
 	}
 	// Show GroovyLint status bar as ready

@@ -55,12 +55,15 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
-### [0.5.0] 2020-03-25
+### [0.5.0] 2020-03-26
 
 - New command "Format" (Right click in code editor -> format, or Shift+Alt+F)
 - [Automated tests](https://github.com/nvuillam/vscode-groovy-lint/blob/master/client/src/test/suite/extension.test.ts) with mocha and vscode-test
 - CI Integration (CircleCI)
+- If hidden, show Diagnostics panel after first lint result. If closed again by the user, it won't be reopened
 - Update README
+- Fixes 
+  - Tab focus should not be disrupted by VsCode Groovy Lint
 
 ### [0.4.1] 2020-03-23
 

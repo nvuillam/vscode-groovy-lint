@@ -9,9 +9,9 @@ const testFolderExamplesLocation = '/../../../src/test/examples/';
 
 const extensionId = 'NicolasVuillamy.vscode-groovy-lint';
 const numberOfCommands = 7;
-const numberOfDiagnosticsForTinyGroovyLint = 29;
+const numberOfDiagnosticsForTinyGroovyLint = 46;
 
-const numberOfDiagnosticsForBigGroovyLint = 1475;
+const numberOfDiagnosticsForBigGroovyLint = 1725;
 const numberOfDiagnosticsForBigGroovyLintFix = 23;
 
 let bigDocument: any;
@@ -31,7 +31,7 @@ suite('VsCode GroovyLint Test Suite', async () => {
 
 	// Check all commands are here
 	test("1.1 Check GroovyLint VsCode commands", async () => {
-		const allCommands = await vscode.commands.getCommands(true);
+		const allCommands = await vscode.commands.getCommands();
 		debug('Commands found: ' + JSON.stringify(allCommands));
 		const groovyLintCommands = allCommands.filter((command) => {
 			return command.startsWith('groovyLint');
