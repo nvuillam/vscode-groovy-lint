@@ -49,7 +49,7 @@ async function main() {
 		await runTests({
 			extensionPath: extensionDevelopmentPath,
 			testRunnerPath: extensionTestsPath,
-			additionalLaunchArgs: ['--disable-extensions', '--no-sandbox']
+			additionalLaunchArgs: ['--disable-extensions']
 		});
 
 		if (codeCoverage) {
