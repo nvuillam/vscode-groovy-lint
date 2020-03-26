@@ -9,7 +9,7 @@
         - checkout
         - run: 
             name: Install base tools
-            command: apt-get update && apt-get upgrade -y && apt-get -y install wget zip unzip sudo libgtk2.0-0:i386 libsm6:i386 && apt-get clean && echo 'Installed wget zip unzip' 
+            command: apt-get update && apt-get upgrade -y && apt-get -y install wget zip unzip sudo ia32-libs-gtk && apt-get clean && echo 'Installed wget zip unzip' 
         - run:
             name: Install node
             command: curl -sL https://deb.nodesource.com/setup_12.x | bash - && apt-get update && apt-get install -y nodejs
