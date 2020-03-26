@@ -1,10 +1,12 @@
 # VsCode Groovy Lint, Format and Fix
 
+[![CircleCI](https://circleci.com/gh/nvuillam/vscode-groovy-lint/tree/DevFormat.svg?style=shield)](https://circleci.com/gh/nvuillam/vscode-groovy-lint/tree/DevFormat)
+
 **Lint** , **Format** and **Auto-fix** your groovy files and Jenkinsfile 
 
-This [VsCode extension](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint) is based on [npm-groovy-lint](https://github.com/nvuillam/npm-groovy-lint#README) package, itself based on [CodeNarc](https://codenarc.github.io/CodeNarc/) groovy linter
+[VsCode extension](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint) based on [npm-groovy-lint](https://github.com/nvuillam/npm-groovy-lint#README) package, itself based on [CodeNarc](https://codenarc.github.io/CodeNarc/) Groovy linter
 
-Autofixing is still in beta version, please post an [issue](https://github.com/nvuillam/vscode-groovy-lint/issues) if you detect any problem
+Formatting and Auto-fix are still in beta version, please post an [issue](https://github.com/nvuillam/vscode-groovy-lint/issues) if you detect any problem
 
 ![https://github.com/nvuillam/vscode-groovy-lint/raw/master/images/screenshot.png](https://github.com/nvuillam/vscode-groovy-lint/raw/master/images/screenshot.png)
 
