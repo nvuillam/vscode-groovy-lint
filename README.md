@@ -2,14 +2,14 @@
 
 [![Badge for version for Visual Studio Code extension VsCode Groovy Lint](https://vsmarketplacebadge.apphb.com/version/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
 [![Badge for installs for Visual Studio Code extension VsCode Groovy Lint](https://vsmarketplacebadge.apphb.com/installs/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
-[![CircleCI](https://circleci.com/gh/nvuillam/vscode-groovy-lint/tree/DevFormat.svg?style=shield)](https://circleci.com/gh/nvuillam/vscode-groovy-lint/tree/DevFormat)
+[![CircleCI](https://circleci.com/gh/nvuillam/vscode-groovy-lint/tree/master.svg?style=shield)](https://circleci.com/gh/nvuillam/vscode-groovy-lint/tree/master)
 [![GitHub license](https://img.shields.io/github/license/nvuillam/vscode-groovy-lint.svg)](https://github.com/nvuillam/vscode-groovy-lint/blob/master/LICENSE)
 
 **Lint** , **Format** and **Auto-fix** your groovy files and Jenkinsfile 
 
-[Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint) based on [npm-groovy-lint](https://github.com/nvuillam/npm-groovy-lint#README) package, itself based on [CodeNarc](https://codenarc.github.io/CodeNarc/) Groovy linter
+[Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint) embedding [npm-groovy-lint](https://github.com/nvuillam/npm-groovy-lint#README), itself embedding [CodeNarc](https://codenarc.github.io/CodeNarc/)
 
-You can [configure the rules](https://github.com/nvuillam/npm-groovy-lint#configuration) by defining a `.groovylintrc.js` file
+You can [configure the rules](https://github.com/nvuillam/npm-groovy-lint#configuration) by defining a `.groovylintrc.json` file
 
 Formatting and Auto-fix are still in beta version, please post an [issue](https://github.com/nvuillam/vscode-groovy-lint/issues) if you detect any problem
 
