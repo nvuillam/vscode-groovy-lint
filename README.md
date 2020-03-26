@@ -14,12 +14,18 @@ Formatting and Auto-fix are still in beta version, please post an [issue](https:
 
 | Command                         | Description                                                                                    | Access                                                                                                   |
 |---------------------------------|------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
-| **Analyze code**                | Lint the code of the current tab                                                               | Ctrl+Shit+F9<br/>Contextual menu</br>Status bar<br/>Commands                                             |
-| **Format**                      | Format the code of the current tab                                                             | Shift+Alt+F<br/>Contextual menu</br>Commands                                                           |
-| **Fix all errors**              | Fix the code of the current tab                                                                | Ctrl+Shit+F10<br/>Contextual menu</br>Commands                                                           |
-| Fix single error                | Apply quick fix for a single error                                                             | Quick Fix menu<br/>Diagnostic menu                                                                       |
-| Fix _errorType_ in file         | Apply quick fix for all errors of the same type in the currrent tab                            | Quick Fix menu<br/>Diagnostic menu                                                                       |
-| Ignore _errorType_ in all files | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to ignore this error type) | Quick Fix menu<br/>Diagnostic menu                                                                       |
+| **Analyze code**                | Lint the code of the current tab                                                               | Ctrl+Shit+F9<br/>Contextual</br>Status bar<br/>Commands                                             |
+| **Format**                      | Format the code of the current tab                                                             | Shift+Alt+F<br/>Contextual</br>Commands                                                           |
+| **Fix all errors**              | Fix the code of the current tab                                                                | Ctrl+Shit+F10<br/>Contextual</br>Commands                                                           |
+| Fix single error                | Apply quick fix for a single error                                                             | Quick Fix<br/>Diagnostic                                                                       |
+| Fix _errorType_ in file         | Apply quick fix for all errors of the same type in the currrent tab                            | Quick Fix<br/>Diagnostic                                                                       |
+| Ignore _errorType_ in all files | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to ignore this error type) | Quick Fix<br/>Diagnostic                                                                       |
+
+- Contextual: right click in the source code
+- Commands: Ctrl+Shift+P then type command name
+- Status bar: GroovyLint status item at the bottom right
+- Quick Fix: Hover an underlined part of the code after a lint, click Quick Fix then select action to perform
+- Diagnostic: Right click on a diagnostic in Problems section
 
 ## Extension Settings
 

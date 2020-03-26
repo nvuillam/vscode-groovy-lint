@@ -17,7 +17,13 @@
             name: Install dependencies
             command: npm install
         - run:
-            name: Lint & Test
+            name: Lint
+            command: npm run lint
+        - run:
+            name: Compile
+            command: npm run compile
+        - run:
+            name: Test & Code Coverage
             command: npm run test:coverage
         - run:
             name: Submitting code coverage to codecov
