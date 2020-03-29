@@ -1,6 +1,6 @@
 # VsCode Groovy Lint, Format and Fix
 
-**Lint** , **Format** and **Auto-fix** your groovy files and Jenkinsfile 
+**Lint** (code quality), **Format** and **Auto-fix** your groovy files and Jenkinsfile 
 
 [Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint) embedding [npm-groovy-lint](https://github.com/nvuillam/npm-groovy-lint#README), itself embedding [CodeNarc](https://codenarc.github.io/CodeNarc/)
 
@@ -52,6 +52,12 @@ Contributions are very welcome on :
 Please follow [Contribution instructions](https://github.com/nvuillam/vscode-groovy-lint/blob/master/CONTRIBUTING.md)
 
 ## Release Notes
+
+### [0.5.1] 2020-03-29
+
+- New diagnostic QuickAction: Show rule documentation
+- Fix location error to create .groovylintrc.json from a QuickFix when user has multiple workspaces
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v3.2.1
 
 ### [0.5.0] 2020-03-26
 

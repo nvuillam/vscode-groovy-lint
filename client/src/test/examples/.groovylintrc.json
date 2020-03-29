@@ -1,0 +1,9 @@
+{
+    "extends": "recommended",
+    "rules": {
+        "formatting.LineLength": "off",
+        "convention.FieldTypeRequired": "off",
+        "convention.NoDef": "off",
+        "convention.VariableTypeRequired": "off"
+    }
+}

@@ -1,8 +1,10 @@
-import { TextDocuments, Diagnostic, TextDocumentIdentifier } from 'vscode-languageserver';
+import { TextDocuments, Diagnostic, TextDocumentIdentifier, WorkspaceFolder } from 'vscode-languageserver';
 import { TextDocument, DocumentUri, TextEdit } from 'vscode-languageserver-textdocument';
 import { executeLinter } from './linter';
 import { applyQuickFixes, applyQuickFixesInFile, addSuppressWarning, alwaysIgnoreError } from './codeActions';
-import { isTest } from './clientUtils';
+import { isTest, showRuleDocumentation } from './clientUtils';
+import { URI } from 'vscode-uri';
+import path = require('path');
 const debug = require("debug")("vscode-groovy-lint");
 
 // Usable settings
@@ -29,14 +31,18 @@ export class DocumentsManager {
 	// Cache the settings of all open documents
 	private documentSettings: Map<string, Thenable<VsCodeGroovyLintSettings>> = new Map();
 	private currentTextDocumentUri: DocumentUri = '';
+	private currentWorkspaceFolder: string = process.cwd();
 
 	// Memory stored values
 	private docLinters: Map<String, any> = new Map<String, any>();
 	private docsDiagnostics: Map<String, Diagnostic[]> = new Map<String, Diagnostic[]>();
 	private docsDiagsQuickFixes: Map<String, any[]> = new Map<String, any[]>();
+	private ruleDescriptions: Map<String, any[]> = new Map<String, any[]>();
 	// Lint/fix queue
 	private currentlyLinted: any[] = [];
 	private queuedLints: any[] = [];
+
+
 
 	// Initialize documentManager
 	constructor(cnx: any) {
@@ -54,8 +60,12 @@ export class DocumentsManager {
 			await this.validateTextDocument(document);
 		}
 		else if (params.command === 'groovyLint.lintFix') {
-			const document: TextDocument = this.getDocumentFromUri(this.currentTextDocumentUri)!;
+			// Fix
+			let document: TextDocument = this.getDocumentFromUri(this.currentTextDocumentUri)!;
 			await this.validateTextDocument(document, { fix: true });
+			// Then lint again
+			document = this.getUpToDateTextDocument(document);
+			await this.validateTextDocument(document); // After fix, lint again
 		}
 		else if (params.command === 'groovyLint.quickFix') {
 			const [diagnostic, textDocumentUri] = params.arguments!;
@@ -76,6 +86,10 @@ export class DocumentsManager {
 		else if (params.command === 'groovyLint.alwaysIgnoreError') {
 			const [diagnostic, textDocumentUri] = params.arguments!;
 			await alwaysIgnoreError(diagnostic, textDocumentUri, this);
+		}
+		else if (params.command === 'groovyLint.showRuleDocumentation') {
+			const [ruleCode] = params.arguments!;
+			await showRuleDocumentation(ruleCode, this);
 		}
 	}
 
@@ -153,7 +167,6 @@ export class DocumentsManager {
 			debug(`${textDocument.uri} is already being linted: add request in queue`);
 			return Promise.resolve([]);
 		}
-
 	}
 
 	// Cancels a document validation
@@ -186,8 +199,38 @@ export class DocumentsManager {
 	deleteDocLinter(textDocumentUri: string) {
 		this.docLinters.delete(textDocumentUri);
 	}
+
+	// Set rule description for later display
+	getRuleDescription(ruleName: string): any {
+		return this.ruleDescriptions.get(ruleName);
+	}
+
+	// Set rule description for later display
+	setRuleDescriptions(rules: any): void {
+		Object.keys(rules).forEach(key => {
+			this.ruleDescriptions.set(key, rules[key]);
+		});
+	}
+
+	// Return current workspace folder 
+	getCurrentWorkspaceFolder(): string {
+		return this.currentWorkspaceFolder;
+	}
+
+	// Set current workspace folder 
+	async setCurrentWorkspaceFolder(textDocumentUri: string) {
+		const workspaceFolders: WorkspaceFolder[] = await this.connection.workspace.getWorkspaceFolders() || [];
+		const uriCompare = path.resolve(URI.parse(textDocumentUri).fsPath);
+		for (const wsFolder of workspaceFolders) {
+			if (uriCompare.includes(path.resolve(URI.parse(wsFolder.uri).fsPath))) {
+				this.currentWorkspaceFolder = path.resolve(URI.parse(wsFolder.uri).fsPath);
+				break;
+			}
+		}
+	}
+
 	// Get task id from counter
-	getNewTaskId() {
+	getNewTaskId(): number {
 		this.currentTaskId++;
 		return this.currentTaskId;
 	}
@@ -205,14 +248,14 @@ export class DocumentsManager {
 	}
 
 	// Update diagnostics on client and store them in docsDiagnostics field
-	async updateDiagnostics(docUri: string, diagnostics: Diagnostic[]) {
+	async updateDiagnostics(docUri: string, diagnostics: Diagnostic[]): Promise<void> {
 		debug(`Update diagnostics for ${docUri}: ${diagnostics.length} diagnostics sent`);
 		await this.connection.sendDiagnostics({ uri: docUri, diagnostics: diagnostics });
 		this.docsDiagnostics.set(docUri, diagnostics);
 	}
 
 	// Update diagnostics on client and store them in docsDiagnostics field
-	async resetDiagnostics(docUri: string) {
+	async resetDiagnostics(docUri: string): Promise<void> {
 		debug(`Reset diagnostics for ${docUri}`);
 		const emptydiagnostics: Diagnostic[] = [];
 		await this.connection.sendDiagnostics({ uri: docUri, diagnostics: emptydiagnostics });
@@ -222,7 +265,7 @@ export class DocumentsManager {
 	}
 
 	// Remove diagnostic after it has been cleared
-	async removeDiagnostics(diagnosticsToRemove: Diagnostic[], textDocumentUri: string, removeAll?: boolean, recalculateRangeLinePos?: number) {
+	async removeDiagnostics(diagnosticsToRemove: Diagnostic[], textDocumentUri: string, removeAll?: boolean, recalculateRangeLinePos?: number): Promise<void> {
 		let docDiagnostics: Diagnostic[] = this.docsDiagnostics.get(textDocumentUri) || [];
 		for (const diagnosticToRemove of diagnosticsToRemove) {
 			// Keep only diagnostics not matching diagnosticToRemove ()
