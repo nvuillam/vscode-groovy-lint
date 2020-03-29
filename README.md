@@ -53,7 +53,7 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
-### [0.5.1] 2020-03-29
+### [0.5.3] 2020-03-29
 
 - New diagnostic QuickAction: Show rule documentation
 - Fix location error to create .groovylintrc.json from a QuickFix when user has multiple workspaces
