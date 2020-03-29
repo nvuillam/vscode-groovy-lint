@@ -53,6 +53,12 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+### [0.5.1] 2020-03-29
+
+- New diagnostic QuickAction: Show rule documentation
+- Fix location error to create .groovylintrc.json from a QuickFix when user has multiple workspaces
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v3.2.1
+
 ### [0.5.0] 2020-03-26
 
 - New command "Format" (Right click in code editor -> format, or Shift+Alt+F)
