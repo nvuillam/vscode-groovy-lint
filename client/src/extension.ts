@@ -112,11 +112,9 @@ export function activate(context: ExtensionContext) {
 
 		// Open file in workspace when language server requests it
 		client.onNotification("vscode-groovy-lint/openDocument", async (notifParams: any) => {
-			if (notifParams.file.endsWith('.groovy') || notifParams.file.tolowerCase().includes('Jenkinsfile')) {
-				const openPath = vscode.Uri.parse("file:///" + notifParams.file); //A request file path
-				const doc = await vscode.workspace.openTextDocument(openPath);
-				await vscode.window.showTextDocument(doc, { preserveFocus: true });
-			}
+			const openPath = vscode.Uri.parse("file:///" + notifParams.file); //A request file path
+			const doc = await vscode.workspace.openTextDocument(openPath);
+			await vscode.window.showTextDocument(doc, { preserveFocus: true });
 		});
 
 		// Refresh status bar when active tab changes

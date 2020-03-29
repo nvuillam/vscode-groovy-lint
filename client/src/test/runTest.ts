@@ -48,7 +48,8 @@ async function main() {
 		await runTests({
 			extensionPath: extensionDevelopmentPath,
 			testRunnerPath: extensionTestsPath,
-			additionalLaunchArgs: ['--disable-extensions']
+			additionalLaunchArgs: ['--disable-extensions'],
+			testRunnerEnv: (process.env["DEBUG"]) ? { "DEBUG": "vscode-groovy-lint,npm-groovy-lint" } : {}
 		});
 
 		if (codeCoverage) {

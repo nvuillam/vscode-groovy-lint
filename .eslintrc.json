@@ -15,5 +15,8 @@
         "eqeqeq": "warn",
         "no-throw-literal": "warn",
         "semi": "off"
+    },
+    "globals": {
+        "workspaceFolder": false
     }
 }

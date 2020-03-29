@@ -18,7 +18,7 @@ import { parseLinterResultsIntoDiagnostics } from './linter';
 import path = require('path');
 const debug = require("debug")("vscode-groovy-lint");
 
-const lintAgainAfterQuickFix: boolean = true; // Lint after fix is performed by npm-groovy-lint fixer
+const lintAgainAfterQuickFix: boolean = true; 
 
 // Status notifications
 interface StatusParams {
@@ -60,6 +60,8 @@ export function provideQuickFixCodeActions(textDocument: TextDocument, codeActio
 		// Add @SuppressWarnings('ErrorCode') for this error
 		const suppressWarningActions = createQuickFixSuppressWarningActions(diagnostic, textDocument.uri);
 		quickFixCodeActions.push(...suppressWarningActions);
+		const viewDocAction = createViewDocAction(diagnostic, textDocument.uri);
+		quickFixCodeActions.push(viewDocAction);
 	}
 	debug(`Provided ${quickFixCodeActions.length} codeActions for ${textDocument.uri}`);
 	return quickFixCodeActions;
@@ -101,7 +103,7 @@ function createQuickFixCodeActions(diagnostic: Diagnostic, quickFix: any, textDo
 	return codeActions;
 }
 
-function createQuickFixSuppressWarningActions(diagnostic: Diagnostic, textDocumentUri: string) {
+function createQuickFixSuppressWarningActions(diagnostic: Diagnostic, textDocumentUri: string): CodeAction[] {
 	const suppressWarningActions: CodeAction[] = [];
 	let errorLabel = (diagnostic.code as string).split('-')[0].replace(/([A-Z])/g, ' $1').trim();
 
@@ -141,11 +143,11 @@ function createQuickFixSuppressWarningActions(diagnostic: Diagnostic, textDocume
 
 		// ignore this error type in all file
 		const suppressWarningAlwaysAction: CodeAction = {
-			title: `Ignore ${errorLabel} in all files`,
+			title: `Ignore in all files: ${errorLabel}`,
 			kind: CodeActionKind.QuickFix,
 			command: {
 				command: 'groovyLint.alwaysIgnoreError',
-				title: `Ignore ${errorLabel} in all files`,
+				title: `Ignore in all files: ${errorLabel}`,
 				arguments: [diagnostic, textDocumentUri]
 			},
 			diagnostics: [diagnostic],
@@ -154,6 +156,24 @@ function createQuickFixSuppressWarningActions(diagnostic: Diagnostic, textDocume
 		suppressWarningActions.push(suppressWarningAlwaysAction);
 	}
 	return suppressWarningActions;
+}
+
+// Create action to view documentation
+function createViewDocAction(diagnostic: Diagnostic, textDocumentUri: string): CodeAction {
+	const ruleCode = (diagnostic.code as string).split('-')[0];
+	let errorLabel = ruleCode.replace(/([A-Z])/g, ' $1').trim();
+	const viewCodeAction: CodeAction = {
+		title: `Show documentation: ${errorLabel}`,
+		kind: CodeActionKind.QuickFix,
+		command: {
+			command: 'groovyLint.showRuleDocumentation',
+			title: `Show documentation: ${errorLabel}`,
+			arguments: [ruleCode]
+		},
+		diagnostics: [diagnostic],
+		isPreferred: false
+	};
+	return viewCodeAction;
 }
 
 // Apply quick fixes
@@ -255,7 +275,8 @@ export async function alwaysIgnoreError(diagnostic: Diagnostic, textDocumentUri:
 	let configFilePath: string = await docLinter.getConfigFilePath(startPath);
 	let configFileContent = JSON.parse(fse.readFileSync(configFilePath, "utf8").toString());
 	if (configFilePath.endsWith(".groovylintrc-recommended.json")) {
-		configFilePath = process.cwd() + '/.groovylintrc.json';
+		const workspaceFolder = docManager.getCurrentWorkspaceFolder();
+		configFilePath = `${workspaceFolder}/.groovylintrc.json`;
 		configFileContent = { extends: "recommended", rules: {} };
 	}
 	// Find / Create disabled rule

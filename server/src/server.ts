@@ -1,7 +1,6 @@
 /* eslint-disable eqeqeq */
 import {
     createConnection,
-    Diagnostic,
     ProposedFeatures,
     InitializeParams,
     DidChangeConfigurationNotification,
@@ -21,6 +20,8 @@ import { commands } from './linter';
 import { provideQuickFixCodeActions } from './codeActions';
 
 import { DocumentsManager } from './DocumentsManager';
+import { URI } from 'vscode-uri';
+import path = require('path');
 const debug = require("debug")("vscode-groovy-lint");
 const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
 
@@ -69,7 +70,7 @@ connection.onInitialized(async () => {
     // Register for the client notifications we can use
     connection.client.register(DidChangeConfigurationNotification.type);
     connection.client.register(DidSaveTextDocumentNotification.type);
-    connection.client.register(ActiveDocumentNotification.type);
+    //connection.client.register(ActiveDocumentNotification.type);
     debug('GroovyLint: initialized server');
 });
 
@@ -138,15 +139,17 @@ connection.onCodeAction(async (codeActionParams: CodeActionParams): Promise<Code
 });
 
 // Notification from client that active window has changed
-connection.onNotification(ActiveDocumentNotification.type, (params) => {
+connection.onNotification(ActiveDocumentNotification.type, async (params) => {
     debug(`Active text editor has changed to ${params.uri}`);
     docManager.setCurrentDocumentUri(params.uri);
+    await docManager.setCurrentWorkspaceFolder(params.uri);
 });
 
 // Lint groovy doc on open
 docManager.documents.onDidOpen(async (event) => {
     debug(`File open event received for ${event.document.uri}`);
     const textDocument: TextDocument = docManager.getDocumentFromUri(event.document.uri, true);
+    await docManager.setCurrentWorkspaceFolder(event.document.uri);
     await docManager.validateTextDocument(textDocument);
 });
 

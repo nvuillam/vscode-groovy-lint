@@ -1,6 +1,6 @@
 # VsCode Groovy Lint, Format and Fix
 
-**Lint** , **Format** and **Auto-fix** your groovy files and Jenkinsfile 
+**Lint** (code quality), **Format** and **Auto-fix** your groovy files and Jenkinsfile 
 
 [Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint) embedding [npm-groovy-lint](https://github.com/nvuillam/npm-groovy-lint#README), itself embedding [CodeNarc](https://codenarc.github.io/CodeNarc/)
 
