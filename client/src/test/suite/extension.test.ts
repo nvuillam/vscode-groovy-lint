@@ -11,10 +11,10 @@ const extensionId = 'NicolasVuillamy.vscode-groovy-lint';
 
 // Results to check
 const numberOfGroovyLintCommands = 8;
-const numberOfDiagnosticsForBigGroovyLint = 4390;
-const numberOfDiagnosticsForBigGroovyLintFix = 713;
-const numberOfDiagnosticsForTinyGroovyLint = 28;
-const numberOfDiagnosticsForTinyGroovyLintFix = 24;
+const numberOfDiagnosticsForBigGroovyLint = 4361;
+const numberOfDiagnosticsForBigGroovyLintFix = 684;
+const numberOfDiagnosticsForTinyGroovyLint = 39;
+const numberOfDiagnosticsForTinyGroovyLintFix = 20;
 
 // Documents shared between test cases
 let bigDocument: any;
