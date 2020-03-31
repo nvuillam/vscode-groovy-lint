@@ -1,6 +1,6 @@
 # Change Log
 
-### UNRELEASED
+### [0.6.0] 2020-03-31
 
 - New animated gif for [VsCode Groovy Lint home page](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
 - Increase size of **Show rule documentation** quick action message, and add a "Read More" link to CodeNarc WebSite
