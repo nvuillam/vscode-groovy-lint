@@ -1,5 +1,21 @@
 # Change Log
 
+### UNRELEASED
+
+- New animated gif for [VsCode Groovy Lint home page](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
+- Increase size of **Show rule documentation** quick action message, and add a "Read More" link to CodeNarc WebSite
+- If source has been updated by the user during a format or fix, do not apply the formatting/fix to avoid overriding the user updates, and notify the user
+
+- Fixes:
+  - Provide CodeActions even when there is no QuickFix (Ignore in all files, Show documentation)
+  - Fix npm-groovt-lint requests queue management
+  - If a file contains groovy errors, display info diagnostic while linting/formatting/fixing again
+  - Fix "infinite" status bar spinner when a lint/format/fix actions has been cancelled
+- Technical:
+  - Harmonize notifications URIS with new namespace: groovylintlsp
+  - Reorganize files: types.ts for structures, and mode commands in commands.ts
+  - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v3.2.2
+
 ### [0.5.3] 2020-03-29
 
 - New diagnostic QuickAction: Show rule documentation

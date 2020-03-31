@@ -1,7 +1,10 @@
 import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument';
-import { TextDocumentEdit, WorkspaceEdit, ShowMessageRequestParams, MessageType } from 'vscode-languageserver';
+import { TextDocumentEdit, WorkspaceEdit, ShowMessageRequestParams, MessageType, ShowMessageParams, ShowMessageRequest } from 'vscode-languageserver';
 import { DocumentsManager } from './DocumentsManager';
+import { OpenNotification } from './types';
 const debug = require("debug")("vscode-groovy-lint");
+
+const defaultDocUrl = "https://codenarc.github.io/CodeNarc/codenarc-rule-index.html";
 
 // Apply updated source into the client TextDocument
 export async function applyTextDocumentEditOnWorkspace(docManager: DocumentsManager, textDocument: TextDocument, updatedSource: string, where: any = {}) {
@@ -16,12 +19,13 @@ export async function applyTextDocumentEditOnWorkspace(docManager: DocumentsMana
 
 // Create a TextDocumentEdit that will be applied on client workspace
 export function createTextDocumentEdit(docManager: DocumentsManager, textDocument: TextDocument, updatedSource: string, where: any = {}): TextDocumentEdit {
-	const textEdit: TextEdit = createTestEdit(docManager, textDocument, updatedSource, where);
+	const textEdit: TextEdit = createTextEdit(docManager, textDocument, updatedSource, where);
 	const textDocEdit: TextDocumentEdit = TextDocumentEdit.create({ uri: textDocument.uri, version: textDocument.version }, [textEdit]);
 	return textDocEdit;
 }
 
-export function createTestEdit(docManager: DocumentsManager, textDocument: TextDocument, updatedSource: string, where: any = {}): TextEdit {
+// Create text edit for the whole file from updated source
+export function createTextEdit(docManager: DocumentsManager, textDocument: TextDocument, updatedSource: string, where: any = {}): TextEdit {
 	const allLines = docManager.getTextDocumentLines(textDocument);
 	// If range is not sent, replace all file lines
 	let textEdit: TextEdit;
@@ -79,12 +83,19 @@ export function getUpdatedSource(docLinter: any, prevSource: string) {
 // Shows the documentation of a rule
 export async function showRuleDocumentation(ruleCode: string, docManager: DocumentsManager): Promise<void> {
 	const ruleDesc = docManager.getRuleDescription(ruleCode);
-	// Show message to user and propose to open the configuration file
+	// Show documentation as info message, and propose to open codenarc website rule page
+	const readMoreLabel = 'Read More';
 	const msg: ShowMessageRequestParams = {
 		type: MessageType.Info,
-		message: `${ruleCode}: ${ruleDesc.description}`
+		message: `${ruleCode}: ${ruleDesc.description}`,
+		actions: [
+			{ title: readMoreLabel }
+		]
 	};
-	await docManager.connection.sendRequest('window/showMessageRequest', msg);
+	const res = await docManager.connection.sendRequest(ShowMessageRequest.type, msg);
+	if (res.title === readMoreLabel) {
+		docManager.connection.sendNotification(OpenNotification.type, { url: ruleDesc.docUrl || defaultDocUrl });
+	}
 }
 
 // Check if we are in test mode

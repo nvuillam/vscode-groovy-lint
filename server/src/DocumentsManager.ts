@@ -1,20 +1,12 @@
-import { TextDocuments, Diagnostic, TextDocumentIdentifier, WorkspaceFolder } from 'vscode-languageserver';
+import { TextDocuments, Diagnostic, DiagnosticSeverity, WorkspaceFolder } from 'vscode-languageserver';
 import { TextDocument, DocumentUri, TextEdit } from 'vscode-languageserver-textdocument';
 import { executeLinter } from './linter';
 import { applyQuickFixes, applyQuickFixesInFile, addSuppressWarning, alwaysIgnoreError } from './codeActions';
 import { isTest, showRuleDocumentation } from './clientUtils';
 import { URI } from 'vscode-uri';
 import path = require('path');
+import { StatusNotification, VsCodeGroovyLintSettings } from './types';
 const debug = require("debug")("vscode-groovy-lint");
-
-// Usable settings
-export interface VsCodeGroovyLintSettings {
-	enable: boolean;
-	lint: any;
-	fix: any;
-	format: any;
-	basic: any;
-}
 
 // Documents manager
 export class DocumentsManager {
@@ -22,11 +14,12 @@ export class DocumentsManager {
 	documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 	// connection to client
 	connection: any;
-	// Counter for job id
-	currentTaskId: number = 0;
 
 	indentLength = 4; // TODO: Nice to set as config later... when we'll be able to generate RuleSets from vsCode config
 	autoFixTabs = false;
+
+	// Counter for job id
+	private currentTaskId: number = 0;
 
 	// Cache the settings of all open documents
 	private documentSettings: Map<string, Thenable<VsCodeGroovyLintSettings>> = new Map();
@@ -55,38 +48,50 @@ export class DocumentsManager {
 	// Commands execution
 	async executeCommand(params: any) {
 		debug(`Request execute command ${JSON.stringify(params)}`);
+		// Set current document URI if sent as parameter
+		if (params.arguments && params.arguments[0] && URI.isUri(params.arguments[0])) {
+			this.setCurrentDocumentUri(params.arguments[0].toString());
+		}
+
+		// Command: Lint
 		if (params.command === 'groovyLint.lint') {
 			const document: TextDocument = this.getDocumentFromUri(this.currentTextDocumentUri)!;
 			await this.validateTextDocument(document);
 		}
+		// Command: Fix
 		else if (params.command === 'groovyLint.lintFix') {
-			// Fix
 			let document: TextDocument = this.getDocumentFromUri(this.currentTextDocumentUri)!;
 			await this.validateTextDocument(document, { fix: true });
 			// Then lint again
 			document = this.getUpToDateTextDocument(document);
 			await this.validateTextDocument(document); // After fix, lint again
 		}
+		// Command: Apply quick fix
 		else if (params.command === 'groovyLint.quickFix') {
 			const [diagnostic, textDocumentUri] = params.arguments!;
 			await applyQuickFixes([diagnostic], textDocumentUri, this);
 		}
+		// Command: Apply quick fix in all file
 		else if (params.command === 'groovyLint.quickFixFile') {
 			const [diagnostic, textDocumentUri] = params.arguments!;
 			await applyQuickFixesInFile([diagnostic], textDocumentUri, this);
 		}
+		// NV: not working yet 
 		else if (params.command === 'groovyLint.addSuppressWarning') {
 			const [diagnostic, textDocumentUri] = params.arguments!;
 			await addSuppressWarning(diagnostic, textDocumentUri, 'line', this);
 		}
+		// NV: not working yet 
 		else if (params.command === 'groovyLint.addSuppressWarningFile') {
 			const [diagnostic, textDocumentUri] = params.arguments!;
 			await addSuppressWarning(diagnostic, textDocumentUri, 'file', this);
 		}
+		// Command: Update .groovylintrc.json to ignore error in the future
 		else if (params.command === 'groovyLint.alwaysIgnoreError') {
 			const [diagnostic, textDocumentUri] = params.arguments!;
 			await alwaysIgnoreError(diagnostic, textDocumentUri, this);
 		}
+		// Show rule documentation
 		else if (params.command === 'groovyLint.showRuleDocumentation') {
 			const [ruleCode] = params.arguments!;
 			await showRuleDocumentation(ruleCode, this);
@@ -104,6 +109,14 @@ export class DocumentsManager {
 	// Store URI of currently edited document
 	setCurrentDocumentUri(uri: string) {
 		this.currentTextDocumentUri = uri;
+	}
+
+	// Check if document is opened in client
+	isDocumentOpenInClient(docUri: string): boolean {
+		if (this.documents.get(docUri)) {
+			return true;
+		}
+		return false;
 	}
 
 	// Get document settings from workspace configuration or cache
@@ -135,18 +148,16 @@ export class DocumentsManager {
 	}
 
 	// Validate a text document by calling linter
-	async validateTextDocument(textDocument: TextDocument, opts: any = undefined): Promise<TextEdit[]> {
-		// Remove duplicates in queue ( ref: https://stackoverflow.com/a/56757215/7113625 )
-		this.queuedLints = this.queuedLints.filter((v, i, a) => a.findIndex(t => (JSON.stringify(t) === JSON.stringify(v))) === i);
-
-		const currentlyLintDocPos = this.currentlyLinted.findIndex((currLinted) => currLinted.uri === textDocument.uri);
+	async validateTextDocument(textDocument: TextDocument, opts: any = {}): Promise<TextEdit[]> {
+		// Find if document is already been linted
+		const currentActionsOnDoc = this.currentlyLinted.filter((currLinted) => currLinted.uri === textDocument.uri);
 		// Current document is not already linted, let's lint it now !
-		if (currentlyLintDocPos < 0) {
+		if (currentActionsOnDoc.length === 0) {
 			// Add current lint in currentlyLinted
 			this.currentlyLinted.push({ uri: textDocument.uri, options: opts });
 			const res = await executeLinter(textDocument, this, opts);
 			// Remove current lint frrom currently linter
-			const justLintedPos = this.currentlyLinted.findIndex((currLinted) => JSON.stringify(currLinted) === JSON.stringify({ uri: textDocument.uri, options: opts }));
+			const justLintedPos = this.currentlyLinted.findIndex((currLinted) => JSON.stringify({ uri: currLinted.uri, options: currLinted.options }) === JSON.stringify({ uri: textDocument.uri, options: opts }));
 			this.currentlyLinted.splice(justLintedPos, 1);
 			// Check if there is another lint in queue for the same file
 			const indexNextInQueue = this.queuedLints.findIndex((queuedItem) => queuedItem.uri === textDocument.uri);
@@ -155,16 +166,33 @@ export class DocumentsManager {
 				const lintToProcess = this.queuedLints[indexNextInQueue];
 				this.queuedLints.splice(indexNextInQueue, 1);
 				debug(`Run queued lint for ${textDocument.uri} (${JSON.stringify(lintToProcess.options || '{}')})`);
-				return await this.validateTextDocument(textDocument, lintToProcess);
-			}
-			else {
+				this.validateTextDocument(textDocument, lintToProcess.options);
+				return Promise.resolve([]);
+			} else {
 				return res;
 			}
 		}
 		else {
-			// This file is already linted: add lint in queue , it will be processed when the response will arrive
-			this.queuedLints.push({ uri: textDocument.uri, options: opts });
-			debug(`${textDocument.uri} is already being linted: add request in queue`);
+			// gather current lints details
+			const currentFormatsOnDdoc = currentActionsOnDoc.filter((currLinted) => currLinted.options && currLinted.options.format === true);
+			const currentFixesOnDdoc = currentActionsOnDoc.filter((currLinted) => currLinted.options && currLinted.options.format === true);
+
+			// Format request and no current format or fix: add in queue
+			if (opts.format === true && currentFormatsOnDdoc.length === 0 && currentFixesOnDdoc.length === 0) {
+				// add applyNow option because TextEdits won't be returned to formatting provided. edit textDocument directly from language server
+				opts.applyNow = true;
+				this.queuedLints.push({ uri: textDocument.uri, options: opts });
+				debug(`Added in queue: ${textDocument.uri} (${JSON.stringify(opts)})`);
+			}
+			// Fix request and no current fix: add in queue
+			else if (opts.fix === true && currentFixesOnDdoc.length === 0) {
+				this.queuedLints.push({ uri: textDocument.uri, options: opts });
+				debug(`Added in queue: ${textDocument.uri} (${JSON.stringify(opts || '{}')})`);
+			}
+			// All other cases: do not add in queue, else actions would be redundant
+			else {
+				debug(`Skipped request : ${textDocument.uri} (${JSON.stringify(opts || '{}')})`);
+			}
 			return Promise.resolve([]);
 		}
 	}
@@ -176,6 +204,10 @@ export class DocumentsManager {
 		this.queuedLints = this.queuedLints.filter((queuedLint) => queuedLint.uri !== textDocumentUri);
 		// Find currently linted document
 		this.currentlyLinted = this.currentlyLinted.filter((currLinted) => currLinted.uri !== textDocumentUri);
+		this.connection.sendNotification(StatusNotification.type, {
+			state: 'lint.cancel',
+			documents: [{ documentUri: textDocumentUri }]
+		});
 	}
 
 	// Return quick fixes associated to a document
@@ -198,6 +230,11 @@ export class DocumentsManager {
 	// Delete stored doc linter
 	deleteDocLinter(textDocumentUri: string) {
 		this.docLinters.delete(textDocumentUri);
+	}
+
+	// Set rule description for later display
+	getRuleDescriptions(): any {
+		return this.ruleDescriptions;
 	}
 
 	// Set rule description for later display
@@ -254,12 +291,29 @@ export class DocumentsManager {
 		this.docsDiagnostics.set(docUri, diagnostics);
 	}
 
-	// Update diagnostics on client and store them in docsDiagnostics field
-	async resetDiagnostics(docUri: string): Promise<void> {
+	// Reset diagnostics (if current action, indicate it as a single diagnostic info)
+	async resetDiagnostics(docUri: string, optns: any = {}): Promise<void> {
 		debug(`Reset diagnostics for ${docUri}`);
-		const emptydiagnostics: Diagnostic[] = [];
-		await this.connection.sendDiagnostics({ uri: docUri, diagnostics: emptydiagnostics });
-		this.docsDiagnostics.set(docUri, emptydiagnostics);
+		const emptyDiagnostics: Diagnostic[] = [];
+		if (optns.verb && optns.verb !== 'formatting' && this.docsDiagnostics.get(docUri) &&
+			this.docsDiagnostics.get(docUri)!.length > 0 && this.docsDiagnostics.get(docUri)![0].code !== 'GroovyLintWaiting'
+		) {
+			const waitingDiagnostic: Diagnostic = {
+				severity: DiagnosticSeverity.Information,
+				code: `GroovyLintWaiting`,
+				range: {
+					start: { line: 0, character: 0 },
+					end: { line: 0, character: 0 }
+				},
+				message: `GroovyLint is ${optns.verb}...`,
+				source: 'GroovyLint'
+			};
+			await this.connection.sendDiagnostics({ uri: docUri, diagnostics: [waitingDiagnostic] });
+		}
+		else {
+			await this.connection.sendDiagnostics({ uri: docUri, diagnostics: emptyDiagnostics });
+		}
+		this.docsDiagnostics.set(docUri, emptyDiagnostics);
 		this.docsDiagsQuickFixes.set(docUri, []);
 		this.deleteDocLinter(docUri);
 	}

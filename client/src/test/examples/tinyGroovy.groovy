@@ -1,35 +1,26 @@
 import groovy.io.FileType
 import groovy.json.*
 import groovy.time.TimeCategory
-import groovy.transform.Field
-import groovy.xml.*
-
-import java.io.File
-
 import static groovyx.gpars.GParsPool.withPool
 
-def script = new GroovyScriptEngine( '.' ).with {
-    loadScriptByName( 'Utils.groovy' )
-}
+        def script = new GroovyScriptEngine( '.' ).with{
+                loadScriptByName( 'Utils.groovy' ) ;
+   }
 this.metaClass.mixin script
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////// INIT ///////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
 def returnCode = 0
-Exception eThrow = null
-try {
-    initialize(args)
-} catch (Exception e) {
-    eThrow = e ;
+         Exception eThrow = null ;
+   try {
+    initialize(args) ;
+} catch (Exception e){
+                 eThrow = e ;
     returnCode = 1
-}
-
-if (eThrow == null) {
-    return 0 ;
+             }
+          if (eThrow == null){
+                      return 0 ;
 }
 else {
-    throw eThrow
+         throw eThrow ;
     return 1 ;
 }
 

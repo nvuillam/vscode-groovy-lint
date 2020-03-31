@@ -6,8 +6,7 @@ import {
 	TextDocument,
 	Diagnostic,
 	MessageType,
-	ShowMessageRequestParams,
-	NotificationType
+	ShowMessageRequestParams
 } from 'vscode-languageserver';
 import { URI } from 'vscode-uri';
 import { isNullOrUndefined } from "util";
@@ -15,25 +14,11 @@ import * as fse from "fs-extra";
 import { DocumentsManager } from './DocumentsManager';
 import { applyTextDocumentEditOnWorkspace, getUpdatedSource } from './clientUtils';
 import { parseLinterResultsIntoDiagnostics } from './linter';
+import { StatusNotification, OpenNotification } from './types';
 import path = require('path');
 const debug = require("debug")("vscode-groovy-lint");
 
-const lintAgainAfterQuickFix: boolean = true; 
-
-// Status notifications
-interface StatusParams {
-	state: string;
-	documents: [
-		{
-			documentUri: string,
-			updatedSource?: string
-		}];
-	lastFileName?: string
-	lastLintTimeMs?: number
-}
-namespace StatusNotification {
-	export const type = new NotificationType<StatusParams, void>('groovylint/status');
-}
+const lintAgainAfterQuickFix: boolean = true;
 
 /**
  * Provide quickfixes for a piece of code  *
@@ -65,7 +50,6 @@ export function provideQuickFixCodeActions(textDocument: TextDocument, codeActio
 	}
 	debug(`Provided ${quickFixCodeActions.length} codeActions for ${textDocument.uri}`);
 	return quickFixCodeActions;
-
 }
 
 // Create QuickFix codeActions for diagnostic
@@ -321,7 +305,7 @@ export async function alwaysIgnoreError(diagnostic: Diagnostic, textDocumentUri:
 	try {
 		const req = await docManager.connection.sendRequest('window/showMessageRequest', msg);
 		if (req.title === "Open") {
-			await docManager.connection.sendNotification('vscode-groovy-lint/openDocument', { file: configFilePath });
+			await docManager.connection.sendNotification(OpenNotification.type, { file: configFilePath });
 		}
 	} catch (e) {
 		debug(`Error with window/showMessageRequest or Opening config file: ${e.message}`);

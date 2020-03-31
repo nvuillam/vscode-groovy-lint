@@ -8,6 +8,7 @@ import {
 	TransportKind,
 	NotificationType
 } from 'vscode-languageclient';
+import { StatusParams, StatusNotification, ActiveDocumentNotification, OpenNotification } from './types';
 
 const DIAGNOSTICS_COLLECTION_NAME = 'GroovyLint';
 let diagnosticsCollection: vscode.DiagnosticCollection;
@@ -17,30 +18,6 @@ let statusBarItem: vscode.StatusBarItem;
 let statusList: StatusParams[] = [];
 
 let outputChannelShowedOnce = false;
-
-// Lint/fix Status notifications received from language server
-interface StatusParams {
-	id: number;
-	state: string;
-	documents: [
-		{
-			documentUri: string,
-			updatedSource?: string
-		}];
-	lastFileName?: string
-	lastLintTimeMs?: number
-}
-namespace StatusNotification {
-	export const type = new NotificationType<StatusParams, void>('groovylint/status');
-}
-
-// Active Document notifications to language server
-interface ActiveDocumentNotificationParams {
-	uri: string
-}
-namespace ActiveDocumentNotification {
-	export const type = new NotificationType<ActiveDocumentNotificationParams, void>('groovylint/activedocument');
-}
 
 export function activate(context: ExtensionContext) {
 
@@ -111,10 +88,17 @@ export function activate(context: ExtensionContext) {
 		});
 
 		// Open file in workspace when language server requests it
-		client.onNotification("vscode-groovy-lint/openDocument", async (notifParams: any) => {
-			const openPath = vscode.Uri.parse("file:///" + notifParams.file); //A request file path
-			const doc = await vscode.workspace.openTextDocument(openPath);
-			await vscode.window.showTextDocument(doc, { preserveFocus: true });
+		client.onNotification(OpenNotification.type, async (notifParams: any) => {
+			// Open textDocument
+			if (notifParams.file) {
+				const openPath = vscode.Uri.parse("file:///" + notifParams.file); //A request file path
+				const doc = await vscode.workspace.openTextDocument(openPath);
+				await vscode.window.showTextDocument(doc, { preserveFocus: true });
+			}
+			// Open url in external browser
+			else if (notifParams.url) {
+				await vscode.env.openExternal(notifParams.url);
+			}
 		});
 
 		// Refresh status bar when active tab changes
@@ -149,23 +133,21 @@ async function updateStatus(status: StatusParams): Promise<any> {
 		}
 	}
 	// End linting/fixing: remove frrom status list, and remove previous errors on same file if necessary
-	else if (status.state === 'lint.end') {
+	else if (status.state.startsWith('lint.end')) {
+		// Update status list
 		statusList = statusList.filter(statusObj => statusObj.id !== status.id);
 		statusList = statusList.filter(statusObj => !(statusObj.state === 'lint.error' && statusObj.lastFileName === status.lastFileName));
-		// If document has been closed, to not display its diagnostics
-		for (const docDef of status.documents) {
-			const docs = vscode.workspace.textDocuments.filter(txtDoc => txtDoc.uri.toString() === docDef.documentUri);
-			if (!(docs && docs[0])) {
-				diagnosticsCollection.set(vscode.Uri.parse(docDef.documentUri), []);
-			}
-		}
 		// Show markers panel just once (after the user can choose to close it)
 		if (outputChannelShowedOnce === false) {
 			vscode.commands.executeCommand('workbench.panel.markers.view.focus');
 			outputChannelShowedOnce = true;
 		}
 	}
-	// Show GroovyLint status bar as ready
+	// Cancelled NPM Groovy Lint request (remove all jobs ith same URI)
+	else if (status.state.startsWith('lint.cancel')) {
+		statusList = statusList.filter(statusObj => statusObj.documents[0].documentUri !== status.documents[0].documentUri);
+	}
+	// Refresh status bar content (icon + tooltip)
 	await refreshStatusBar();
 }
 

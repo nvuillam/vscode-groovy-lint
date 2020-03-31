@@ -1,9 +1,15 @@
 {
     "extends": "recommended",
     "rules": {
-        "formatting.LineLength": "off",
+        "CatchException": {
+            "enabled": false
+        },
+        "UnusedVariable": {
+            "enabled": false
+        },
         "convention.FieldTypeRequired": "off",
         "convention.NoDef": "off",
-        "convention.VariableTypeRequired": "off"
+        "convention.VariableTypeRequired": "off",
+        "formatting.LineLength": "off"
     }
 }
