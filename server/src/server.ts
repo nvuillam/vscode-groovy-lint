@@ -10,28 +10,18 @@ import {
     CodeActionKind,
     CodeActionParams,
     ExecuteCommandParams,
-    NotificationType,
     DocumentFormattingParams,
     TextDocumentChangeEvent
 } from 'vscode-languageserver';
 import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument';
 const { performance } = require("perf_hooks");
-import { commands } from './linter';
 import { provideQuickFixCodeActions } from './codeActions';
 
 import { DocumentsManager } from './DocumentsManager';
-import { URI } from 'vscode-uri';
-import path = require('path');
+import { commands } from './commands';
+import { ActiveDocumentNotification } from './types';
 const debug = require("debug")("vscode-groovy-lint");
 const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
-
-// Active Document notifications to language server
-interface ActiveDocumentNotificationParams {
-    uri: string
-}
-namespace ActiveDocumentNotification {
-    export const type = new NotificationType<ActiveDocumentNotificationParams, void>('groovylint/activedocument');
-}
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -111,13 +101,12 @@ connection.onDocumentFormatting(async (params: DocumentFormattingParams): Promis
     debug(`Formatting request received from client for ${textDocument.uri}`);
     const document = docManager.getDocumentFromUri(textDocument.uri);
     const textEdits: TextEdit[] = await docManager.formatTextDocument(document);
-    // If document has been updated, lint again the sources
-    if (textEdits.length > 0) {
-        setTimeout(async () => {
-            const documentUpdated = docManager.getDocumentFromUri(textDocument.uri);
-            await docManager.validateTextDocument(documentUpdated);
-        }, 500);
-    }
+    // Lint again the sources
+    setTimeout(async () => {
+        const documentUpdated = docManager.getDocumentFromUri(textDocument.uri);
+        await docManager.validateTextDocument(documentUpdated);
+    }, 500);
+    // Return textEdits to client that will apply them
     return textEdits;
 });
 
@@ -132,10 +121,7 @@ connection.onCodeAction(async (codeActionParams: CodeActionParams): Promise<Code
     }
     debug(`Code action request received from client for ${document.uri}`);
     const docQuickFixes: any = docManager.getDocQuickFixes(codeActionParams.textDocument.uri);
-    if (docQuickFixes && Object.keys(docQuickFixes).length > 0) {
-        return provideQuickFixCodeActions(document, codeActionParams, docQuickFixes);
-    }
-    return [];
+    return provideQuickFixCodeActions(document, codeActionParams, docQuickFixes);
 });
 
 // Notification from client that active window has changed
@@ -181,6 +167,7 @@ docManager.documents.onDidClose(async event => {
     debug(`close event received for ${event.document.uri}`);
     await docManager.resetDiagnostics(event.document.uri);
     docManager.removeDocumentSettings(event.document.uri);
+    await docManager.cancelDocumentValidation(event.document.uri);
 });
 
 // Make the text document manager listen on the connection

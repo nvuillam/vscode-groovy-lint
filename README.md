@@ -1,5 +1,12 @@
 # VsCode Groovy Lint, Format and Fix
 
+[![Version](https://vsmarketplacebadge.apphb.com/version/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
+[![Installs](https://vsmarketplacebadge.apphb.com/installs/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
+[![Build](https://circleci.com/gh/nvuillam/vscode-groovy-lint/tree/master.png?style=shield)](https://circleci.com/gh/nvuillam/vscode-groovy-lint/tree/master)
+[![License](https://img.shields.io/github/license/nvuillam/vscode-groovy-lint.png)](https://github.com/nvuillam/vscode-groovy-lint/blob/master/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/nvuillam/vscode-groovy-lint.png?label=Star&maxAge=2592000)](https://GitHub.com/nvuillam/vscode-groovy-lint/stargazers/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.png?style=flat-square)](http://makeapullrequest.com)
+
 **Lint** (code quality), **Format** and **Auto-fix** your groovy files and Jenkinsfile 
 
 [Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint) embedding [npm-groovy-lint](https://github.com/nvuillam/npm-groovy-lint#README), itself embedding [CodeNarc](https://codenarc.github.io/CodeNarc/)
@@ -21,11 +28,11 @@ Formatting and Auto-fix are still in beta version, please post an [issue](https:
 | Fix _errorType_ in file         | Apply quick fix for all errors of the same type in the currrent tab                            | Quick Fix<br/>Diagnostic                                                                       |
 | Ignore _errorType_ in all files | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to ignore this error type) | Quick Fix<br/>Diagnostic                                                                       |
 
-- Contextual: right click in the source code
-- Commands: Ctrl+Shift+P then type command name
-- Status bar: GroovyLint status item at the bottom right
-- Quick Fix: Hover an underlined part of the code after a lint, click Quick Fix then select action to perform
-- Diagnostic: Right click on a diagnostic in Problems section
+- ***Contextual***: *right click in the source code*
+- ***Commands***: *Ctrl+Shift+P then type command name*
+- ***Status bar***: *GroovyLint status item at the bottom right*
+- ***Quick Fix***: *Hover an underlined part of the code after a lint, click Quick Fix then select action to perform*
+- ***Diagnostic***: *Right click on a diagnostic in Problems section*
 
 ## Extension Settings
 
@@ -52,6 +59,20 @@ Contributions are very welcome on :
 Please follow [Contribution instructions](https://github.com/nvuillam/vscode-groovy-lint/blob/master/CONTRIBUTING.md)
 
 ## Release Notes
+
+### UNRELEASED
+
+- Increase size of **Show rule documentation** quick action message, and add a "Read More" link to CodeNarc WebSite
+- If source has been updated by the user during a format or fix, do not apply the formatting/fix to avoid overriding the user updates, and notify the user
+
+- Fixes:
+  - Provide CodeActions even when there is no QuickFix (Ignore in all files, Show documentation)
+  - Fix npm-groovt-lint requests queue management
+  - If a file contains groovy errors, display info diagnostic while linting/formatting/fixing again
+  - Fix "infinite" status bar spinner when a lint/format/fix actions has been cancelled
+- Technical:
+  - Harmonize notifications URIS with new namespace: groovylintlsp
+  - Reorganize files: types.ts for structures, and mode commands in commands.ts
 
 ### [0.5.3] 2020-03-29
 

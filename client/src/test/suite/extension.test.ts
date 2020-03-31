@@ -178,7 +178,9 @@ function diagnosticsChanged(docUri: vscode.Uri, prevDiags: vscode.Diagnostic[]):
 	return new Promise(async (resolve, reject) => {
 		let diagsChanged = false;
 		const docDiags = vscode.languages.getDiagnostics(docUri);
-		if (diagsChanged === false && docDiags && docDiags.length > 0 && docDiags.length !== prevDiags.length) {
+		if (diagsChanged === false && docDiags && docDiags.length > 0 &&
+			docDiags.length !== prevDiags.length && !isWaitingDiagnostic(docDiags)
+		) {
 			diagsChanged = true;
 			console.log(`Diagnostics changed for ${docUri} (${docDiags.length}) `);
 			resolve(true);
@@ -186,7 +188,7 @@ function diagnosticsChanged(docUri: vscode.Uri, prevDiags: vscode.Diagnostic[]):
 		const disposable = vscode.languages.onDidChangeDiagnostics((e: vscode.DiagnosticChangeEvent) => {
 			if (diagsChanged === false && e.uris.filter(uriX => uriX.toString() === docUri.toString()).length > 0) {
 				const docDiags = vscode.languages.getDiagnostics(docUri);
-				if (docDiags && docDiags.length > 0) {
+				if (docDiags && docDiags.length > 0 && !isWaitingDiagnostic(docDiags)) {
 					diagsChanged = true;
 					console.log(`Diagnostics changed for ${docUri} (${docDiags.length}) `);
 				}
@@ -211,9 +213,9 @@ function documentHasBeenUpdated(docUri: vscode.Uri, prevDocSource: string): Prom
 	return Promise.resolve(res);
 }
 
-async function documentHasBeenUpdatedAndDiagnosticsChanged(docUri: vscode.Uri, prevDocSource: string, prevDiags: vscode.Diagnostic[]): Promise<any> {
-	const resLs = await Promise.all([documentHasBeenUpdated(docUri, prevDocSource), diagnosticsChanged(docUri, prevDiags)]);
-	return Promise.resolve(!resLs.includes(false));
+// Check if the only diagnostic is the waiting one
+function isWaitingDiagnostic(diags: vscode.Diagnostic[]) {
+	return diags && diags.length === 1 && diags[0].code === 'GroovyLintWaiting';
 }
 
 async function sleepPromise(ms: number) {

@@ -1,52 +1,17 @@
 /* eslint-disable eqeqeq */
-import { Command, Diagnostic, DiagnosticSeverity, ShowMessageRequestParams, MessageType, NotificationType } from 'vscode-languageserver';
+import { Diagnostic, DiagnosticSeverity, ShowMessageRequestParams, MessageType } from 'vscode-languageserver';
 import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 import * as path from 'path';
 
 import { DocumentsManager } from './DocumentsManager';
-import { applyTextDocumentEditOnWorkspace, getUpdatedSource, createTestEdit } from './clientUtils';
+import { applyTextDocumentEditOnWorkspace, getUpdatedSource, createTextEdit } from './clientUtils';
+import { StatusNotification } from './types';
 const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
 const debug = require("debug")("vscode-groovy-lint");
 const { performance } = require('perf_hooks');
 
-// Status notifications
-interface StatusParams {
-	id: number,
-	state: string;
-	documents: [
-		{
-			documentUri: string,
-			updatedSource?: string
-		}];
-	lastFileName?: string
-	lastLintTimeMs?: number
-}
-namespace StatusNotification {
-	export const type = new NotificationType<StatusParams, void>('groovylint/status');
-}
-
-// Create commands
-const COMMAND_LINT = Command.create('Lint', 'groovyLint.lint');
-const COMMAND_LINT_FIX = Command.create('Lint and fix errors', 'groovyLint.lintFix');
-const COMMAND_LINT_QUICKFIX = Command.create('Quick fix', 'groovyLint.quickFix');
-const COMMAND_LINT_QUICKFIX_FILE = Command.create('Quick fix in file', 'groovyLint.quickFixFile');
-const COMMAND_SUPPRESS_WARNING_LINE = Command.create('Ignore this error', 'groovyLint.addSuppressWarning');
-const COMMAND_SUPPRESS_WARNING_FILE = Command.create('Ignore this error in file', 'groovyLint.addSuppressWarningFile');
-const COMMAND_IGNORE_ERROR_FOR_ALL_FILES = Command.create('Ignore this error in all files', 'groovyLint.alwaysIgnoreError');
-const COMMAND_SHOW_RULE_DOCUMENTATION = Command.create('Ignore this error in all files', 'groovyLint.showRuleDocumentation');
-export const commands = [
-	COMMAND_LINT,
-	COMMAND_LINT_FIX,
-	COMMAND_LINT_QUICKFIX,
-	COMMAND_LINT_QUICKFIX_FILE,
-	COMMAND_SUPPRESS_WARNING_LINE,
-	COMMAND_SUPPRESS_WARNING_FILE,
-	COMMAND_IGNORE_ERROR_FOR_ALL_FILES,
-	COMMAND_SHOW_RULE_DOCUMENTATION
-];
-
-// Validate a groovy file
+// Validate a groovy file (just lint, or also format or fix)
 export async function executeLinter(textDocument: TextDocument, docManager: DocumentsManager, opts: any = { fix: false, format: false }): Promise<TextEdit[]> {
 	const perfStart = performance.now();
 
@@ -78,10 +43,23 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		return Promise.resolve([]);
 	}
 
-	// Remove already existing diagnostics except if format
-	if (!opts.format) {
-		await docManager.resetDiagnostics(textDocument.uri);
+	// Manage format & fix params
+	let format = false;
+	let verb = 'linting';
+	// Add format param if necessary
+	if (opts.format) {
+		format = true;
+		verb = 'formatting';
 	}
+	// Add fix param if necessary
+	let fix = false;
+	if (opts.fix) {
+		fix = true;
+		verb = 'auto-fixing';
+	}
+
+	// Remove already existing diagnostics except if format
+	await docManager.resetDiagnostics(textDocument.uri, { verb: verb });
 
 	// Get a new task id
 	const linterTaskId = docManager.getNewTaskId();
@@ -90,7 +68,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	debug(`Start linting ${textDocument.uri}`);
 	docManager.connection.sendNotification(StatusNotification.type, {
 		id: linterTaskId,
-		state: 'lint.start' + (opts.fix ? '.fix' : opts.format ? '.format' : ''),
+		state: 'lint.start' + (fix ? '.fix' : format ? '.format' : ''),
 		documents: [{ documentUri: textDocument.uri }],
 		lastFileName: fileNm
 	});
@@ -101,19 +79,14 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		sourcefilepath: URI.parse(textDocument.uri).fsPath,
 		nolintafter: true,
 		loglevel: settings.basic.loglevel,
+		returnrules: docManager.getRuleDescriptions().size > 0 ? false : true,
 		output: 'none',
 		verbose: settings.basic.verbose
 	};
-	let verb = 'linting';
-	// Add format param if necessary
-	if (opts.format) {
+	if (format) {
 		npmGroovyLintConfig.format = true;
-		verb = 'formatting';
-	}
-	// Add fix param if necessary
-	if (opts.fix) {
+	} else if (fix) {
 		npmGroovyLintConfig.fix = true;
-		verb = 'auto-fixing';
 	}
 
 	// Run npm-groovy-lint linter/fixer
@@ -121,7 +94,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	const linter = new NpmGroovyLint(npmGroovyLintConfig, {});
 	try {
 		await linter.run();
-		if (!opts.format) {
+		if (!format) {
 			docManager.setDocLinter(textDocument.uri, linter);
 		}
 	} catch (e) {
@@ -147,40 +120,66 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		docManager.setRuleDescriptions(lintResults.rules);
 	}
 
+	textDocument = docManager.getUpToDateTextDocument(textDocument);
+	const sourceAfterLintButBeforeApply: string = textDocument.getText();
 	let textEdits: TextEdit[] = [];
-
+	// Check if the document has been manually updated during the format or fix
+	if ([format, fix].includes(true) && sourceAfterLintButBeforeApply !== source) {
+		// Show message to user and propose to process again the format or fix action
+		const processAgainTitle = 'Process Again';
+		const msg: ShowMessageRequestParams = {
+			type: MessageType.Warning,
+			message: `GroovyLint did not update the sources of ${path.parse(textDocument.uri).name} as it has been manually during the request`,
+			actions: [
+				{ title: processAgainTitle }
+			]
+		};
+		docManager.connection.sendRequest('window/showMessageRequest', msg).then(async (rqstResp: any) => {
+			// If user clicked Process Again, run again the related command
+			if (rqstResp && rqstResp.title === processAgainTitle) {
+				const commandAgain = (format) ? 'vscode.executeFormatDocumentProvider' : (fix) ? 'groovyLint.lintFix' : '';
+				await docManager.connection.client.executeCommand(commandAgain, [textDocument.uri], {});
+			}
+		});
+	}
 	// Send updated sources to client if format mode
-	if (opts.format === true && linter.status === 0 && linter.lintResult.summary.totalFixedNumber > 0) {
+	else if (format === true && linter.status === 0 && linter.lintResult.summary.totalFixedNumber > 0) {
 		const updatedSource = getUpdatedSource(linter, source);
 		if (opts.applyNow) {
 			await applyTextDocumentEditOnWorkspace(docManager, textDocument, updatedSource);
 		}
 		else {
-			const textEdit = createTestEdit(docManager, textDocument, updatedSource);
+			const textEdit = createTextEdit(docManager, textDocument, updatedSource);
 			textEdits.push(textEdit);
 		}
 	}
 	// Send updated sources to client if fix mode
-	else if (opts.fix === true && linter.status === 0 && linter.lintResult.summary.totalFixedNumber > 0) {
+	else if (fix === true && linter.status === 0 && linter.lintResult.summary.totalFixedNumber > 0) {
 		const updatedSource = getUpdatedSource(linter, source);
 		await applyTextDocumentEditOnWorkspace(docManager, textDocument, updatedSource);
 	}
 
-	// Send diagnostics to client except if format
-	if (!(opts.format === true || opts.fix === true)) {
+	// Remove diagnostics in case the file has been closed since the lint request
+	if (!docManager.isDocumentOpenInClient(textDocument.uri)) {
+		await docManager.updateDiagnostics(textDocument.uri, []);
+	}
+	// Update diagnostics if this is not a format or fix calls (for format & fix, a lint is called just after)
+	else if (![format, fix].includes(true)) {
 		await docManager.updateDiagnostics(textDocument.uri, diagnostics);
 	}
 
-	// Just Notify client of end of linting 
+	// Notify client of end of linting 
 	docManager.connection.sendNotification(StatusNotification.type, {
 		id: linterTaskId,
-		state: 'lint.end',
+		state: 'lint.end' + (fix ? '.fix' : format ? '.format' : ''),
 		documents: [{
 			documentUri: textDocument.uri
 		}],
 		lastFileName: fileNm,
 		lastLintTimeMs: performance.now() - perfStart
 	});
+
+	// Return textEdits only in case of formatting request
 	return Promise.resolve(textEdits);
 }
 
