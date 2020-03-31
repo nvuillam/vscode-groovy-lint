@@ -15,7 +15,7 @@ You can [configure the rules](https://github.com/nvuillam/npm-groovy-lint#config
 
 Formatting and Auto-fix are still in beta version, please post an [issue](https://github.com/nvuillam/vscode-groovy-lint/issues) if you detect any problem
 
-![https://github.com/nvuillam/vscode-groovy-lint/raw/master/images/screenshot.png](https://github.com/nvuillam/vscode-groovy-lint/raw/master/images/screenshot.png)
+![https://github.com/nvuillam/vscode-groovy-lint/raw/master/images/vscode-anim.gif](https://github.com/nvuillam/vscode-groovy-lint/raw/master/images/vscode-anim.gif)
 
 ## Features
 
