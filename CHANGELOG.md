@@ -1,5 +1,9 @@
 # Change Log
 
+### [0.6.1] 2020-04-01
+
+- Hotfix: republish again with regenerated compiled Javascript from Typescript
+
 ### [0.6.0] 2020-03-31
 
 - New animated gif for [VsCode Groovy Lint home page](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
