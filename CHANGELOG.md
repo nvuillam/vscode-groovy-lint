@@ -1,5 +1,15 @@
 # Change Log
 
+### UNRELEASED
+
+- Warn user in case of fix error(s) failures, and advise to do so manually
+- Improve QuickFix action performances
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v3.2.3
+  - Improve performances
+  - Fix indentation when rules IfStatementBraces or ElseBlockBraces are corrected during a format or a fix
+- Fixes
+  - Infinite spinner when using QuickFix "Fix in all file"
+
 ### [0.6.1] 2020-04-01
 
 - Hotfix: republish again with regenerated compiled Javascript from Typescript

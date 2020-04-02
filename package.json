@@ -10,6 +10,7 @@
 		"vscode": "^1.42.0"
 	},
 	"scripts": {
+		"precompile": "rimraf ./client/out/* && rimraf ./client/coverage/* && rimraf ./client/.nyc_output/* && rimraf ./server/out/* && rimraf ./server/coverage/* && rimraf ./server/.nyc_output/*",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
 		"lint": "eslint client/src --ext ts && eslint server/src --ext ts",
@@ -65,9 +66,24 @@
 			"description": "CircleCI"
 		},
 		{
+			"url": "https://codecov.io/gh/nvuillam/vscode-groovy-lint/branch/master/graph/badge.svg",
+			"href": "https://codecov.io/gh/nvuillam/vscode-groovy-lint",
+			"description": "Code Coverage"
+		},
+		{
 			"url": "https://img.shields.io/github/license/nvuillam/vscode-groovy-lint.svg",
 			"href": "https://github.com/nvuillam/vscode-groovy-lint/blob/master/LICENSE",
 			"description": "GitHub license"
+		},
+		{
+			"url": "https://img.shields.io/github/stars/nvuillam/vscode-groovy-lint.svg?label=Star&maxAge=2592000",
+			"href": "https://GitHub.com/nvuillam/vscode-groovy-lint/stargazers/",
+			"description": "GitHub stars"
+		},
+		{
+			"url": "https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square",
+			"href": "http://makeapullrequest.comhttp://makeapullrequest.com",
+			"description": "PRs Welcome"
 		}
 	],
 	"devDependencies": {

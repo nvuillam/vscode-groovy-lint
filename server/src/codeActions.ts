@@ -12,13 +12,11 @@ import { URI } from 'vscode-uri';
 import { isNullOrUndefined } from "util";
 import * as fse from "fs-extra";
 import { DocumentsManager } from './DocumentsManager';
-import { applyTextDocumentEditOnWorkspace, getUpdatedSource } from './clientUtils';
-import { parseLinterResultsIntoDiagnostics } from './linter';
+import { applyTextDocumentEditOnWorkspace, getUpdatedSource, notifyFixFailures } from './clientUtils';
+import { parseLinterResults } from './linterParser';
 import { StatusNotification, OpenNotification } from './types';
 import path = require('path');
 const debug = require("debug")("vscode-groovy-lint");
-
-const lintAgainAfterQuickFix: boolean = true;
 
 /**
  * Provide quickfixes for a piece of code  *
@@ -176,22 +174,15 @@ export async function applyQuickFixes(diagnostics: Diagnostic[], textDocumentUri
 		documents: [{ documentUri: textDocument.uri }],
 		lastFileName: textDocument.uri
 	});
-	await docLinter.fixErrors(errorIds);
+	await docLinter.fixErrors(errorIds, { nolintafter: true });
+	// Parse fix results
+	const { fixFailures } = parseLinterResults(docLinter.lintResult, textDocument.getText(), textDocument, docManager);
+	// Notify user of failures if existing
+	await notifyFixFailures(fixFailures, docManager);
 	if (docLinter.status === 0) {
 		// Apply updates to textDocument
 		await applyTextDocumentEditOnWorkspace(docManager, textDocument, getUpdatedSource(docLinter, textDocument.getText()));
-
-		if (lintAgainAfterQuickFix === true) {
-			await docManager.validateTextDocument(textDocument);
-		}
-		else {
-			// NV: Faster but experimental... does not work that much so let's lint again after a fix
-			const diagnostics: Diagnostic[] = parseLinterResultsIntoDiagnostics(docLinter.lintResult,
-				getUpdatedSource(docLinter, textDocument.getText()),
-				textDocument, docManager);
-			// Send diagnostics to client
-			await docManager.updateDiagnostics(textDocument.uri, diagnostics);
-		}
+		docManager.validateTextDocument(textDocument);
 	}
 	// Just Notify client of end of linting 
 	docManager.connection.sendNotification(StatusNotification.type, {
@@ -206,9 +197,12 @@ export async function applyQuickFixes(diagnostics: Diagnostic[], textDocumentUri
 // Quick fix in the whole file
 export async function applyQuickFixesInFile(diagnostics: Diagnostic[], textDocumentUri: string, docManager: DocumentsManager) {
 	const textDocument: TextDocument = docManager.getDocumentFromUri(textDocumentUri);
-	const fixRules = (diagnostics[0].code as string).split('-')[0];
-	debug(`Request apply QuickFixes in file for all ${fixRules} error in ${textDocumentUri}`);
-	await docManager.validateTextDocument(textDocument, { fix: true, fixrules: fixRules });
+	const fixRule = (diagnostics[0].code as string).split('-')[0];
+	debug(`Request apply QuickFixes in file for ${fixRule} error in ${textDocumentUri}`);
+	// Fix call
+	await docManager.validateTextDocument(textDocument, { fix: true, fixrules: [fixRule] });
+	// Lint after call
+	docManager.validateTextDocument(textDocument);
 }
 
 // Add suppress warning
