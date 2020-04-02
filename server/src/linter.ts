@@ -1,12 +1,13 @@
 /* eslint-disable eqeqeq */
-import { Diagnostic, DiagnosticSeverity, ShowMessageRequestParams, MessageType } from 'vscode-languageserver';
 import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 import * as path from 'path';
 
 import { DocumentsManager } from './DocumentsManager';
-import { applyTextDocumentEditOnWorkspace, getUpdatedSource, createTextEdit } from './clientUtils';
+import { applyTextDocumentEditOnWorkspace, getUpdatedSource, createTextEdit, notifyFixFailures } from './clientUtils';
+import { parseLinterResults } from './linterParser';
 import { StatusNotification } from './types';
+import { ShowMessageRequestParams, MessageType } from 'vscode-languageserver';
 const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
 const debug = require("debug")("vscode-groovy-lint");
 const { performance } = require('perf_hooks');
@@ -83,10 +84,17 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		output: 'none',
 		verbose: settings.basic.verbose
 	};
+	// Request formatting
 	if (format) {
 		npmGroovyLintConfig.format = true;
 	} else if (fix) {
+		// Request fixing
 		npmGroovyLintConfig.fix = true;
+		// Request fixing only some rules
+		if (opts.fixrules) {
+			npmGroovyLintConfig.rulesets = opts.fixrules.join(',');
+			npmGroovyLintConfig.fixrules = opts.fixrules.join(',');
+		}
 	}
 
 	// Run npm-groovy-lint linter/fixer
@@ -113,7 +121,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 
 	// Parse results
 	const lintResults = linter.lintResult || {};
-	const diagnostics: Diagnostic[] = parseLinterResultsIntoDiagnostics(lintResults, source, textDocument, docManager);
+	const { diagnostics, fixFailures } = parseLinterResults(lintResults, source, textDocument, docManager);
 
 	// Store rules descriptions if returned
 	if (lintResults.rules) {
@@ -152,11 +160,15 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 			const textEdit = createTextEdit(docManager, textDocument, updatedSource);
 			textEdits.push(textEdit);
 		}
+		// Display fix failures if existing
+		await notifyFixFailures(fixFailures, docManager);
 	}
 	// Send updated sources to client if fix mode
 	else if (fix === true && linter.status === 0 && linter.lintResult.summary.totalFixedNumber > 0) {
 		const updatedSource = getUpdatedSource(linter, source);
 		await applyTextDocumentEditOnWorkspace(docManager, textDocument, updatedSource);
+		// Display fix failures if existing
+		await notifyFixFailures(fixFailures, docManager);
 	}
 
 	// Remove diagnostics in case the file has been closed since the lint request
@@ -181,89 +193,6 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 
 	// Return textEdits only in case of formatting request
 	return Promise.resolve(textEdits);
-}
-
-// Parse results into VsCode diagnostic
-export function parseLinterResultsIntoDiagnostics(lintResults: any, source: string, textDocument: TextDocument, docManager: DocumentsManager) {
-	const allText = source;
-	const diffLine = -1; // Difference between CodeNarc line number and VSCode line number
-
-	const allTextLines = allText.split('\n');
-
-	// Build diagnostics
-	let diagnostics: Diagnostic[] = [];
-	const docQuickFixes: any = {};
-	debug(`Parsing results of ${textDocument.uri} (${Object.keys(lintResults.files).length} in lintResults)`);
-	if (lintResults.files && lintResults.files[0] && lintResults.files[0].errors) {
-		// Get each error for the file
-		let pos = 0;
-		for (const err of lintResults.files[0].errors) {
-			if (err.fixed === true) {
-				continue; // Do not display diagnostics for fixed errors
-			}
-			let range = err.range;
-			if (range) {
-				range.start.line += diffLine;
-				range.end.line += diffLine;
-				// Avoid issue from linter if it returns wrong range
-				range.start.line = (range.start.line >= 0) ? range.start.line : 0;
-				range.start.character = (range.start.character >= 0) ? range.start.character : 0;
-				range.end.line = (range.end.line >= 0) ? range.end.line : 0;
-				range.end.character = (range.end.character >= 0) ? range.end.character : 0;
-			}
-			// Build default range (whole line) if not returned by npm-groovy-lint
-			// eslint-disable-next-line eqeqeq
-			else if (err.line && err.line != null && err.line > 0 && allTextLines[err.line + diffLine]) {
-				const line = allTextLines[err.line + diffLine];
-				const indent = line.search(/\S/);
-				range = {
-					start: {
-						line: err.line + diffLine,
-						character: (indent >= 0) ? indent : 0 // Get first non empty character position
-					},
-					end: {
-						line: err.line + diffLine,
-						character: line.length || 0
-					}
-				};
-			} else {
-				// Default range (should not really happen)
-				range = {
-					start: {
-						line: 0,
-						character: 0 // Get first non empty character position
-					},
-					end: {
-						line: 0,
-						character: 0
-					}
-				};
-			}
-			// Create vscode Diagnostic
-			const diagCode: string = err.rule + '-' + err.id;
-			const diagnostic: Diagnostic = {
-				severity: (err.severity === 'error') ? DiagnosticSeverity.Error :
-					(err.severity === 'warning') ? DiagnosticSeverity.Warning :
-						DiagnosticSeverity.Information,
-				code: diagCode,
-				range: range,
-				message: err.msg,
-				source: 'GroovyLint'
-			};
-			// Add quick fix if error is fixable. This will be reused in CodeActionProvider
-			if (err.fixable) {
-				docQuickFixes[diagCode] = [];
-				docQuickFixes[diagCode].push({
-					label: err.fixLabel || `Fix ${err.rule}`,
-					errId: err.id
-				});
-			}
-			diagnostics.push(diagnostic);
-			pos++;
-		}
-		docManager.setDocQuickFixes(textDocument.uri, docQuickFixes);
-	}
-	return diagnostics;
 }
 
 // If necessary, fix source before sending it to CodeNarc

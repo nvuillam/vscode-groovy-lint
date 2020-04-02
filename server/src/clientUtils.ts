@@ -98,6 +98,23 @@ export async function showRuleDocumentation(ruleCode: string, docManager: Docume
 	}
 }
 
+// Display failed fixes if returned
+export async function notifyFixFailures(fixFailures: any[], docManager: DocumentsManager): Promise<void> {
+	if (fixFailures.length === 0) {
+		return;
+	}
+	const failedErrorTypes = Array.from(new Set(fixFailures.map(failedFixErr => failedFixErr.rule)));
+	failedErrorTypes.sort();
+	const msg: ShowMessageRequestParams = {
+		type: MessageType.Warning,
+		message: `Some error fixes have failed, please fix them manually: ${failedErrorTypes.join(',')}`,
+		actions: [
+			{ title: 'Dismiss' }
+		]
+	};
+	docManager.connection.sendRequest(ShowMessageRequest.type, msg);
+}
+
 // Check if we are in test mode
 export function isTest() {
 	return (process.env.npm_lifecycle_event && process.env.npm_lifecycle_event === 'test') ||

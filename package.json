@@ -10,13 +10,14 @@
 		"vscode": "^1.42.0"
 	},
 	"scripts": {
+		"precompile": "rimraf ./client/out/* && rimraf ./server/out/*",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
 		"lint": "eslint client/src --ext ts && eslint server/src --ext ts",
 		"lint:fix": "eslint client/src --ext ts --fix && eslint server/src --ext ts --fix",
 		"pretest": "npm run compile && npm run lint",
 		"test": "node ./client/out/test/runTest.js",
-		"test:coverage": "env AUTO_ACCEPT_REPLACE_TABS=activated node ./client/out/test/runTest.js --codecoverage",
+		"test:coverage": "env AUTO_ACCEPT_REPLACE_TABS=activated nyc node ./client/out/test/runTest.js --codecoverage",
 		"test:debug": "env AUTO_ACCEPT_REPLACE_TABS=activated node --inspect-brk ./client/out/test/runTest.js",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
 		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile"
@@ -65,9 +66,24 @@
 			"description": "CircleCI"
 		},
 		{
+			"url": "https://codecov.io/gh/nvuillam/vscode-groovy-lint/branch/master/graph/badge.svg",
+			"href": "https://codecov.io/gh/nvuillam/vscode-groovy-lint",
+			"description": "Code Coverage"
+		},
+		{
 			"url": "https://img.shields.io/github/license/nvuillam/vscode-groovy-lint.svg",
 			"href": "https://github.com/nvuillam/vscode-groovy-lint/blob/master/LICENSE",
 			"description": "GitHub license"
+		},
+		{
+			"url": "https://img.shields.io/github/stars/nvuillam/vscode-groovy-lint.svg?label=Star&maxAge=2592000",
+			"href": "https://GitHub.com/nvuillam/vscode-groovy-lint/stargazers/",
+			"description": "GitHub stars"
+		},
+		{
+			"url": "https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square",
+			"href": "http://makeapullrequest.comhttp://makeapullrequest.com",
+			"description": "PRs Welcome"
 		}
 	],
 	"devDependencies": {
