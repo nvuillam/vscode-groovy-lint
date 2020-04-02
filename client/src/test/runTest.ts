@@ -15,10 +15,11 @@ async function main() {
 		const extensionTestsPath = path.resolve(__dirname, './suite/index');
 
 		// create an nyc instance, config here is the same as in a package.json
-		const nyc = new NYC({
+		const nycOptions = {
 			cwd: path.join(__dirname, '..', '..', '..'), // in debugging sessions, the cwd seems to be unset
 			include: [
 				"**/*.ts",
+				"**/*.js",
 			],
 			exclude: [
 				"coverage/**",
@@ -37,10 +38,10 @@ async function main() {
 			hookRequire: true,
 			hookRunInContext: true,
 			hookRunInThisContext: true,
-		});
-
+		};
+		const nyc = new NYC(nycOptions);
 		if (codeCoverage) {
-			console.log('nyc cwd base: ' + path.join(__dirname, '..', '..', '..'));
+			console.log('nyc options:\n' + JSON.stringify(nycOptions, null, 2));
 			nyc.createTempDirectory(); // create nyc' temp directory
 			nyc.wrap(); // hook into require() calls, etc.
 		}
@@ -65,28 +66,3 @@ async function main() {
 
 main();
 
-/*
-	"nyc": {
-		"include": [
-			"./client/src/*.ts",
-			"./server/src/*.ts"
-		],
-		"exclude": [
-			"coverage/**",
-			"node_modules/**",
-			"client/node_modules/**",
-			"server/node_modules/**",
-			"**//*.d.ts",
-"**//*.test.ts"
-],
-"sourceMap": true,
-"extension": [
-".ts"
-],
-"reporter": [
-"html"
-],
-"all": true,
-"instrument": true
-},
-*/

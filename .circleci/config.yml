@@ -44,13 +44,8 @@
             name: Compile
             command: npm run compile
         - run:
-            name: Test & Code Coverage
-            command: npm run test:coverage
-        - run:
-            name: Submitting code coverage to codecov
-            command: |
-              ./node_modules/.bin/nyc report --reporter text-lcov > coverage.lcov
-              curl -s https://codecov.io/bash | bash
+            name: Test 
+            command: npm run test
  
   workflows:
     version: 2
