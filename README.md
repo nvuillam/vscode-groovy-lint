@@ -61,6 +61,16 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+### [0.6.2] 2020-04-02
+
+- Warn user in case of fix error(s) failures, and advise to do so manually
+- Improve QuickFix action performances
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v3.2.3
+  - Improve performances
+  - Fix indentation when rules IfStatementBraces or ElseBlockBraces are corrected during a format or a fix
+- Fixes
+  - Infinite spinner when using QuickFix "Fix in all file"
+
 ### [0.6.0] 2020-03-31
 
 - New animated gif for [VsCode Groovy Lint home page](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)

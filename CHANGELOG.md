@@ -1,6 +1,6 @@
 # Change Log
 
-### UNRELEASED
+### [0.6.2] 2020-04-02
 
 - Warn user in case of fix error(s) failures, and advise to do so manually
 - Improve QuickFix action performances
