@@ -40,9 +40,9 @@ export function provideQuickFixCodeActions(textDocument: TextDocument, codeActio
 				quickFixCodeActions.push(...codeActions);
 			}
 		}
-		// Add @SuppressWarnings('ErrorCode') for this error
-		const suppressWarningActions = createQuickFixSuppressWarningActions(diagnostic, textDocument.uri);
-		quickFixCodeActions.push(...suppressWarningActions);
+		// Add Ignores for this error
+		const ignoreActions = createIgnoreActions(diagnostic, textDocument.uri);
+		quickFixCodeActions.push(...ignoreActions);
 		const viewDocAction = createViewDocAction(diagnostic, textDocument.uri);
 		quickFixCodeActions.push(viewDocAction);
 	}
@@ -56,37 +56,38 @@ function createQuickFixCodeActions(diagnostic: Diagnostic, quickFix: any, textDo
 
 	// Quick fix only this error
 	const quickFixAction: CodeAction = {
-		title: 'Fix: ' + quickFix.label,
-		kind: CodeActionKind.QuickFix,
+		title: quickFix.label,
+		kind: CodeActionKind.RefactorRewrite,
 		command: {
 			command: 'groovyLint.quickFix',
-			title: 'Fix: ' + quickFix.label,
+			title: quickFix.label,
 			arguments: [diagnostic, textDocumentUri]
 		},
 		diagnostics: [diagnostic],
 		isPreferred: true
 	};
 	codeActions.push(quickFixAction);
+	codeActions.push(Object.assign(Object.assign({}, quickFixAction), { kind: CodeActionKind.QuickFix }));
 
 	// Quick fix error in file
 	const quickFixActionAllFile: CodeAction = {
-		title: 'Fix: ' + quickFix.label + ' in file',
-		kind: CodeActionKind.QuickFix,
+		title: `${quickFix.label} in the entire file`,
+		kind: CodeActionKind.Source,
 		command: {
 			command: 'groovyLint.quickFixFile',
-			title: 'Fix: ' + quickFix.label + ' in file',
+			title: `${quickFix.label} in the entire file`,
 			arguments: [diagnostic, textDocumentUri]
 		},
 		diagnostics: [diagnostic],
 		isPreferred: true
 	};
 	codeActions.push(quickFixActionAllFile);
-
+	codeActions.push(Object.assign(Object.assign({}, quickFixActionAllFile), { kind: CodeActionKind.QuickFix }));
 	return codeActions;
 }
 
-function createQuickFixSuppressWarningActions(diagnostic: Diagnostic, textDocumentUri: string): CodeAction[] {
-	const suppressWarningActions: CodeAction[] = [];
+function createIgnoreActions(diagnostic: Diagnostic, textDocumentUri: string): CodeAction[] {
+	const ignoreActions: CodeAction[] = [];
 	let errorLabel = (diagnostic.code as string).split('-')[0].replace(/([A-Z])/g, ' $1').trim();
 
 	if (diagnostic.severity === DiagnosticSeverity.Warning ||
@@ -124,20 +125,20 @@ function createQuickFixSuppressWarningActions(diagnostic: Diagnostic, textDocume
 				suppressWarningActions.push(suppressWarningFileAction); */
 
 		// ignore this error type in all file
-		const suppressWarningAlwaysAction: CodeAction = {
-			title: `Ignore in all files: ${errorLabel}`,
+		const ignoreInWorkspaceAction: CodeAction = {
+			title: `Disable ${errorLabel} in the entire workspace`,
 			kind: CodeActionKind.QuickFix,
 			command: {
 				command: 'groovyLint.alwaysIgnoreError',
-				title: `Ignore in all files: ${errorLabel}`,
+				title: `Disable ${errorLabel} in the entire workspace`,
 				arguments: [diagnostic, textDocumentUri]
 			},
 			diagnostics: [diagnostic],
 			isPreferred: false
 		};
-		suppressWarningActions.push(suppressWarningAlwaysAction);
+		ignoreActions.push(ignoreInWorkspaceAction);
 	}
-	return suppressWarningActions;
+	return ignoreActions;
 }
 
 // Create action to view documentation
@@ -145,11 +146,11 @@ function createViewDocAction(diagnostic: Diagnostic, textDocumentUri: string): C
 	const ruleCode = (diagnostic.code as string).split('-')[0];
 	let errorLabel = ruleCode.replace(/([A-Z])/g, ' $1').trim();
 	const viewCodeAction: CodeAction = {
-		title: `Show documentation: ${errorLabel}`,
+		title: `Show documentation for ${errorLabel}`,
 		kind: CodeActionKind.QuickFix,
 		command: {
 			command: 'groovyLint.showRuleDocumentation',
-			title: `Show documentation: ${errorLabel}`,
+			title: `Show documentation for ${errorLabel}`,
 			arguments: [ruleCode]
 		},
 		diagnostics: [diagnostic],
