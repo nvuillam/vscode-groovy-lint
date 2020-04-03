@@ -1,5 +1,9 @@
 # Change Log
 
+### [0.6.3] 2020-04-03
+
+- Improve QuickFix actions labels
+
 ### [0.6.2] 2020-04-02
 
 - Warn user in case of fix error(s) failures, and advise to do so manually
