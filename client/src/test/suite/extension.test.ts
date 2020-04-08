@@ -179,7 +179,7 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		const tinyGroovyUri = testDocs['tinyGroovy'].doc.uri;
 		const JenkinsfileUri = testDocs['Jenkinsfile'].doc.uri;
 		await vscode.commands.executeCommand('workbench.action.closeAllEditors');
-		await sleepPromise(5000);
+		await sleepPromise(10000);
 		vscode.commands.executeCommand('groovyLint.lintFolder', [docFolderUri]);
 		await waitUntil(() => diagnosticsChanged(bigGroovyUri, []), 60000);
 		await waitUntil(() => diagnosticsChanged(tinyGroovyUri, []), 30000);
@@ -190,10 +190,10 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		const jkfDiags = vscode.languages.getDiagnostics(JenkinsfileUri);
 		const totalDiags = bigDiags.length + tinyDiags.length + jkfDiags.length;
 		// Compute expected total
-		const numberOfDiagnosticsForFolderLint = numberOfDiagnosticsForBigGroovyLintFix + numberOfDiagnosticsForTinyGroovyLintFix + numberOfDiagnosticsForJenkinsfileLintFix ;
+		const numberOfDiagnosticsForFolderLint = numberOfDiagnosticsForBigGroovyLintFix + numberOfDiagnosticsForTinyGroovyLintFix + numberOfDiagnosticsForJenkinsfileLintFix;
 
 		assert(totalDiags === numberOfDiagnosticsForFolderLint, `${numberOfDiagnosticsForFolderLint} GroovyLint diagnostics found after lint (${totalDiags} returned)`);
-	}).timeout(100000);
+	}).timeout(200000);
 });
 
 // Open a textDocument and show it in editor
