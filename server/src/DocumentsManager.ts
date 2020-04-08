@@ -6,6 +6,7 @@ import { isTest, showRuleDocumentation } from './clientUtils';
 import { URI } from 'vscode-uri';
 import path = require('path');
 import { StatusNotification, VsCodeGroovyLintSettings } from './types';
+import { lintFolder } from './folder';
 const debug = require("debug")("vscode-groovy-lint");
 
 // Documents manager
@@ -63,8 +64,8 @@ export class DocumentsManager {
 			let document: TextDocument = this.getDocumentFromUri(this.currentTextDocumentUri)!;
 			await this.validateTextDocument(document, { fix: true });
 			// Then lint again
-			document = this.getUpToDateTextDocument(document);
-			await this.validateTextDocument(document); // After fix, lint again
+			const newDoc = this.getUpToDateTextDocument(document);
+			this.validateTextDocument(newDoc); // After fix, lint again
 		}
 		// Command: Apply quick fix
 		else if (params.command === 'groovyLint.quickFix') {
@@ -95,6 +96,11 @@ export class DocumentsManager {
 		else if (params.command === 'groovyLint.showRuleDocumentation') {
 			const [ruleCode] = params.arguments!;
 			await showRuleDocumentation(ruleCode, this);
+		}
+		// Command: Lint folder
+		else if (params.command === 'groovyLint.lintFolder') {
+			const folders: Array<any> = params.arguments[1];
+			await lintFolder(folders, this);
 		}
 	}
 
@@ -156,7 +162,7 @@ export class DocumentsManager {
 			// Add current lint in currentlyLinted
 			this.currentlyLinted.push({ uri: textDocument.uri, options: opts });
 			const res = await executeLinter(textDocument, this, opts);
-			// Remove current lint frrom currently linter
+			// Remove current lint from currently linter
 			const justLintedPos = this.currentlyLinted.findIndex((currLinted) => JSON.stringify({ uri: currLinted.uri, options: currLinted.options }) === JSON.stringify({ uri: textDocument.uri, options: opts }));
 			this.currentlyLinted.splice(justLintedPos, 1);
 			// Check if there is another lint in queue for the same file
@@ -166,7 +172,13 @@ export class DocumentsManager {
 				const lintToProcess = this.queuedLints[indexNextInQueue];
 				this.queuedLints.splice(indexNextInQueue, 1);
 				debug(`Run queued lint for ${textDocument.uri} (${JSON.stringify(lintToProcess.options || '{}')})`);
-				this.validateTextDocument(textDocument, lintToProcess.options);
+				this.validateTextDocument(textDocument, lintToProcess.options).then(async (resVal) => {
+					// If format has not been performed directly , lint again after it is processes
+					if (lintToProcess.options.format === true, resVal && resVal.length > 0) {
+						const documentUpdated = this.getDocumentFromUri(textDocument.uri);
+						this.validateTextDocument(documentUpdated);
+					}
+				});
 				return Promise.resolve([]);
 			} else {
 				return res;
@@ -274,7 +286,7 @@ export class DocumentsManager {
 
 	// If document has been updated during an operation, get its most recent state
 	getUpToDateTextDocument(textDocument: TextDocument): TextDocument {
-		return this.documents.get(textDocument.uri)!;
+		return this.documents.get(textDocument.uri) || textDocument; // Or expression, in case the textDocument is not opened yet
 	}
 
 	// Split source string into array of lines
@@ -292,12 +304,13 @@ export class DocumentsManager {
 	}
 
 	// Reset diagnostics (if current action, indicate it as a single diagnostic info)
-	async resetDiagnostics(docUri: string, optns: any = {}): Promise<void> {
+	async resetDiagnostics(docUri: string, optns: any = { deleteDocLinter: true }): Promise<void> {
 		debug(`Reset diagnostics for ${docUri}`);
 		const emptyDiagnostics: Diagnostic[] = [];
-		if (optns.verb && optns.verb !== 'formatting' && this.docsDiagnostics.get(docUri) &&
-			this.docsDiagnostics.get(docUri)!.length > 0 && this.docsDiagnostics.get(docUri)![0].code !== 'GroovyLintWaiting'
-		) {
+		const diagsAreNotEmpty = (this.docsDiagnostics.get(docUri) &&
+			this.docsDiagnostics.get(docUri)!.length > 0
+			&& this.docsDiagnostics.get(docUri)![0].code !== 'GroovyLintWaiting');
+		if (optns.verb && optns.verb !== 'formatting' && diagsAreNotEmpty) {
 			const waitingDiagnostic: Diagnostic = {
 				severity: DiagnosticSeverity.Information,
 				code: `GroovyLintWaiting`,
@@ -315,7 +328,9 @@ export class DocumentsManager {
 		}
 		this.docsDiagnostics.set(docUri, emptyDiagnostics);
 		this.docsDiagsQuickFixes.set(docUri, []);
-		this.deleteDocLinter(docUri);
+		if (optns.deleteDocLinter === true) {
+			this.deleteDocLinter(docUri);
+		}
 	}
 
 	// Remove diagnostic after it has been cleared

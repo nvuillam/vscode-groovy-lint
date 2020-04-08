@@ -1,5 +1,27 @@
 # Change Log
 
+### [0.7.0] 2020-04-08
+
+- New command **Lint Groovy in folder** available in folder context menu
+- Performances: avoid to lint again a file if it has already been linter with the same content
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.0.0
+  - **Much better performances on Linux and MacOs**
+  - When formatting, always run some custom npm-groovy-lint fix rules not corresponding to CodeNarc violations
+  - Return CodeNarc and Groovy versions when --version options is called
+  - Fixes
+    - Lost indentation when applying some fix rules
+  - Updated fix rules:
+    - IndentationClosingBraces
+    - IndentationComments
+    - SpaceAfterCatch
+    - SpaceAfterIf
+  - New fix rules:
+    - ClassEndsWithBlankLine
+    - ClassStartsWithNewLine
+    - SpaceAfterFor
+    - SpaceAfterSwitch
+- Add Jenkinsfile in test files
+
 ### [0.6.3] 2020-04-03
 
 - Improve QuickFix actions labels

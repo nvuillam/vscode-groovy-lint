@@ -170,6 +170,8 @@ docManager.documents.onDidClose(async event => {
     await docManager.cancelDocumentValidation(event.document.uri);
 });
 
+
+
 // Make the text document manager listen on the connection
 // for open, change and close text document events
 docManager.documents.listen(connection);

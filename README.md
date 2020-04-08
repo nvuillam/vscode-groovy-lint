@@ -22,14 +22,15 @@ Formatting and Auto-fix are still in beta version, please post an [issue](https:
 
 | Command                         | Description                                                                                    | Access                                                                                                   |
 |---------------------------------|------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
-| **Analyze code**                | Lint the code of the current tab                                                               | Ctrl+Shit+F9<br/>Contextual</br>Status bar<br/>Commands                                             |
-| **Format**                      | Format the code of the current tab                                                             | Shift+Alt+F<br/>Contextual</br>Commands                                                           |
-| **Fix all errors**              | Fix the code of the current tab                                                                | Ctrl+Shit+F10<br/>Contextual</br>Commands                                                           |
-| Fix single error                | Apply quick fix for a single error                                                             | Quick Fix<br/>Diagnostic                                                                       |
-| Fix _errorType_ in file         | Apply quick fix for all errors of the same type in the currrent tab                            | Quick Fix<br/>Diagnostic                                                                       |
-| Ignore _errorType_ in all files | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to ignore this error type) | Quick Fix<br/>Diagnostic                                                                       |
+| **Analyze code**                | Lint the code of the current tab                                                               | Ctrl+Shit+F9<br/>Contextual</br>Status bar<br/>Commands                                                  |
+| **Format**                      | Format the code of the current tab                                                             | Shift+Alt+F<br/>Contextual</br>Commands                                                                  |
+| **Fix all errors**              | Fix the code of the current tab                                                                | Contextual</br>Commands                                                                |
+| **Lint folder**                 | Lint all applicable files of a folder                                                          | Contextual                                                                                               |
+| Fix single error                | Apply quick fix for a single error                                                             | Quick Fix<br/>Diagnostic                                                                                 |
+| Fix _errorType_ in entire file  | Apply quick fix for all errors of the same type in the currrent tab                            | Quick Fix<br/>Diagnostic                                                                                 |
+| Ignore _errorType_ in workspace | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to ignore this error type) | Quick Fix<br/>Diagnostic                                                                          |
 
-- ***Contextual***: *right click in the source code*
+- ***Contextual***: *right click in source code or on folder*
 - ***Commands***: *Ctrl+Shift+P then type command name*
 - ***Status bar***: *GroovyLint status item at the bottom right*
 - ***Quick Fix***: *Hover an underlined part of the code after a lint, click Quick Fix then select action to perform*
@@ -48,7 +49,9 @@ Formatting and Auto-fix are still in beta version, please post an [issue](https:
 
 ## Known Issues
 
-As CodeNarc is runned in background with java/groovy, performances could be improved on large files (do not hesitate to provide advices !)
+- Node.js >= 12 is required to run this package. If you can't upgrade, you can use [nvm](https://github.com/nvm-sh/nvm) to have [different node versions on your computer](https://www.sitepoint.com/quick-tip-multiple-versions-node-nvm/)
+
+- As CodeNarc is runned in background with java/groovy, performances could be improved on large files (do not hesitate to provide advices !)
 But do not worry, as the groovy linting is provided by a background local server, your VsCode won't be slowed
 
 ## Contribute
@@ -60,6 +63,28 @@ Contributions are very welcome on :
 Please follow [Contribution instructions](https://github.com/nvuillam/vscode-groovy-lint/blob/master/CONTRIBUTING.md)
 
 ## Release Notes
+
+### [0.7.0] 2020-04-08
+
+- New command **Lint Groovy in folder** available in folder context menu
+- Performances: avoid to lint again a file if it has already been linter with the same content
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.0.0
+  - **Much better performances on Linux and MacOs**
+  - When formatting, always run some custom npm-groovy-lint fix rules not corresponding to CodeNarc violations
+  - Return CodeNarc and Groovy versions when --version options is called
+  - Fixes
+    - Lost indentation when applying some fix rules
+  - Updated fix rules:
+    - IndentationClosingBraces
+    - IndentationComments
+    - SpaceAfterCatch
+    - SpaceAfterIf
+  - New fix rules:
+    - ClassEndsWithBlankLine
+    - ClassStartsWithNewLine
+    - SpaceAfterFor
+    - SpaceAfterSwitch
+- Add Jenkinsfile in test files
 
 ### [0.6.2] 2020-04-02
 

@@ -29,7 +29,9 @@ export namespace ActiveDocumentNotification {
 // Open textDocument or Url notification
 export interface OpenNotificationParams {
 	file?: string,
-	url?: string
+	uri?: string,
+	url?: string,
+	preview?: boolean
 }
 export namespace OpenNotification {
 	export const type = new NotificationType<OpenNotificationParams, void>("groovylintlsp/open");
