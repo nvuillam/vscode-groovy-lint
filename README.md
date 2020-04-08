@@ -67,8 +67,9 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 ### [0.7.0] 2020-04-08
 
 - New command **Lint Groovy in folder** available in folder context menu
+- Performances: avoid to lint again a file if it has already been linter with the same content
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.0.0
-  - **Better performances on Linux and MacOs**
+  - **Much better performances on Linux and MacOs**
   - When formatting, always run some custom npm-groovy-lint fix rules not corresponding to CodeNarc violations
   - Return CodeNarc and Groovy versions when --version options is called
   - Fixes

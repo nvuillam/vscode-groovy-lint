@@ -206,7 +206,7 @@ async function refreshStatusBar(): Promise<any> {
 			(status.state === 'lint.start.fix') ? '• fixing ' + status.lastFileName + ' ...' :
 				(status.state === 'lint.start.format') ? '• formatting ' + status.lastFileName + ' ...' :
 					(status.state === 'lint.start.error') ? 'Error while processing ' + status.lastFileName :
-						'ERROR in GroovyLint: unknown status (plz contact developers if you see that';
+						`ERROR in GroovyLint: unknown status ${status.state} (plz contact developers if you see that`;
 	});
 	if (tooltips.length > 0) {
 		statusBarItem.tooltip = tooltips.join('\n');

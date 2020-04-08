@@ -304,7 +304,7 @@ export class DocumentsManager {
 	}
 
 	// Reset diagnostics (if current action, indicate it as a single diagnostic info)
-	async resetDiagnostics(docUri: string, optns: any = {}): Promise<void> {
+	async resetDiagnostics(docUri: string, optns: any = { deleteDocLinter: true }): Promise<void> {
 		debug(`Reset diagnostics for ${docUri}`);
 		const emptyDiagnostics: Diagnostic[] = [];
 		const diagsAreNotEmpty = (this.docsDiagnostics.get(docUri) &&
@@ -328,7 +328,9 @@ export class DocumentsManager {
 		}
 		this.docsDiagnostics.set(docUri, emptyDiagnostics);
 		this.docsDiagsQuickFixes.set(docUri, []);
-		this.deleteDocLinter(docUri);
+		if (optns.deleteDocLinter === true) {
+			this.deleteDocLinter(docUri);
+		}
 	}
 
 	// Remove diagnostic after it has been cleared

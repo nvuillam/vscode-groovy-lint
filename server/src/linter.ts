@@ -35,15 +35,6 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	textDocument = docManager.getUpToDateTextDocument(textDocument);
 	let source: string = textDocument.getText();
 
-	/*	NV: comment for now, seems there is some trouble with that
-		// If source has not changed, do not lint again
-		const prevLinter = docManager.getDocLinter(textDocument.uri);
-		if (prevLinter && prevLinter.options.source === source && ![opts.format, opts.fix].includes(true)) {
-			debug(`Ignoring linting of ${textDocument.uri} as its content has not changed since previous lint`);
-			return Promise.resolve([]);
-		} */
-
-
 	// Propose to replace tabs by spaces if there are, because CodeNarc hates tabs :/
 	const fileNm = path.basename(textDocument.uri);
 	source = await manageFixSourceBeforeCallingLinter(source, textDocument, docManager);
@@ -51,6 +42,12 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	// If user was prompted and did not respond, do not lint
 	if (source === 'cancel') {
 		return Promise.resolve([]);
+	}
+
+	let isSimpleLintIdenticalSource = false;
+	const prevLinter = docManager.getDocLinter(textDocument.uri);
+	if (prevLinter && prevLinter.options.source === source && ![opts.format, opts.fix].includes(true)) {
+		isSimpleLintIdenticalSource = true;
 	}
 
 	// Manage format & fix params
@@ -69,7 +66,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	}
 
 	// Remove already existing diagnostics except if format
-	await docManager.resetDiagnostics(textDocument.uri, { verb: verb });
+	await docManager.resetDiagnostics(textDocument.uri, { verb: verb, deleteLinter: !isSimpleLintIdenticalSource });
 
 	// Get a new task id
 	const linterTaskId = docManager.getNewTaskId();
@@ -105,29 +102,37 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 			npmGroovyLintConfig.fixrules = opts.fixrules.join(',');
 		}
 	}
+	let linter;
 
-	// Run npm-groovy-lint linter/fixer
-	docManager.deleteDocLinter(textDocument.uri);
-	console.info(`Start ${verb} ${textDocument.uri}`);
-	const linter = new NpmGroovyLint(npmGroovyLintConfig, {});
-	try {
-		await linter.run();
-		if (!format) {
-			docManager.setDocLinter(textDocument.uri, linter);
-		}
-	} catch (e) {
-		// If error, send notification to client
-		console.error('VsCode Groovy Lint error: ' + e.message + '\n' + e.stack);
-		debug(`Error linting ${textDocument.uri}` + e.message + '\n' + e.stack);
-		docManager.connection.sendNotification(StatusNotification.type, {
-			id: linterTaskId,
-			state: 'lint.error',
-			documents: [{ documentUri: textDocument.uri }],
-			lastFileName: fileNm
-		});
-		return Promise.resolve([]);
+	// If source has not changed, do not lint again
+	if (isSimpleLintIdenticalSource === true) {
+		debug(`Ignoring linting of ${textDocument.uri} as its content has not changed since previous lint`);
+		linter = prevLinter;
 	}
-	console.info(`Completed ${verb} ${textDocument.uri} in ${(performance.now() - perfStart).toFixed(0)} ms`);
+	else {
+		// Run npm-groovy-lint linter/fixer
+		docManager.deleteDocLinter(textDocument.uri);
+		console.info(`Start ${verb} ${textDocument.uri}`);
+		linter = new NpmGroovyLint(npmGroovyLintConfig, {});
+		try {
+			await linter.run();
+			if (!format) {
+				docManager.setDocLinter(textDocument.uri, linter);
+			}
+		} catch (e) {
+			// If error, send notification to client
+			console.error('VsCode Groovy Lint error: ' + e.message + '\n' + e.stack);
+			debug(`Error linting ${textDocument.uri}` + e.message + '\n' + e.stack);
+			docManager.connection.sendNotification(StatusNotification.type, {
+				id: linterTaskId,
+				state: 'lint.error',
+				documents: [{ documentUri: textDocument.uri }],
+				lastFileName: fileNm
+			});
+			return Promise.resolve([]);
+		}
+		console.info(`Completed ${verb} ${textDocument.uri} in ${(performance.now() - perfStart).toFixed(0)} ms`);
+	}
 
 	// Parse results
 	const lintResults = linter.lintResult || {};

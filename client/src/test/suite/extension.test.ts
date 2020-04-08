@@ -69,7 +69,7 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['bigGroovy'].doc.uri);
 
 		assert(docDiagnostics.length === numberOfDiagnosticsForBigGroovyLint, `${numberOfDiagnosticsForBigGroovyLint} GroovyLint diagnostics found after lint (${docDiagnostics.length} returned)`);
-	}).timeout(110000);
+	}).timeout(120000);
 
 	// Format document without updating diagnostics
 	test("2.1. Format big document", async () => {
@@ -180,10 +180,10 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		const JenkinsfileUri = testDocs['Jenkinsfile'].doc.uri;
 		await vscode.commands.executeCommand('workbench.action.closeAllEditors');
 		await sleepPromise(10000);
-		vscode.commands.executeCommand('groovyLint.lintFolder', [docFolderUri]);
-		await waitUntil(() => diagnosticsChanged(bigGroovyUri, []), 60000);
-		await waitUntil(() => diagnosticsChanged(tinyGroovyUri, []), 30000);
-		await waitUntil(() => diagnosticsChanged(JenkinsfileUri, []), 30000);
+		await vscode.commands.executeCommand('groovyLint.lintFolder', [docFolderUri]);
+		await waitUntil(() => diagnosticsChanged(bigGroovyUri, []), 120000);
+		await waitUntil(() => diagnosticsChanged(tinyGroovyUri, []), 60000);
+		await waitUntil(() => diagnosticsChanged(JenkinsfileUri, []), 120000);
 		// Compute total of UI diagnostics
 		const bigDiags = vscode.languages.getDiagnostics(bigGroovyUri);
 		const tinyDiags = vscode.languages.getDiagnostics(tinyGroovyUri);
@@ -193,7 +193,7 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		const numberOfDiagnosticsForFolderLint = numberOfDiagnosticsForBigGroovyLintFix + numberOfDiagnosticsForTinyGroovyLintFix + numberOfDiagnosticsForJenkinsfileLintFix;
 
 		assert(totalDiags === numberOfDiagnosticsForFolderLint, `${numberOfDiagnosticsForFolderLint} GroovyLint diagnostics found after lint (${totalDiags} returned)`);
-	}).timeout(200000);
+	}).timeout(360000);
 });
 
 // Open a textDocument and show it in editor

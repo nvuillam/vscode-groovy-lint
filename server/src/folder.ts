@@ -30,7 +30,8 @@ export async function lintFolder(folders: Array<any>, docManager: DocumentsManag
 				const content = await fse.readFile(file, "utf8");
 				textDocument = TextDocument.create(docUri, 'groovy', 1, content.toString());
 			}
-			docManager.validateTextDocument(textDocument, { showDocumentIfErrors: true });
+			// Lint one doc after another , to do not busy too much the processor
+			await docManager.validateTextDocument(textDocument, { showDocumentIfErrors: true });
 		}
 	}
 }
