@@ -7,7 +7,8 @@
 	"license": "GPL-3.0-only",
 	"icon": "icon.png",
 	"engines": {
-		"vscode": "^1.42.0"
+		"vscode": "^1.42.0",
+		"node": ">=12.0.0"
 	},
 	"scripts": {
 		"precompile": "rimraf ./client/out/* && rimraf ./client/coverage/* && rimraf ./client/.nyc_output/* && rimraf ./server/out/* && rimraf ./server/coverage/* && rimraf ./server/.nyc_output/*",
@@ -110,11 +111,15 @@
 		"commands": [
 			{
 				"command": "groovyLint.lint",
-				"title": "GroovyLint: Analyze code"
+				"title": "Analyze code"
 			},
 			{
 				"command": "groovyLint.lintFix",
-				"title": "GroovyLint: Fix errors"
+				"title": "Fix all errors"
+			},
+			{
+				"command": "groovyLint.lintFolder",
+				"title": "Lint Groovy in folder"
 			}
 		],
 		"menus": {
@@ -139,6 +144,12 @@
 					"command": "groovyLint.lintFix",
 					"group": "navigation"
 				}
+			],
+			"explorer/context": [
+				{
+					"command": "groovyLint.lintFolder",
+					"group": "groovylint"
+				}
 			]
 		},
 		"keybindings": [
@@ -153,6 +164,12 @@
 				"key": "ctrl+shift+F10",
 				"mac": "cmd+shift+F10",
 				"when": "editorFocus && resourceLangId == groovy"
+			},
+			{
+				"command": "groovyLint.lintFolder",
+				"key": "ctrl+shift+F11",
+				"mac": "cmd+shift+F11",
+				"when": "explorerResourceIsFolder"
 			}
 		],
 		"configuration": {

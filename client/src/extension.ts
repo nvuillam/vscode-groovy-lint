@@ -5,8 +5,7 @@ import {
 	LanguageClient,
 	LanguageClientOptions,
 	ServerOptions,
-	TransportKind,
-	NotificationType
+	TransportKind
 } from 'vscode-languageclient';
 import { StatusParams, StatusNotification, ActiveDocumentNotification, OpenNotification } from './types';
 
@@ -62,7 +61,6 @@ export function activate(context: ExtensionContext) {
 		clientOptions
 	);
 
-
 	// Manage status bar item (with loading icon)
 	statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
 	statusBarItem.command = 'groovyLint.lint';
@@ -73,7 +71,7 @@ export function activate(context: ExtensionContext) {
 
 	// Start the client. This will also launch the server
 	context.subscriptions.push(
-		client.start(),
+		client.start()
 	);
 
 	// Actions after client is ready
@@ -89,11 +87,25 @@ export function activate(context: ExtensionContext) {
 
 		// Open file in workspace when language server requests it
 		client.onNotification(OpenNotification.type, async (notifParams: any) => {
-			// Open textDocument
+			// Open textDocument from file path
 			if (notifParams.file) {
 				const openPath = vscode.Uri.parse("file:///" + notifParams.file); //A request file path
 				const doc = await vscode.workspace.openTextDocument(openPath);
-				await vscode.window.showTextDocument(doc, { preserveFocus: true });
+				await vscode.window.showTextDocument(doc, {
+					preserveFocus: true,
+					// eslint-disable-next-line eqeqeq
+					preview: (notifParams.preview != null) ? notifParams.preview : true
+				});
+			}
+			// Open textDocument from URI
+			else if (notifParams.uri) {
+				const openPath = vscode.Uri.parse(notifParams.uri); //A request file path
+				const doc = await vscode.workspace.openTextDocument(openPath);
+				await vscode.window.showTextDocument(doc, {
+					preserveFocus: true,
+					// eslint-disable-next-line eqeqeq
+					preview: (notifParams.preview != null) ? notifParams.preview : true
+				});
 			}
 			// Open url in external browser
 			else if (notifParams.url) {

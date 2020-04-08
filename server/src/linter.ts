@@ -6,14 +6,14 @@ import * as path from 'path';
 import { DocumentsManager } from './DocumentsManager';
 import { applyTextDocumentEditOnWorkspace, getUpdatedSource, createTextEdit, notifyFixFailures } from './clientUtils';
 import { parseLinterResults } from './linterParser';
-import { StatusNotification } from './types';
+import { StatusNotification, OpenNotification } from './types';
 import { ShowMessageRequestParams, MessageType } from 'vscode-languageserver';
 const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
 const debug = require("debug")("vscode-groovy-lint");
 const { performance } = require('perf_hooks');
 
 // Validate a groovy file (just lint, or also format or fix)
-export async function executeLinter(textDocument: TextDocument, docManager: DocumentsManager, opts: any = { fix: false, format: false }): Promise<TextEdit[]> {
+export async function executeLinter(textDocument: TextDocument, docManager: DocumentsManager, opts: any = { fix: false, format: false, showDocumentIfErrors: false }): Promise<TextEdit[]> {
 	const perfStart = performance.now();
 
 	// Get settings and stop if action not enabled
@@ -33,9 +33,18 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 
 	// In case lint was queues, get most recent version of textDocument
 	textDocument = docManager.getUpToDateTextDocument(textDocument);
+	let source: string = textDocument.getText();
+
+	/*	NV: comment for now, seems there is some trouble with that
+		// If source has not changed, do not lint again
+		const prevLinter = docManager.getDocLinter(textDocument.uri);
+		if (prevLinter && prevLinter.options.source === source && ![opts.format, opts.fix].includes(true)) {
+			debug(`Ignoring linting of ${textDocument.uri} as its content has not changed since previous lint`);
+			return Promise.resolve([]);
+		} */
+
 
 	// Propose to replace tabs by spaces if there are, because CodeNarc hates tabs :/
-	let source: string = textDocument.getText();
 	const fileNm = path.basename(textDocument.uri);
 	source = await manageFixSourceBeforeCallingLinter(source, textDocument, docManager);
 
@@ -98,6 +107,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	}
 
 	// Run npm-groovy-lint linter/fixer
+	docManager.deleteDocLinter(textDocument.uri);
 	console.info(`Start ${verb} ${textDocument.uri}`);
 	const linter = new NpmGroovyLint(npmGroovyLintConfig, {});
 	try {
@@ -171,8 +181,13 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		await notifyFixFailures(fixFailures, docManager);
 	}
 
+	// Call if from lintFolder: open document and display diagnostics if 
+	if (opts.showDocumentIfErrors == true && diagnostics.length > 0) {
+		await docManager.connection.sendNotification(OpenNotification.type, { uri: textDocument.uri, preview: false });
+		await docManager.updateDiagnostics(textDocument.uri, diagnostics);
+	}
 	// Remove diagnostics in case the file has been closed since the lint request
-	if (!docManager.isDocumentOpenInClient(textDocument.uri)) {
+	else if (!docManager.isDocumentOpenInClient(textDocument.uri)) {
 		await docManager.updateDiagnostics(textDocument.uri, []);
 	}
 	// Update diagnostics if this is not a format or fix calls (for format & fix, a lint is called just after)
