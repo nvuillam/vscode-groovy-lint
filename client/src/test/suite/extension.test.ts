@@ -136,7 +136,7 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		assert(docDiagnostics.length === numberOfDiagnosticsForTinyGroovyLintFix, `${numberOfDiagnosticsForTinyGroovyLintFix} GroovyLint diagnostics found after lint (${docDiagnostics.length} returned)`);
 	}).timeout(60000);
 
-	// Lint tiny document
+	// Lint Jenkinsfile
 	test("4.0 Lint Jenkinsfile", async () => {
 		console.log("Start 4.0 Lint Jenkinsfile");
 		testDocs['Jenkinsfile'].doc = await openDocument('Jenkinsfile');
@@ -146,7 +146,8 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		assert(docDiagnostics.length === numberOfDiagnosticsForJenkinsfileLint, `${numberOfDiagnosticsForJenkinsfileLint} GroovyLint diagnostics found after lint (${docDiagnostics.length} returned)`);
 	}).timeout(60000);
 
-	// Format tiny document
+
+	// Format Jenkinsfile
 	test("4.1. Format Jenkinsfile", async () => {
 		console.log("Start 4.1. Format Jenkinsfile");
 		const textBefore = getActiveEditorText();
@@ -159,7 +160,7 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		assert(textBefore !== textAfter, 'TextDocument text must be updated after format');
 	}).timeout(100000);
 
-	// Fix document
+	// Fix Jenkinsfile (no errors fixed)
 	test("4.2. Fix Jenkinsfile", async () => {
 		console.log("Start 4.2. Fix Jenkinsfile");
 		const textBefore = getActiveEditorText();
@@ -168,6 +169,7 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['Jenkinsfile'].doc.uri);
 		assert(docDiagnostics.length === numberOfDiagnosticsForJenkinsfileLintFix, `${numberOfDiagnosticsForJenkinsfileLintFix} GroovyLint diagnostics found after lint (${docDiagnostics.length} returned)`);
 	}).timeout(100000);
+
 
 	// Lint a folder
 	test("5.1. Lint folder", async () => {
@@ -179,6 +181,7 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		const tinyGroovyUri = testDocs['tinyGroovy'].doc.uri;
 		const JenkinsfileUri = testDocs['Jenkinsfile'].doc.uri;
 		await vscode.commands.executeCommand('workbench.action.closeAllEditors');
+		console.log(`Closed all editors`);
 		await sleepPromise(10000);
 		await vscode.commands.executeCommand('groovyLint.lintFolder', [docFolderUri]);
 		await waitUntil(() => diagnosticsChanged(bigGroovyUri, []), 120000);
