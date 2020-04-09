@@ -82,6 +82,7 @@ export function getUpdatedSource(docLinter: any, prevSource: string) {
 
 // Shows the documentation of a rule
 export async function showRuleDocumentation(ruleCode: string, docManager: DocumentsManager): Promise<void> {
+	debug(`Request showRuleDocumentation on ${ruleCode}`);
 	const ruleDesc = docManager.getRuleDescription(ruleCode);
 	// Show documentation as info message, and propose to open codenarc website rule page
 	const readMoreLabel = 'Read More';
@@ -105,6 +106,7 @@ export async function notifyFixFailures(fixFailures: any[], docManager: Document
 	}
 	const failedErrorTypes = Array.from(new Set(fixFailures.map(failedFixErr => failedFixErr.rule)));
 	failedErrorTypes.sort();
+	debug(`Notify fix failures of errors: ${failedErrorTypes.join(',')}`);
 	const msg: ShowMessageRequestParams = {
 		type: MessageType.Warning,
 		message: `Some error fixes have failed, please fix them manually: ${failedErrorTypes.join(',')}`,

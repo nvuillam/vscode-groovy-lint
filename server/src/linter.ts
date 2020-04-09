@@ -14,20 +14,24 @@ const { performance } = require('perf_hooks');
 
 // Validate a groovy file (just lint, or also format or fix)
 export async function executeLinter(textDocument: TextDocument, docManager: DocumentsManager, opts: any = { fix: false, format: false, showDocumentIfErrors: false }): Promise<TextEdit[]> {
+	debug(`Request execute npm-groovy-lint for ${textDocument.uri} with options ${JSON.stringify(opts)}`);
 	const perfStart = performance.now();
 
 	// Get settings and stop if action not enabled
 	let settings = await docManager.getDocumentSettings(textDocument.uri);
 	// Linter disabled
 	if (settings.enable === false) {
+		debug(`VsCodeGroovyLint is disabled: activate it in VsCode GroovyLint settings`);
 		return Promise.resolve([]);
 	}
 	// Formatter disabled
 	if (opts.format && settings.format.enable === false) {
+		debug(`Formatter is disabled: activate it in VsCode settings`);
 		return Promise.resolve([]);
 	}
 	// Fixer disabled
 	if (opts.fix && settings.fix.enable === false) {
+		debug(`Fixing is disabled: activate it in VsCode GroovyLint settings`);
 		return Promise.resolve([]);
 	}
 
@@ -41,9 +45,11 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 
 	// If user was prompted and did not respond, do not lint
 	if (source === 'cancel') {
+		debug(`User did not answer to the question: leave`);
 		return Promise.resolve([]);
 	}
 
+	// Check if there is an existing NpmGroovyLint instance with same source
 	let isSimpleLintIdenticalSource = false;
 	const prevLinter = docManager.getDocLinter(textDocument.uri);
 	if (prevLinter && prevLinter.options.source === source && ![opts.format, opts.fix].includes(true)) {
@@ -72,7 +78,6 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	const linterTaskId = docManager.getNewTaskId();
 
 	// Notify client that lint is starting
-	debug(`Start linting ${textDocument.uri}`);
 	docManager.connection.sendNotification(StatusNotification.type, {
 		id: linterTaskId,
 		state: 'lint.start' + (fix ? '.fix' : format ? '.format' : ''),
@@ -140,6 +145,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 
 	// Store rules descriptions if returned
 	if (lintResults.rules) {
+		debug(`Store rule descriptions from NpmGroovyLint`);
 		docManager.setRuleDescriptions(lintResults.rules);
 	}
 
@@ -149,6 +155,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	// Check if the document has been manually updated during the format or fix
 	if ([format, fix].includes(true) && sourceAfterLintButBeforeApply !== source) {
 		// Show message to user and propose to process again the format or fix action
+		debug(`Source of ${textDocument.uri} has been updated: updates not applied`);
 		const processAgainTitle = 'Process Again';
 		const msg: ShowMessageRequestParams = {
 			type: MessageType.Warning,
@@ -161,6 +168,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 			// If user clicked Process Again, run again the related command
 			if (rqstResp && rqstResp.title === processAgainTitle) {
 				const commandAgain = (format) ? 'vscode.executeFormatDocumentProvider' : (fix) ? 'groovyLint.lintFix' : '';
+				debug(`Process again command ${commandAgain} after user clicked on message`);
 				await docManager.connection.client.executeCommand(commandAgain, [textDocument.uri], {});
 			}
 		});

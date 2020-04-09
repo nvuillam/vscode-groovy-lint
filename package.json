@@ -235,12 +235,18 @@
 					"scope": "resource",
 					"type": "boolean",
 					"default": false,
-					"description": "Verbose logs"
+					"description": "Verbose logs for npm-groovy-lint"
 				},
 				"groovyLint.basic.config": {
 					"scope": "resource",
 					"type": "string",
 					"description": "Override Config file to use for linter"
+				},
+				"groovyLint.debug.enable": {
+					"scope": "resource",
+					"type": "boolean",
+					"default": false,
+					"description": "Display debugging info in output panel"
 				}
 			}
 		}

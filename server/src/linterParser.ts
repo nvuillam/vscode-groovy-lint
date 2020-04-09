@@ -90,5 +90,6 @@ export function parseLinterResults(lintResults: any, source: string, textDocumen
 		}
 		docManager.setDocQuickFixes(textDocument.uri, docQuickFixes);
 	}
+	debug(`Parsed ${diagnostics.length} diagnostics and ${fixFailures.length} fix failures`);
 	return { diagnostics: diagnostics, fixFailures: fixFailures };
 }

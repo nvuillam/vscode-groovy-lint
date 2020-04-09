@@ -1,5 +1,10 @@
 # Change Log
 
+### [0.7.1] 2020-04-09
+
+- Add setting **groovyLint.debug.enable** : Display more logs in VsCode Output panel (select "GroovyLint") for issue investigation
+- Update settings definition in README documentation
+
 ### [0.7.0] 2020-04-08
 
 - New command **Lint Groovy in folder** available in folder context menu

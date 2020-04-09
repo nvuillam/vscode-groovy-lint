@@ -30,8 +30,7 @@ let connection = createConnection(ProposedFeatures.all);
 // Doc manager is a live instance managing the extension all along its execution
 const docManager = new DocumentsManager(connection);
 
-let lastChangeConfigEventReceived: number;
-const delayBeforeLintAgainAfterConfigUpdate = 10000;
+const delayBeforeLintAgainAfterConfigUpdate = 5000;
 
 // Return language server capabilities
 connection.onInitialize((params: InitializeParams) => {
@@ -62,6 +61,7 @@ connection.onInitialized(async () => {
     connection.client.register(DidSaveTextDocumentNotification.type);
     //connection.client.register(ActiveDocumentNotification.type);
     debug('GroovyLint: initialized server');
+    await docManager.refreshDebugMode();
 });
 
 // Kill CodeNarcServer when closing VsCode or deactivate extension
@@ -75,19 +75,14 @@ connection.onExit(async () => {
 // Lint again all opened documents in configuration changed 
 // wait N seconds in case a new config change arrive, run just after the last one
 connection.onDidChangeConfiguration(async (change) => {
-    lastChangeConfigEventReceived = performance.now();
-    setTimeout(async () => {
-        if ((lastChangeConfigEventReceived - performance.now()) > delayBeforeLintAgainAfterConfigUpdate) {
-            debug(`change configuration event received: lint again all open documents`);
-            // Reset all cached document settings
-            docManager.removeDocumentSettings('all');
-            // Revalidate all open text documents
-            for (const doc of docManager.documents.all()) {
-                await docManager.validateTextDocument(doc);
-            };
-        }
-    }, delayBeforeLintAgainAfterConfigUpdate);
-
+    debug(`change configuration event received: lint again all open documents`);
+    await docManager.refreshDebugMode();
+    // Reset all cached document settings
+    docManager.removeDocumentSettings('all');
+    // Revalidate all open text documents
+    for (const doc of docManager.documents.all()) {
+        await docManager.validateTextDocument(doc);
+    };
 });
 
 // Handle command requests from client
@@ -115,11 +110,11 @@ connection.onCodeAction(async (codeActionParams: CodeActionParams): Promise<Code
     if (!codeActionParams.context.diagnostics.length) {
         return [];
     }
+    debug(`Code action request received from client for ${codeActionParams.textDocument.uri} with params: ${JSON.stringify(codeActionParams)}`);
     const document = docManager.getDocumentFromUri(codeActionParams.textDocument.uri);
     if (document == null) {
         return [];
     }
-    debug(`Code action request received from client for ${document.uri}`);
     const docQuickFixes: any = docManager.getDocQuickFixes(codeActionParams.textDocument.uri);
     return provideQuickFixCodeActions(document, codeActionParams, docQuickFixes);
 });
@@ -151,7 +146,7 @@ docManager.documents.onDidChangeContent(async (change: TextDocumentChangeEvent<T
 
 // Lint on save if it has been configured
 docManager.documents.onDidSave(async event => {
-    debug(`save event received for ${event.document.uri}`);
+    debug(`Save event received for ${event.document.uri}`);
     const textDocument: TextDocument = docManager.getDocumentFromUri(event.document.uri, true);
     const settings = await docManager.getDocumentSettings(textDocument.uri);
     if (settings.fix.trigger === 'onSave') {
@@ -164,7 +159,7 @@ docManager.documents.onDidSave(async event => {
 
 // Only keep settings for open documents
 docManager.documents.onDidClose(async event => {
-    debug(`close event received for ${event.document.uri}`);
+    debug(`Close event received for ${event.document.uri}`);
     await docManager.resetDiagnostics(event.document.uri);
     docManager.removeDocumentSettings(event.document.uri);
     await docManager.cancelDocumentValidation(event.document.uri);

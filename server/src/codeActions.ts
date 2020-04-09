@@ -193,6 +193,7 @@ export async function applyQuickFixes(diagnostics: Diagnostic[], textDocumentUri
 		}],
 		lastFileName: textDocument.uri
 	});
+	debug(`End fixing ${textDocument.uri}`);
 }
 
 // Quick fix in the whole file
@@ -203,6 +204,7 @@ export async function applyQuickFixesInFile(diagnostics: Diagnostic[], textDocum
 	// Fix call
 	await docManager.validateTextDocument(textDocument, { fix: true, fixrules: [fixRule] });
 	// Lint after call
+	debug(`Request new lint of ${textDocumentUri} after fix action`);
 	docManager.validateTextDocument(textDocument);
 }
 
@@ -243,10 +245,11 @@ export async function addSuppressWarning(diagnostic: Diagnostic, textDocumentUri
 
 // Add suppress warning
 export async function alwaysIgnoreError(diagnostic: Diagnostic, textDocumentUri: string, docManager: DocumentsManager) {
+	debug(`Request ignore error in all workspace from ${textDocumentUri}`);
 	const textDocument: TextDocument = docManager.getDocumentFromUri(textDocumentUri);
 	// Get line to check or create
 	const errorCode: string = (diagnostic.code as string).split('-')[0];
-
+	debug(`Error code to be ignored is ${errorCode}`);
 	// Get or create configuration file path using NpmGroovyLint instance associated to this document
 	const docLinter = docManager.getDocLinter(textDocument.uri);
 	const textDocumentFilePath: string = URI.parse(textDocument.uri).fsPath;
@@ -258,6 +261,7 @@ export async function alwaysIgnoreError(diagnostic: Diagnostic, textDocumentUri:
 		configFilePath = `${workspaceFolder}/.groovylintrc.json`;
 		configFileContent = { extends: "recommended", rules: {} };
 	}
+	debug(`Config file to be created/updated is ${configFilePath}`);
 	// Find / Create disabled rule
 	const newRuleContent = { enabled: false };
 	let existingRule: Array<any> = Object.entries(configFileContent.rules).filter(mapElt => {
@@ -284,6 +288,7 @@ export async function alwaysIgnoreError(diagnostic: Diagnostic, textDocumentUri:
 
 	// Write new JSON config
 	await fse.writeFile(configFilePath, JSON.stringify(configFileContent, null, 4));
+	debug(`Updated file ${configFilePath}`);
 
 	// Remove Diagnostics corresponding to this error
 	const removeAll = true;
