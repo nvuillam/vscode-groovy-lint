@@ -356,4 +356,20 @@ export class DocumentsManager {
 		}
 		await this.updateDiagnostics(textDocumentUri, docDiagnostics);
 	}
+
+	// Enable/Disable debug mode depending on VsCode GroovyLint setting groovyLint.debug.enable
+	async refreshDebugMode() {
+		const settings = await this.connection.workspace.getConfiguration({
+			section: 'groovyLint'
+		});
+		// Enable debug logs if setting is set
+		const debugLib = require("debug");
+		if (settings.debug && settings.debug.enable === true) {
+			debugLib.enable('vscode-groovy-lint,npm-groovy-lint');
+		}
+		// Disable if not set
+		else {
+			debugLib.disable('vscode-groovy-lint,npm-groovy-lint');
+		}
+	}
 }

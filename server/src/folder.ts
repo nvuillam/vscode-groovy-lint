@@ -10,7 +10,7 @@ const glob = require("glob-promise");
 // Lint all applicable files of a folder
 export async function lintFolder(folders: Array<any>, docManager: DocumentsManager) {
 	const folderList = folders.map(fldr => fldr.fsPath);
-	debug(`Start linting folder(s) ${folderList.join(',')}`);
+	debug(`Start linting folder(s): ${folderList.join(',')}`);
 	// Browse each folder
 	for (const folder of folderList) {
 		// List applicable files of folder
@@ -34,4 +34,5 @@ export async function lintFolder(folders: Array<any>, docManager: DocumentsManag
 			await docManager.validateTextDocument(textDocument, { showDocumentIfErrors: true });
 		}
 	}
+	debug(`Completed linting folder(s): ${folderList.join(',')}`);
 }

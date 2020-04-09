@@ -40,12 +40,15 @@ Formatting and Auto-fix are still in beta version, please post an [issue](https:
 
 | Parameter                        | Description                                                                                     | Default          |
 |----------------------------------|-------------------------------------------------------------------------------------------------|------------------|
-| `groovyLint.basic.enable`        | Controls whether GroovyLint is enabled or not                                                   | true             |
-| `groovyLint.basic.run`           | Run the linter on save (onSave) or on type (onType)                                             | onSave           |
-| `groovyLint.basic.autoFixOnSave` | Turns auto fix on save on or off                                                                | false            |
+| `groovyLint.enable`              | Controls whether GroovyLint is enabled or not                                                   | true             |
+| `groovyLint.lint.trigger`        | Run the linter on save (onSave), on type (onType) , or on user request                          | onSave           |
+| `groovyLint.format.enable`       | Controls whether the groovy formatter is enabled or not                                         | true             |
+| `groovyLint.fix.enable`          | Run the linter on save (onSave), on type (onType) , or on user request                          | true             |
+| `groovyLint.fix.trigger`         | Run the fixer on save (onSave), or on user request                                              | user             |
 | `groovyLint.basic.loglevel`      | Linting error level (error, warning,info)                                                       | info             |
 | `groovyLint.basic.verbose`       | Turn on to have verbose logs                                                                    | false            |
 | `groovyLint.basic.config`        | [NPM groovy lint configuration file](https://github.com/nvuillam/npm-groovy-lint#configuration) | .groovylintrc.js |
+| `groovyLint.debug.enable`        | Display more logs in VsCode Output panel (select "GroovyLint") for issue investigation          | false            |                                                                  | false            |
 
 ## Known Issues
 
@@ -63,6 +66,11 @@ Contributions are very welcome on :
 Please follow [Contribution instructions](https://github.com/nvuillam/vscode-groovy-lint/blob/master/CONTRIBUTING.md)
 
 ## Release Notes
+
+### [0.7.1] 2020-04-09
+
+- Add setting **groovyLint.debug.enable** : Display more logs in VsCode Output panel (select "GroovyLint") for issue investigation
+- Update settings definition in README documentation
 
 ### [0.7.0] 2020-04-08
 
