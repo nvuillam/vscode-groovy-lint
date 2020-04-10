@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.7.2] 2020-04-10
+
+- Fix error [#18 _(codeAction failed with message: Cannot read property 'split' of undefined)_](https://github.com/nvuillam/vscode-groovy-lint/issues/18)
+- Add more automated tests for CodeActions
+- Display a waiting info message when a Lint Folder request takes more than 5 seconds + allow to cancel the current operation
+- Fix perf issue when closing all visible text editors
+
 ### [0.7.1] 2020-04-09
 
 - Add setting **groovyLint.debug.enable** : Display more logs in VsCode Output panel (select "GroovyLint") for issue investigation
