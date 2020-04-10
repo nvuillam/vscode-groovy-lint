@@ -118,6 +118,7 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		const cmdArgs = [diagnostic, testDocs['tinyGroovy'].doc.uri];
 		executeCommand('groovyLint.quickFix', cmdArgs);
 		await waitUntil(() => documentHasBeenUpdated(testDocs['tinyGroovy'].doc.uri, textBefore), 60000);
+		await sleepPromise(5000);
 		const textAfter = getActiveEditorText();
 
 		assert(textBefore !== textAfter, 'TextDocument text must be updated after format');
@@ -132,6 +133,7 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		const cmdArgs = [diagnostic, testDocs['tinyGroovy'].doc.uri];
 		executeCommand('groovyLint.quickFixFile', cmdArgs);
 		await waitUntil(() => documentHasBeenUpdated(testDocs['tinyGroovy'].doc.uri, textBefore), 60000);
+		await sleepPromise(5000);
 		const textAfter = getActiveEditorText();
 
 		assert(textBefore !== textAfter, 'TextDocument text must be updated after format');
