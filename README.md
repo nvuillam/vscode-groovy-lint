@@ -67,7 +67,7 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
-## [0.8.0] 2020-04-13
+## [0.8.1] 2020-04-13
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.2.0
   - Display **source parsing errors**
