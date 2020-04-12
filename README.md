@@ -24,7 +24,7 @@ Formatting and Auto-fix are still in beta version, please post an [issue](https:
 |---------------------------------|------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
 | **Analyze code**                | Lint the code of the current tab                                                               | Ctrl+Shit+F9<br/>Contextual</br>Status bar<br/>Commands                                                  |
 | **Format**                      | Format the code of the current tab                                                             | Shift+Alt+F<br/>Contextual</br>Commands                                                                  |
-| **Fix all errors**              | Fix the code of the current tab                                                                | Contextual</br>Commands                                                                |
+| **Fix all errors**              | Fix the code of the current tab                                                                | Contextual</br>Commands                                                                                  |
 | **Lint folder**                 | Lint all applicable files of a folder                                                          | Contextual                                                                                               |
 | Fix single error                | Apply quick fix for a single error                                                             | Quick Fix<br/>Diagnostic                                                                                 |
 | Fix _errorType_ in entire file  | Apply quick fix for all errors of the same type in the currrent tab                            | Quick Fix<br/>Diagnostic                                                                                 |
@@ -66,6 +66,15 @@ Contributions are very welcome on :
 Please follow [Contribution instructions](https://github.com/nvuillam/vscode-groovy-lint/blob/master/CONTRIBUTING.md)
 
 ## Release Notes
+
+## [0.7.2] 2020-04-12
+
+- Fix error [#18 _(codeAction failed with message: Cannot read property 'split' of undefined)_](https://github.com/nvuillam/vscode-groovy-lint/issues/18)
+- Add more automated tests for CodeActions
+- Display a waiting info message when a Lint Folder request takes more than 5 seconds + allow to cancel the current operation
+- Fix perf issue when closing all visible text editors
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.1.0
+  - Upgrade to [Groovy 3.0.3](https://dl.bintray.com/groovy/maven/apache-groovy-binary-3.0.3.zip)
 
 ### [0.7.1] 2020-04-09
 

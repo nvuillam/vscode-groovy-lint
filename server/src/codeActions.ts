@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 import {
 	CodeAction,
 	CodeActionParams,
@@ -44,7 +45,9 @@ export function provideQuickFixCodeActions(textDocument: TextDocument, codeActio
 		const ignoreActions = createIgnoreActions(diagnostic, textDocument.uri);
 		quickFixCodeActions.push(...ignoreActions);
 		const viewDocAction = createViewDocAction(diagnostic, textDocument.uri);
-		quickFixCodeActions.push(viewDocAction);
+		if (viewDocAction) {
+			quickFixCodeActions.push(viewDocAction);
+		}
 	}
 	debug(`Provided ${quickFixCodeActions.length} codeActions for ${textDocument.uri}`);
 	return quickFixCodeActions;
@@ -61,7 +64,7 @@ function createQuickFixCodeActions(diagnostic: Diagnostic, quickFix: any, textDo
 		command: {
 			command: 'groovyLint.quickFix',
 			title: quickFix.label,
-			arguments: [diagnostic, textDocumentUri]
+			arguments: [textDocumentUri, diagnostic]
 		},
 		diagnostics: [diagnostic],
 		isPreferred: true
@@ -76,7 +79,7 @@ function createQuickFixCodeActions(diagnostic: Diagnostic, quickFix: any, textDo
 		command: {
 			command: 'groovyLint.quickFixFile',
 			title: `${quickFix.label} in the entire file`,
-			arguments: [diagnostic, textDocumentUri]
+			arguments: [textDocumentUri, diagnostic]
 		},
 		diagnostics: [diagnostic],
 		isPreferred: true
@@ -87,6 +90,11 @@ function createQuickFixCodeActions(diagnostic: Diagnostic, quickFix: any, textDo
 }
 
 function createIgnoreActions(diagnostic: Diagnostic, textDocumentUri: string): CodeAction[] {
+	// Sometimes it comes there whereas it shouldn't ... let's avoid a crash
+	if (diagnostic == null) {
+		console.warn('Warning: we should not be in createIgnoreActions as there is no diagnostic set');
+		return [];
+	}
 	const ignoreActions: CodeAction[] = [];
 	let errorLabel = (diagnostic.code as string).split('-')[0].replace(/([A-Z])/g, ' $1').trim();
 
@@ -131,7 +139,7 @@ function createIgnoreActions(diagnostic: Diagnostic, textDocumentUri: string): C
 			command: {
 				command: 'groovyLint.alwaysIgnoreError',
 				title: `Disable ${errorLabel} in the entire workspace`,
-				arguments: [diagnostic, textDocumentUri]
+				arguments: [textDocumentUri, diagnostic]
 			},
 			diagnostics: [diagnostic],
 			isPreferred: false
@@ -142,7 +150,12 @@ function createIgnoreActions(diagnostic: Diagnostic, textDocumentUri: string): C
 }
 
 // Create action to view documentation
-function createViewDocAction(diagnostic: Diagnostic, textDocumentUri: string): CodeAction {
+function createViewDocAction(diagnostic: Diagnostic, textDocumentUri: string): CodeAction | null {
+	// Sometimes it comes there whereas it shouldn't ... let's avoid a crash
+	if (diagnostic == null) {
+		console.warn('Warning: we should not be in createViewDocAction as there is no diagnostic set');
+		return null;
+	}
 	const ruleCode = (diagnostic.code as string).split('-')[0];
 	let errorLabel = ruleCode.replace(/([A-Z])/g, ' $1').trim();
 	const viewCodeAction: CodeAction = {
@@ -161,12 +174,19 @@ function createViewDocAction(diagnostic: Diagnostic, textDocumentUri: string): C
 
 // Apply quick fixes
 export async function applyQuickFixes(diagnostics: Diagnostic[], textDocumentUri: string, docManager: DocumentsManager) {
+	// Sometimes it comes there whereas it shouldn't ... let's avoid a crash
+	if (diagnostics == null || diagnostics.length === 0) {
+		console.warn('Warning: we should not be in applyQuickFixes as there is no diagnostics set');
+		return;
+	}
+
 	const textDocument: TextDocument = docManager.getDocumentFromUri(textDocumentUri);
 	const errorIds: number[] = [];
 	for (const diagnostic of diagnostics) {
 		errorIds.push(parseInt((diagnostic.code as string).split('-')[1], 10));
 	}
 	debug(`Request apply QuickFixes for ${textDocumentUri}: ${errorIds.join(',')}`);
+
 	// Call NpmGroovyLint instance fixer
 	const docLinter = docManager.getDocLinter(textDocument.uri);
 	debug(`Start fixing ${textDocument.uri}`);
@@ -198,6 +218,12 @@ export async function applyQuickFixes(diagnostics: Diagnostic[], textDocumentUri
 
 // Quick fix in the whole file
 export async function applyQuickFixesInFile(diagnostics: Diagnostic[], textDocumentUri: string, docManager: DocumentsManager) {
+	// Sometimes it comes there whereas it shouldn't ... let's avoid a crash
+	if (diagnostics == null || diagnostics.length === 0) {
+		console.warn('Warning: we should not be in applyQuickFixesInFile as there is no diagnostics set');
+		return;
+	}
+
 	const textDocument: TextDocument = docManager.getDocumentFromUri(textDocumentUri);
 	const fixRule = (diagnostics[0].code as string).split('-')[0];
 	debug(`Request apply QuickFixes in file for ${fixRule} error in ${textDocumentUri}`);
@@ -210,6 +236,12 @@ export async function applyQuickFixesInFile(diagnostics: Diagnostic[], textDocum
 
 // Add suppress warning
 export async function addSuppressWarning(diagnostic: Diagnostic, textDocumentUri: string, scope: string, docManager: DocumentsManager) {
+	// Sometimes it comes there whereas it shouldn't ... let's avoid a crash
+	if (diagnostic == null) {
+		console.warn('Warning: we should not be in addSuppressWarning as there is no diagnostic set');
+		return;
+	}
+
 	const textDocument: TextDocument = docManager.getDocumentFromUri(textDocumentUri);
 	const allLines = docManager.getTextDocumentLines(textDocument);
 	// Get line to check or create
@@ -246,6 +278,11 @@ export async function addSuppressWarning(diagnostic: Diagnostic, textDocumentUri
 // Add suppress warning
 export async function alwaysIgnoreError(diagnostic: Diagnostic, textDocumentUri: string, docManager: DocumentsManager) {
 	debug(`Request ignore error in all workspace from ${textDocumentUri}`);
+	// Sometimes it comes there whereas it shouldn't ... let's avoid a crash
+	if (diagnostic == null) {
+		console.warn('Warning: we should not be in alwaysIgnoreError as there is no diagnostic set');
+		return [];
+	}
 	const textDocument: TextDocument = docManager.getDocumentFromUri(textDocumentUri);
 	// Get line to check or create
 	const errorCode: string = (diagnostic.code as string).split('-')[0];

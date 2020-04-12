@@ -14,7 +14,6 @@ import {
     TextDocumentChangeEvent
 } from 'vscode-languageserver';
 import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument';
-const { performance } = require("perf_hooks");
 import { provideQuickFixCodeActions } from './codeActions';
 
 import { DocumentsManager } from './DocumentsManager';
@@ -29,8 +28,6 @@ let connection = createConnection(ProposedFeatures.all);
 
 // Doc manager is a live instance managing the extension all along its execution
 const docManager = new DocumentsManager(connection);
-
-const delayBeforeLintAgainAfterConfigUpdate = 5000;
 
 // Return language server capabilities
 connection.onInitialize((params: InitializeParams) => {
@@ -160,9 +157,9 @@ docManager.documents.onDidSave(async event => {
 // Only keep settings for open documents
 docManager.documents.onDidClose(async event => {
     debug(`Close event received for ${event.document.uri}`);
-    await docManager.resetDiagnostics(event.document.uri);
+    docManager.resetDiagnostics(event.document.uri);
     docManager.removeDocumentSettings(event.document.uri);
-    await docManager.cancelDocumentValidation(event.document.uri);
+    docManager.cancelDocumentValidation(event.document.uri);
 });
 
 

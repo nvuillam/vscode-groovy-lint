@@ -41,8 +41,8 @@ suite('VsCode GroovyLint Test Suite', async () => {
 	vscode.window.showInformationMessage('Start all VsCode Groovy Lint tests');
 
 	// Check extension is available
-	test("1.0 GroovyLint extension is available", async () => {
-		console.log("Start 1.0 GroovyLint extension is available");
+	test("1.0.0 GroovyLint extension is available", async () => {
+		console.log("Start 1.0.0 GroovyLint extension is available");
 		testDocs['bigGroovy'].doc = await openDocument('bigGroovy');
 		console.log(JSON.stringify(testDocs, null, 2));
 		const availableExtensions = vscode.extensions.all.map(ext => ext.id);
@@ -52,8 +52,8 @@ suite('VsCode GroovyLint Test Suite', async () => {
 	}).timeout(10000);
 
 	// Check all commands are here
-	test("1.1 Check GroovyLint VsCode commands", async () => {
-		console.log("Start 1.1 Check GroovyLint VsCode commands");
+	test("1.1.0 Check GroovyLint VsCode commands", async () => {
+		console.log("Start 1.1.0 Check GroovyLint VsCode commands");
 		const allCommands = await vscode.commands.getCommands();
 		debug('Commands found: ' + JSON.stringify(allCommands));
 		const groovyLintCommands = allCommands.filter((command) => {
@@ -63,8 +63,8 @@ suite('VsCode GroovyLint Test Suite', async () => {
 	}).timeout(5000);
 
 	// Lint document
-	test("2.0 Lint big document", async () => {
-		console.log("Start 2.0 Lint big document");
+	test("2.0.0 Lint big document", async () => {
+		console.log("Start 2.0.0 Lint big document");
 		await waitUntil(() => diagnosticsChanged(testDocs['bigGroovy'].doc.uri, []), 100000);
 		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['bigGroovy'].doc.uri);
 
@@ -72,11 +72,11 @@ suite('VsCode GroovyLint Test Suite', async () => {
 	}).timeout(120000);
 
 	// Format document without updating diagnostics
-	test("2.1. Format big document", async () => {
-		console.log("Start 2.1. Format big document");
+	test("2.1.0 Format big document", async () => {
+		console.log("Start 2.1.0 Format big document");
 		const textBefore = getActiveEditorText();
 		const prevDiags = vscode.languages.getDiagnostics(testDocs['bigGroovy'].doc.uri);
-		const textEdits = await vscode.commands.executeCommand('vscode.executeFormatDocumentProvider', testDocs['bigGroovy'].doc.uri, {});
+		const textEdits = await executeCommand('vscode.executeFormatDocumentProvider', [testDocs['bigGroovy'].doc.uri, {}]);
 		await applyTextEditsOnDoc(testDocs['bigGroovy'].doc.uri, textEdits as vscode.TextEdit[]);
 		await waitUntil(() => diagnosticsChanged(testDocs['bigGroovy'].doc.uri, prevDiags), 100000); // Wait for linter to lint again after fix
 		const textAfter = getActiveEditorText();
@@ -85,11 +85,11 @@ suite('VsCode GroovyLint Test Suite', async () => {
 	}).timeout(120000);
 
 	// Fix document
-	test("2.2. Fix big document", async () => {
-		console.log("Start 2.2. Fix big document");
+	test("2.2.0 Fix big document", async () => {
+		console.log("Start 2.2.0 Fix big document");
 		const textBefore = getActiveEditorText();
 		const prevDiags = vscode.languages.getDiagnostics(testDocs['bigGroovy'].doc.uri);
-		vscode.commands.executeCommand('groovyLint.lintFix');
+		executeCommand('groovyLint.lintFix', [testDocs['bigGroovy'].doc.uri]);
 		await waitUntil(() => documentHasBeenUpdated(testDocs['bigGroovy'].doc.uri, textBefore), 100000);
 		await waitUntil(() => diagnosticsChanged(testDocs['bigGroovy'].doc.uri, []), 100000);
 		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['bigGroovy'].doc.uri);
@@ -100,8 +100,8 @@ suite('VsCode GroovyLint Test Suite', async () => {
 	}).timeout(200000);
 
 	// Lint tiny document
-	test("3.0 Lint tiny document", async () => {
-		console.log("Start 3.0 Lint tiny document");
+	test("3.0.0 Lint tiny document", async () => {
+		console.log("Start 3.0.0 Lint tiny document");
 		testDocs['tinyGroovy'].doc = await openDocument('tinyGroovy');
 		await waitUntil(() => diagnosticsChanged(testDocs['tinyGroovy'].doc.uri, []), 60000);
 		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['tinyGroovy'].doc.uri);
@@ -109,11 +109,57 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		assert(docDiagnostics.length === numberOfDiagnosticsForTinyGroovyLint, `${numberOfDiagnosticsForTinyGroovyLint} GroovyLint diagnostics found after lint (${docDiagnostics.length} returned)`);
 	}).timeout(60000);
 
-	// Format tiny document
-	test("3.1. Format tiny document", async () => {
-		console.log("Start 3.1. Format tiny document");
+	// Quick fix error
+	test("3.0.1 Quick fix error in tiny document", async () => {
+		console.log("Start 3.0.1 Quick fix an error in tiny document");
 		const textBefore = getActiveEditorText();
-		const textEdits = await vscode.commands.executeCommand('vscode.executeFormatDocumentProvider', testDocs['tinyGroovy'].doc.uri, {});
+		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['tinyGroovy'].doc.uri);
+		const diagnostic = docDiagnostics.filter(diag => (diag.code as string).startsWith('Indentation'))[0];
+		// Request code actions
+		const codeActions = await executeCommand('vscode.executeCodeActionProvider', [
+			testDocs['tinyGroovy'].doc.uri,
+			diagnostic.range
+		]);
+		console.log('Returned codeActions: ' + JSON.stringify(codeActions));
+		// Apply Quick Fix
+		const cmdArgs = [testDocs['tinyGroovy'].doc.uri.toString(), diagnostic];
+		await executeCommand('groovyLint.quickFix', cmdArgs);
+		await waitUntil(() => documentHasBeenUpdated(testDocs['tinyGroovy'].doc.uri, textBefore), 60000);
+		await sleepPromise(5000);
+		const textAfter = getActiveEditorText();
+
+		assert(textBefore !== textAfter, 'TextDocument text must be updated after format');
+	}).timeout(30000);
+
+
+	// Quick fix all error types
+	test("3.0.2 Quick fix error in entire file in tiny document", async () => {
+		console.log("Start 3.0.2 Quick fix and error type in tiny document");
+		const textBefore = getActiveEditorText();
+		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['tinyGroovy'].doc.uri);
+		const diagnostic = docDiagnostics.filter(diag => (diag.code as string).startsWith('Indentation'))[0];
+		// Request code actions
+		const codeActions = await executeCommand('vscode.executeCodeActionProvider', [
+			testDocs['tinyGroovy'].doc.uri,
+			diagnostic.range
+		]);
+		console.log('Returned codeActions: ' + JSON.stringify(codeActions));
+		// Apply Quick Fix
+		const cmdArgs = [testDocs['tinyGroovy'].doc.uri.toString()
+			, diagnostic];
+		await executeCommand('groovyLint.quickFixFile', cmdArgs);
+		await waitUntil(() => documentHasBeenUpdated(testDocs['tinyGroovy'].doc.uri, textBefore), 60000);
+		await sleepPromise(5000);
+		const textAfter = getActiveEditorText();
+
+		assert(textBefore !== textAfter, 'TextDocument text must be updated after format');
+	}).timeout(30000);
+
+	// Format tiny document
+	test("3.1.0 Format tiny document", async () => {
+		console.log("Start 3.1.0 Format tiny document");
+		const textBefore = getActiveEditorText();
+		const textEdits = await executeCommand('vscode.executeFormatDocumentProvider', [testDocs['tinyGroovy'].doc.uri, {}]);
 		await applyTextEditsOnDoc(testDocs['tinyGroovy'].doc.uri, textEdits as vscode.TextEdit[]);
 		await sleepPromise(5000);
 		const textAfter = getActiveEditorText();
@@ -121,12 +167,12 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		assert(textBefore !== textAfter, 'TextDocument text must be updated after format');
 	}).timeout(30000);
 
-	// Fix document
-	test("3.2. Fix tiny document", async () => {
-		console.log("Start 3.2. Fix tiny document");
+	// Fix tiny document
+	test("3.2.0 Fix tiny document", async () => {
+		console.log("Start 3.2.0 Fix tiny document");
 		const textBefore = getActiveEditorText();
 		const prevDiags = vscode.languages.getDiagnostics(testDocs['tinyGroovy'].doc.uri);
-		vscode.commands.executeCommand('groovyLint.lintFix');
+		executeCommand('groovyLint.lintFix', [testDocs['tinyGroovy'].doc.uri]);
 		await waitUntil(() => documentHasBeenUpdated(testDocs['tinyGroovy'].doc.uri, textBefore), 60000);
 		await waitUntil(() => diagnosticsChanged(testDocs['tinyGroovy'].doc.uri, prevDiags), 60000);
 		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['tinyGroovy'].doc.uri);
@@ -137,8 +183,8 @@ suite('VsCode GroovyLint Test Suite', async () => {
 	}).timeout(60000);
 
 	// Lint Jenkinsfile
-	test("4.0 Lint Jenkinsfile", async () => {
-		console.log("Start 4.0 Lint Jenkinsfile");
+	test("4.0.0 Lint Jenkinsfile", async () => {
+		console.log("Start 4.0.0 Lint Jenkinsfile");
 		testDocs['Jenkinsfile'].doc = await openDocument('Jenkinsfile');
 		await waitUntil(() => diagnosticsChanged(testDocs['Jenkinsfile'].doc.uri, []), 60000);
 		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['Jenkinsfile'].doc.uri);
@@ -148,11 +194,11 @@ suite('VsCode GroovyLint Test Suite', async () => {
 
 
 	// Format Jenkinsfile
-	test("4.1. Format Jenkinsfile", async () => {
-		console.log("Start 4.1. Format Jenkinsfile");
+	test("4.1.0 Format Jenkinsfile", async () => {
+		console.log("Start 4.1.0 Format Jenkinsfile");
 		const textBefore = getActiveEditorText();
 		const prevDiags = vscode.languages.getDiagnostics(testDocs['Jenkinsfile'].doc.uri);
-		const textEdits = await vscode.commands.executeCommand('vscode.executeFormatDocumentProvider', testDocs['Jenkinsfile'].doc.uri, {});
+		const textEdits = await executeCommand('vscode.executeFormatDocumentProvider', [testDocs['Jenkinsfile'].doc.uri, {}]);
 		await applyTextEditsOnDoc(testDocs['Jenkinsfile'].doc.uri, textEdits as vscode.TextEdit[]);
 		await waitUntil(() => diagnosticsChanged(testDocs['Jenkinsfile'].doc.uri, prevDiags), 100000); // Wait for linter to lint again after fix
 		const textAfter = getActiveEditorText();
@@ -161,10 +207,10 @@ suite('VsCode GroovyLint Test Suite', async () => {
 	}).timeout(100000);
 
 	// Fix Jenkinsfile (no errors fixed)
-	test("4.2. Fix Jenkinsfile", async () => {
-		console.log("Start 4.2. Fix Jenkinsfile");
+	test("4.2.0 Fix Jenkinsfile", async () => {
+		console.log("Start 4.2.0 Fix Jenkinsfile");
 		const textBefore = getActiveEditorText();
-		vscode.commands.executeCommand('groovyLint.lintFix');
+		executeCommand('groovyLint.lintFix', [testDocs['Jenkinsfile'].doc.uri]);
 		await waitUntil(() => diagnosticsChanged(testDocs['Jenkinsfile'].doc.uri, []), 100000);
 		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['Jenkinsfile'].doc.uri);
 		assert(docDiagnostics.length === numberOfDiagnosticsForJenkinsfileLintFix, `${numberOfDiagnosticsForJenkinsfileLintFix} GroovyLint diagnostics found after lint (${docDiagnostics.length} returned)`);
@@ -172,15 +218,17 @@ suite('VsCode GroovyLint Test Suite', async () => {
 
 
 	// Lint a folder
-	test("5.1. Lint folder", async () => {
-		console.log("4.1. Lint folder");
+	test("5.1.0 Lint folder", async () => {
+		console.log("5.1.0 Lint folder");
 		const docFolderUri = vscode.Uri.file(
 			path.join(__dirname + testFolderExamplesLocation)
 		);
+
+		// Lint folder
 		const bigGroovyUri = testDocs['bigGroovy'].doc.uri;
 		const tinyGroovyUri = testDocs['tinyGroovy'].doc.uri;
 		const JenkinsfileUri = testDocs['Jenkinsfile'].doc.uri;
-		await vscode.commands.executeCommand('groovyLint.lintFolder', [docFolderUri]);
+		await executeCommand('groovyLint.lintFolder', [docFolderUri]);
 		await waitUntil(() => diagnosticsChanged(bigGroovyUri, []), 120000);
 		await waitUntil(() => diagnosticsChanged(tinyGroovyUri, []), 60000);
 		await waitUntil(() => diagnosticsChanged(JenkinsfileUri, []), 120000);
@@ -194,10 +242,37 @@ suite('VsCode GroovyLint Test Suite', async () => {
 
 		assert(totalDiags === numberOfDiagnosticsForFolderLint, `${numberOfDiagnosticsForFolderLint} GroovyLint diagnostics found after lint (${totalDiags} returned)`);
 	}).timeout(180000);
+
+	/*
+	// Close folders
+	test("6.1.0 Close tabs", async () => {
+		// Close all open tabs
+		await executeCommand('workbench.action.closeAllEditors');
+		console.log(`Closed all editors`);
+		await sleepPromise(5000);
+
+		const numberOpenEditors = vscode.window.visibleTextEditors.length;
+		assert(numberOpenEditors === 0, `0 open editors after close all (${numberOpenEditors} returned \n${JSON.stringify(vscode.window.visibleTextEditors)})`);
+
+	}).timeout(180000); */
 });
 
+// Execute VsCode command
+async function executeCommand(command: string, args: any = []): Promise<any> {
+	console.log(`Execute command ${command} with args ${JSON.stringify(args)}\n`);
+	switch (args.length) {
+		case 0: return vscode.commands.executeCommand(command);
+		case 1: return vscode.commands.executeCommand(command, args[0]);
+		case 2: return vscode.commands.executeCommand(command, args[0], args[1]);
+		case 3: return vscode.commands.executeCommand(command, args[0], args[1], args[2]);
+		case 4: return vscode.commands.executeCommand(command, args[0], args[1], args[2], args[3]);
+		default: throw new Error("executeCommand not managed");
+	}
+
+}
+
 // Open a textDocument and show it in editor
-async function openDocument(docExample: string) {
+async function openDocument(docExample: string): Promise<vscode.TextDocument> {
 	const docName = testDocs[docExample].path;
 	const docUri = vscode.Uri.file(
 		path.join(__dirname + testFolderExamplesLocation + docName)
@@ -212,7 +287,7 @@ function getActiveEditorText() {
 	return vscode.window.activeTextEditor.document.getText();
 }
 
-async function applyTextEditsOnDoc(docUri: vscode.Uri, textEdits: vscode.TextEdit[]) {
+async function applyTextEditsOnDoc(docUri: vscode.Uri, textEdits: vscode.TextEdit[]): Promise<any> {
 	const workspaceEdit = new vscode.WorkspaceEdit();
 	workspaceEdit.set(docUri, textEdits);
 	const applyRes = await vscode.workspace.applyEdit(workspaceEdit);
@@ -269,7 +344,7 @@ function diagnosticsChanged(docUri: vscode.Uri, prevDiags: vscode.Diagnostic[]):
 	});
 }
 
-async function groovyLintExtensionIsActive() {
+async function groovyLintExtensionIsActive(): Promise<boolean> {
 	const allCommands = await vscode.commands.getCommands(true);
 	return allCommands.includes('groovyLint.lint');
 }
@@ -283,10 +358,10 @@ function documentHasBeenUpdated(docUri: vscode.Uri, prevDocSource: string): Prom
 }
 
 // Check if the only diagnostic is the waiting one
-function isWaitingDiagnostic(diags: vscode.Diagnostic[]) {
+function isWaitingDiagnostic(diags: vscode.Diagnostic[]): boolean {
 	return diags && diags.length === 1 && diags[0].code === 'GroovyLintWaiting';
 }
 
-async function sleepPromise(ms: number) {
+async function sleepPromise(ms: number): Promise<any> {
 	await new Promise(r => setTimeout(r, ms));
 }

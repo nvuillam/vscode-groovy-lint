@@ -69,27 +69,27 @@ export class DocumentsManager {
 		}
 		// Command: Apply quick fix
 		else if (params.command === 'groovyLint.quickFix') {
-			const [diagnostic, textDocumentUri] = params.arguments!;
+			const [textDocumentUri, diagnostic] = params.arguments!;
 			await applyQuickFixes([diagnostic], textDocumentUri, this);
 		}
 		// Command: Apply quick fix in all file
 		else if (params.command === 'groovyLint.quickFixFile') {
-			const [diagnostic, textDocumentUri] = params.arguments!;
+			const [textDocumentUri, diagnostic] = params.arguments!;
 			await applyQuickFixesInFile([diagnostic], textDocumentUri, this);
 		}
 		// NV: not working yet 
 		else if (params.command === 'groovyLint.addSuppressWarning') {
-			const [diagnostic, textDocumentUri] = params.arguments!;
+			const [textDocumentUri, diagnostic] = params.arguments!;
 			await addSuppressWarning(diagnostic, textDocumentUri, 'line', this);
 		}
 		// NV: not working yet 
 		else if (params.command === 'groovyLint.addSuppressWarningFile') {
-			const [diagnostic, textDocumentUri] = params.arguments!;
+			const [textDocumentUri, diagnostic] = params.arguments!;
 			await addSuppressWarning(diagnostic, textDocumentUri, 'file', this);
 		}
 		// Command: Update .groovylintrc.json to ignore error in the future
 		else if (params.command === 'groovyLint.alwaysIgnoreError') {
-			const [diagnostic, textDocumentUri] = params.arguments!;
+			const [textDocumentUri, diagnostic] = params.arguments!;
 			await alwaysIgnoreError(diagnostic, textDocumentUri, this);
 		}
 		// Show rule documentation
@@ -107,6 +107,10 @@ export class DocumentsManager {
 	// Return TextDocument from uri
 	getDocumentFromUri(docUri: string, setCurrent = false): TextDocument {
 		const textDocument = this.documents.get(docUri)!;
+		// eslint-disable-next-line eqeqeq
+		if (textDocument == null) {
+			throw new Error(`ERROR: Document not found for URI ${docUri}`);
+		}
 		if (setCurrent) {
 			this.setCurrentDocumentUri(docUri);
 		}
