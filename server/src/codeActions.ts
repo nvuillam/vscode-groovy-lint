@@ -64,7 +64,7 @@ function createQuickFixCodeActions(diagnostic: Diagnostic, quickFix: any, textDo
 		command: {
 			command: 'groovyLint.quickFix',
 			title: quickFix.label,
-			arguments: [diagnostic, textDocumentUri]
+			arguments: [textDocumentUri, diagnostic]
 		},
 		diagnostics: [diagnostic],
 		isPreferred: true
@@ -79,7 +79,7 @@ function createQuickFixCodeActions(diagnostic: Diagnostic, quickFix: any, textDo
 		command: {
 			command: 'groovyLint.quickFixFile',
 			title: `${quickFix.label} in the entire file`,
-			arguments: [diagnostic, textDocumentUri]
+			arguments: [textDocumentUri, diagnostic]
 		},
 		diagnostics: [diagnostic],
 		isPreferred: true
@@ -139,7 +139,7 @@ function createIgnoreActions(diagnostic: Diagnostic, textDocumentUri: string): C
 			command: {
 				command: 'groovyLint.alwaysIgnoreError',
 				title: `Disable ${errorLabel} in the entire workspace`,
-				arguments: [diagnostic, textDocumentUri]
+				arguments: [textDocumentUri, diagnostic]
 			},
 			diagnostics: [diagnostic],
 			isPreferred: false
