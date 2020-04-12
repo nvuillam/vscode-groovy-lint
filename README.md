@@ -67,6 +67,15 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+## [0.8.0] 2020-04-13
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.2.0
+  - Display **source parsing errors**
+  - New fix rules (thanks [CatSue](https://github.com/CatSue) !):
+    - SpaceAfterSemicolon 
+    - SpaceAfterWhile
+- Remove useless files from VsCode extension package
+
 ## [0.7.2] 2020-04-12
 
 - Fix error [#18 _(codeAction failed with message: Cannot read property 'split' of undefined)_](https://github.com/nvuillam/vscode-groovy-lint/issues/18)

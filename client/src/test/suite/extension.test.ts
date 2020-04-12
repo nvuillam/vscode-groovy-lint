@@ -22,6 +22,10 @@ const testDocs: any = {
 	'Jenkinsfile': {
 		path: 'Jenkinsfile',
 		doc: null
+	},
+	'parseErrorGroovy': {
+		path: 'parseErrorGroovy.groovy',
+		doc: null
 	}
 };
 
@@ -65,11 +69,11 @@ suite('VsCode GroovyLint Test Suite', async () => {
 	// Lint document
 	test("2.0.0 Lint big document", async () => {
 		console.log("Start 2.0.0 Lint big document");
-		await waitUntil(() => diagnosticsChanged(testDocs['bigGroovy'].doc.uri, []), 100000);
+		await waitUntil(() => diagnosticsChanged(testDocs['bigGroovy'].doc.uri, []), 180000);
 		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['bigGroovy'].doc.uri);
 
 		assert(docDiagnostics.length === numberOfDiagnosticsForBigGroovyLint, `${numberOfDiagnosticsForBigGroovyLint} GroovyLint diagnostics found after lint (${docDiagnostics.length} returned)`);
-	}).timeout(120000);
+	}).timeout(180000);
 
 	// Format document without updating diagnostics
 	test("2.1.0 Format big document", async () => {
@@ -242,6 +246,18 @@ suite('VsCode GroovyLint Test Suite', async () => {
 
 		assert(totalDiags === numberOfDiagnosticsForFolderLint, `${numberOfDiagnosticsForFolderLint} GroovyLint diagnostics found after lint (${totalDiags} returned)`);
 	}).timeout(180000);
+
+	// Lint tiny document
+	test("6.1.0 Check file with parse error", async () => {
+		console.log("6.1.0 Check file with parse error");
+		testDocs['parseErrorGroovy'].doc = await openDocument('parseErrorGroovy');
+		await waitUntil(() => diagnosticsChanged(testDocs['parseErrorGroovy'].doc.uri, []), 60000);
+		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['parseErrorGroovy'].doc.uri);
+
+		const diagWithParseError = docDiagnostics.filter(diag => (diag.code as string).startsWith('NglParseError'));
+		assert(diagWithParseError.length > 0, 'Parse error has been found');
+
+	}).timeout(60000);
 
 	/*
 	// Close folders
