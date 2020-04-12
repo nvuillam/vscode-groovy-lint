@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.8.0] 2020-04-13
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.2.0
+  - Display **source parsing errors**
+  - New fix rules (thanks [CatSue](https://github.com/CatSue) !):
+    - SpaceAfterSemicolon 
+    - SpaceAfterWhile
+- Remove useless files from VsCode extension package
+
 ## [0.7.2] 2020-04-12
 
 - Fix error [#18 _(codeAction failed with message: Cannot read property 'split' of undefined)_](https://github.com/nvuillam/vscode-groovy-lint/issues/18)
@@ -8,7 +17,7 @@
 - Fix perf issue when closing all visible text editors
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.1.0
   - Upgrade to [Groovy 3.0.3](https://dl.bintray.com/groovy/maven/apache-groovy-binary-3.0.3.zip)
-  
+
 ### [0.7.1] 2020-04-09
 
 - Add setting **groovyLint.debug.enable** : Display more logs in VsCode Output panel (select "GroovyLint") for issue investigation

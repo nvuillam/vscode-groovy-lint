@@ -89,6 +89,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	const npmGroovyLintConfig: any = {
 		source: source,
 		sourcefilepath: URI.parse(textDocument.uri).fsPath,
+		parse: true, // Parse by default but not if format or fix mode
 		nolintafter: true,
 		loglevel: settings.basic.loglevel,
 		returnrules: docManager.getRuleDescriptions().size > 0 ? false : true,
@@ -98,9 +99,11 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	// Request formatting
 	if (format) {
 		npmGroovyLintConfig.format = true;
+		npmGroovyLintConfig.parse = false;
 	} else if (fix) {
 		// Request fixing
 		npmGroovyLintConfig.fix = true;
+		npmGroovyLintConfig.parse = false;
 		// Request fixing only some rules
 		if (opts.fixrules) {
 			npmGroovyLintConfig.rulesets = opts.fixrules.join(',');
