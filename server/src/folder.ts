@@ -32,7 +32,7 @@ export async function lintFolder(folders: Array<any>, docManager: DocumentsManag
 			// Trigger a lint for each of the found documents
 			for (const file of files) {
 				const docUri = URI.file(file).toString();
-				let textDocument: TextDocument = docManager.getDocumentFromUri(docUri);
+				let textDocument: TextDocument = docManager.getDocumentFromUri(docUri, false, false);
 				// eslint-disable-next-line eqeqeq
 				if (textDocument == null) {
 					const content = await fse.readFile(file, "utf8");

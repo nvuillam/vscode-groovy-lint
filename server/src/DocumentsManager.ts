@@ -105,13 +105,14 @@ export class DocumentsManager {
 	}
 
 	// Return TextDocument from uri
-	getDocumentFromUri(docUri: string, setCurrent = false): TextDocument {
+	getDocumentFromUri(docUri: string, setCurrent = false, throwError = true): TextDocument {
 		const textDocument = this.documents.get(docUri)!;
 		// eslint-disable-next-line eqeqeq
-		if (textDocument == null) {
+		if (textDocument == null && throwError == true) {
 			throw new Error(`ERROR: Document not found for URI ${docUri}`);
 		}
-		if (setCurrent) {
+		// eslint-disable-next-line eqeqeq
+		if (textDocument != null && setCurrent) {
 			this.setCurrentDocumentUri(docUri);
 		}
 		return textDocument;
