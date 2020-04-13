@@ -28,11 +28,16 @@ const debug = require("debug")("vscode-groovy-lint");
  */
 export function provideQuickFixCodeActions(textDocument: TextDocument, codeActionParams: CodeActionParams, docQuickFixes: any): CodeAction[] {
 	const diagnostics = codeActionParams.context.diagnostics;
-	if (isNullOrUndefined(diagnostics) || diagnostics.length === 0) {
-		return [];
-	}
 	const quickFixCodeActions: CodeAction[] = [];
+	if (isNullOrUndefined(diagnostics) || diagnostics.length === 0) {
+		return quickFixCodeActions;
+	}
+	// Browse diagnostics to get related CodeActions
 	for (const diagnostic of codeActionParams.context.diagnostics) {
+		// Skip Diagnostics not from VsCodeGroovyLint
+		if (diagnostic.source !== 'GroovyLint') {
+			continue;
+		}
 		// Get corresponding QuickFix if existing and convert it as QuickAction
 		const diagCode: string = diagnostic.code + '';
 		if (docQuickFixes && docQuickFixes[diagCode]) {
