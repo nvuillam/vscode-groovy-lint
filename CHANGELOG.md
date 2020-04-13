@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.8.2] 2020-04-13 
+
+- New fix of [#18 _(codeAction failed with message: Cannot read property 'split' of undefined)_](https://github.com/nvuillam/vscode-groovy-lint/issues/18): error when diagnostics provided by another VsCode extension
+
 ## [0.8.1] 2020-04-13
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.2.0
