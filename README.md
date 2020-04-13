@@ -65,6 +65,10 @@ Contributions are very welcome on :
 
 Please follow [Contribution instructions](https://github.com/nvuillam/vscode-groovy-lint/blob/master/CONTRIBUTING.md)
 
+## Special Thanks
+
+- [yuvmel](https://github.com/yuvmel), for his great support on [#18](https://github.com/nvuillam/vscode-groovy-lint/issues/18) that allowed VsCode Groovy Lint to work much better on Mac, Linux, and with other diagnostic extensions 
+
 ## Release Notes
 
 ## [0.8.1] 2020-04-13
