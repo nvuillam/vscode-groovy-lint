@@ -27,7 +27,7 @@ Formatting and Auto-fix are still in beta version, please post an [issue](https:
 | **Fix all errors**              | Fix the code of the current tab                                                                | Contextual</br>Commands                                                                                  |
 | **Lint folder**                 | Lint all applicable files of a folder                                                          | Contextual                                                                                               |
 | Fix single error                | Apply quick fix for a single error                                                             | Quick Fix<br/>Diagnostic                                                                                 |
-| Fix _errorType_ in entire file  | Apply quick fix for all errors of the same type in the currrent tab                            | Quick Fix<br/>Diagnostic                                                                                 |
+| Fix _errorType_ in entire file  | Apply quick fix for all errors of the same type in the current tab                            | Quick Fix<br/>Diagnostic                                                                                 |
 | Ignore _errorType_ in workspace | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to ignore this error type) | Quick Fix<br/>Diagnostic                                                                          |
 
 - ***Contextual***: *right click in source code or on folder*
@@ -54,7 +54,7 @@ Formatting and Auto-fix are still in beta version, please post an [issue](https:
 
 - Node.js >= 12 is required to run this package. If you can't upgrade, you can use [nvm](https://github.com/nvm-sh/nvm) to have [different node versions on your computer](https://www.sitepoint.com/quick-tip-multiple-versions-node-nvm/)
 
-- As CodeNarc is runned in background with java/groovy, performances could be improved on large files (do not hesitate to provide advices !)
+- As CodeNarc is run in background with java/groovy, performances could be improved on large files (do not hesitate to provide advices !)
 But do not worry, as the groovy linting is provided by a background local server, your VsCode won't be slowed
 
 ## Contribute
@@ -71,7 +71,7 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
-## [0.8.1] 2020-04-13
+### [0.8.1] 2020-04-13
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.2.0
   - Display **source parsing errors**
@@ -80,7 +80,7 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
     - SpaceAfterWhile
 - Remove useless files from VsCode extension package
 
-## [0.7.2] 2020-04-12
+### [0.7.2] 2020-04-12
 
 - Fix error [#18 _(codeAction failed with message: Cannot read property 'split' of undefined)_](https://github.com/nvuillam/vscode-groovy-lint/issues/18)
 - Add more automated tests for CodeActions
@@ -134,7 +134,7 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 - Fixes:
   - Provide CodeActions even when there is no QuickFix (Ignore in all files, Show documentation)
-  - Fix npm-groovt-lint requests queue management
+  - Fix npm-groovy-lint requests queue management
   - If a file contains groovy errors, display info diagnostic while linting/formatting/fixing again
   - Fix "infinite" status bar spinner when a lint/format/fix actions has been cancelled
 - Technical:

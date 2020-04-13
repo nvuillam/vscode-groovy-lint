@@ -20,7 +20,7 @@ import path = require('path');
 const debug = require("debug")("vscode-groovy-lint");
 
 /**
- * Provide quickfixes for a piece of code  *
+ * Provide quick-fixes for a piece of code  *
  * @export
  * @param {TextDocument} textDocument
  * @param {CodeActionParams} parms

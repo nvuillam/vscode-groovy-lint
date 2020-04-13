@@ -242,7 +242,7 @@ async function manageFixSourceBeforeCallingLinter(source: string, textDocument: 
 			};
 			let req: any;
 			let msgResponseReceived = false;
-			// When message box closes after no action, Promise is never fullfilled, so track that case to unlock linter queue
+			// When message box closes after no action, Promise is never fulfilled, so track that case to unlock linter queue
 			setTimeout(async () => {
 				if (msgResponseReceived === false) {
 					await docManager.cancelDocumentValidation(textDocument.uri);

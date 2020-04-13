@@ -38,7 +38,7 @@
 		"codenarc",
 		"linter",
 		"npm-groovy-lint",
-		"autofix",
+		"auto-fix",
 		"fix",
 		"format",
 		"package",

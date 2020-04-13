@@ -191,18 +191,18 @@ export class DocumentsManager {
 		}
 		else {
 			// gather current lints details
-			const currentFormatsOnDdoc = currentActionsOnDoc.filter((currLinted) => currLinted.options && currLinted.options.format === true);
-			const currentFixesOnDdoc = currentActionsOnDoc.filter((currLinted) => currLinted.options && currLinted.options.format === true);
+			const currentFormatsOnDoc = currentActionsOnDoc.filter((currLinted) => currLinted.options && currLinted.options.format === true);
+			const currentFixesOnDoc = currentActionsOnDoc.filter((currLinted) => currLinted.options && currLinted.options.format === true);
 
 			// Format request and no current format or fix: add in queue
-			if (opts.format === true && currentFormatsOnDdoc.length === 0 && currentFixesOnDdoc.length === 0) {
+			if (opts.format === true && currentFormatsOnDoc.length === 0 && currentFixesOnDoc.length === 0) {
 				// add applyNow option because TextEdits won't be returned to formatting provided. edit textDocument directly from language server
 				opts.applyNow = true;
 				this.queuedLints.push({ uri: textDocument.uri, options: opts });
 				debug(`Added in queue: ${textDocument.uri} (${JSON.stringify(opts)})`);
 			}
 			// Fix request and no current fix: add in queue
-			else if (opts.fix === true && currentFixesOnDdoc.length === 0) {
+			else if (opts.fix === true && currentFixesOnDoc.length === 0) {
 				this.queuedLints.push({ uri: textDocument.uri, options: opts });
 				debug(`Added in queue: ${textDocument.uri} (${JSON.stringify(opts || '{}')})`);
 			}

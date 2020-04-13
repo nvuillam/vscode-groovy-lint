@@ -23,7 +23,7 @@ export function parseLinterResults(lintResults: any, source: string, textDocumen
 			if (err.fixed === true) {
 				continue;
 			}
-			// Append to fixFailures if fix wasn''t correctly applied
+			// Append to fixFailures if fix was not correctly applied
 			else if (err.fixed === false) {
 				fixFailures.push(err);
 				continue;
