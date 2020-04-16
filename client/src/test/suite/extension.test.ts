@@ -356,7 +356,6 @@ async function disableRule(cmd: string, docUri: vscode.Uri, ruleName: string, li
 	const cmdArgs = [docUri.toString(), diagnostic];
 	await executeCommand(cmd, cmdArgs);
 	await waitUntil(() => documentHasBeenUpdated(docUri, textBefore), 20000);
-	console.log(getActiveEditorText());
 }
 
 // Wait until the promise returned by testFunction is resolved or rejected
