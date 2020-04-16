@@ -1,5 +1,13 @@
 # Change Log
 
+### [0.9.0] UNRELEASED
+
+- New contextual commands: 
+  - Disable rule for the current line
+  - Disable rule for the entire file
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.3.1
+  - [Disable rules using comments in source](https://github.com/nvuillam/npm-groovy-lint#disabling-rules-in-source) using [eslint style](https://eslint.org/docs/user-guide/configuring#disabling-rules-with-inline-comments)
+
 ### [0.8.2] 2020-04-13 
 
 - New fix of [#18 _(codeAction failed with message: Cannot read property 'split' of undefined)_](https://github.com/nvuillam/vscode-groovy-lint/issues/18): error when diagnostics provided by another VsCode extension

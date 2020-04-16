@@ -144,7 +144,7 @@ async function updateStatus(status: StatusParams): Promise<any> {
 			}
 		}
 	}
-	// End linting/fixing: remove frrom status list, and remove previous errors on same file if necessary
+	// End linting/fixing: remove from status list, and remove previous errors on same file if necessary
 	else if (status.state.startsWith('lint.end')) {
 		// Update status list
 		statusList = statusList.filter(statusObj => statusObj.id !== status.id);

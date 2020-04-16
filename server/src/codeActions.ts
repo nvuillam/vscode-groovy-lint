@@ -12,10 +12,19 @@ import {
 import { URI } from 'vscode-uri';
 import { isNullOrUndefined } from "util";
 import * as fse from "fs-extra";
+
 import { DocumentsManager } from './DocumentsManager';
 import { applyTextDocumentEditOnWorkspace, getUpdatedSource, notifyFixFailures } from './clientUtils';
 import { parseLinterResults } from './linterParser';
 import { StatusNotification, OpenNotification } from './types';
+import {
+	COMMAND_LINT_QUICKFIX,
+	COMMAND_LINT_QUICKFIX_FILE,
+	COMMAND_DISABLE_ERROR_FOR_LINE,
+	COMMAND_DISABLE_ERROR_FOR_FILE,
+	COMMAND_DISABLE_ERROR_FOR_PROJECT,
+	COMMAND_SHOW_RULE_DOCUMENTATION
+} from './commands';
 import path = require('path');
 const debug = require("debug")("vscode-groovy-lint");
 
@@ -47,8 +56,8 @@ export function provideQuickFixCodeActions(textDocument: TextDocument, codeActio
 			}
 		}
 		// Add Ignores for this error
-		const ignoreActions = createIgnoreActions(diagnostic, textDocument.uri);
-		quickFixCodeActions.push(...ignoreActions);
+		const disableActions = createDisableActions(diagnostic, textDocument.uri);
+		quickFixCodeActions.push(...disableActions);
 		const viewDocAction = createViewDocAction(diagnostic, textDocument.uri);
 		if (viewDocAction) {
 			quickFixCodeActions.push(viewDocAction);
@@ -67,7 +76,7 @@ function createQuickFixCodeActions(diagnostic: Diagnostic, quickFix: any, textDo
 		title: quickFix.label,
 		kind: CodeActionKind.RefactorRewrite,
 		command: {
-			command: 'groovyLint.quickFix',
+			command: COMMAND_LINT_QUICKFIX.command,
 			title: quickFix.label,
 			arguments: [textDocumentUri, diagnostic]
 		},
@@ -79,11 +88,11 @@ function createQuickFixCodeActions(diagnostic: Diagnostic, quickFix: any, textDo
 
 	// Quick fix error in file
 	const quickFixActionAllFile: CodeAction = {
-		title: `${quickFix.label} in the entire file`,
+		title: `${quickFix.label} for this entire file`,
 		kind: CodeActionKind.Source,
 		command: {
-			command: 'groovyLint.quickFixFile',
-			title: `${quickFix.label} in the entire file`,
+			command: COMMAND_LINT_QUICKFIX_FILE.command,
+			title: `${quickFix.label} for this entire file`,
 			arguments: [textDocumentUri, diagnostic]
 		},
 		diagnostics: [diagnostic],
@@ -94,64 +103,62 @@ function createQuickFixCodeActions(diagnostic: Diagnostic, quickFix: any, textDo
 	return codeActions;
 }
 
-function createIgnoreActions(diagnostic: Diagnostic, textDocumentUri: string): CodeAction[] {
+function createDisableActions(diagnostic: Diagnostic, textDocumentUri: string): CodeAction[] {
 	// Sometimes it comes there whereas it shouldn't ... let's avoid a crash
 	if (diagnostic == null) {
-		console.warn('Warning: we should not be in createIgnoreActions as there is no diagnostic set');
+		console.warn('Warning: we should not be in createDisableActions as there is no diagnostic set');
 		return [];
 	}
-	const ignoreActions: CodeAction[] = [];
+	const disableActions: CodeAction[] = [];
 	let errorLabel = (diagnostic.code as string).split('-')[0].replace(/([A-Z])/g, ' $1').trim();
 
 	if (diagnostic.severity === DiagnosticSeverity.Warning ||
 		diagnostic.severity === DiagnosticSeverity.Error ||
 		diagnostic.severity === DiagnosticSeverity.Information) {
 
-
-		// NVUILLAMY: not working very well yet ... let's disable it for now
-		/*		// Ignore only this error
-				const suppressWarningAction: CodeAction = {
-					title: `Ignore ${errorLabel}`,
-					kind: CodeActionKind.QuickFix,
-					command: {
-						command: 'groovyLint.addSuppressWarning',
-						title: `Ignore ${errorLabel}`,
-						arguments: [diagnostic, textDocumentUri]
-					},
-					diagnostics: [diagnostic],
-					isPreferred: false
-				};
-				suppressWarningActions.push(suppressWarningAction);
-		
-				// ignore this error type in all file
-				const suppressWarningFileAction: CodeAction = {
-					title: `Ignore ${errorLabel} in file`,
-					kind: CodeActionKind.QuickFix,
-					command: {
-						command: 'groovyLint.addSuppressWarningFile',
-						title: `Ignore ${errorLabel} in file`,
-						arguments: [diagnostic, textDocumentUri]
-					},
-					diagnostics: [diagnostic],
-					isPreferred: false
-				};
-				suppressWarningActions.push(suppressWarningFileAction); */
-
-		// ignore this error type in all file
-		const ignoreInWorkspaceAction: CodeAction = {
-			title: `Disable ${errorLabel} in the entire workspace`,
+		// Ignore only this error
+		const disableErrorAction: CodeAction = {
+			title: `Disable ${errorLabel} for this line`,
 			kind: CodeActionKind.QuickFix,
 			command: {
-				command: 'groovyLint.alwaysIgnoreError',
-				title: `Disable ${errorLabel} in the entire workspace`,
+				command: COMMAND_DISABLE_ERROR_FOR_LINE.command,
+				title: `Disable ${errorLabel} for this line`,
 				arguments: [textDocumentUri, diagnostic]
 			},
 			diagnostics: [diagnostic],
 			isPreferred: false
 		};
-		ignoreActions.push(ignoreInWorkspaceAction);
+		disableActions.push(disableErrorAction);
+
+		// disable this error type in all file
+		const disableErrorInFileAction: CodeAction = {
+			title: `Disable ${errorLabel} for this entire file`,
+			kind: CodeActionKind.QuickFix,
+			command: {
+				command: COMMAND_DISABLE_ERROR_FOR_FILE.command,
+				title: `Disable ${errorLabel} for this entire file`,
+				arguments: [textDocumentUri, diagnostic]
+			},
+			diagnostics: [diagnostic],
+			isPreferred: false
+		};
+		disableActions.push(disableErrorInFileAction);
+
+		// disable this error type in all project (will update .groovylintrc.json)
+		const disableInProjectAction: CodeAction = {
+			title: `Disable ${errorLabel} for the entire project`,
+			kind: CodeActionKind.QuickFix,
+			command: {
+				command: COMMAND_DISABLE_ERROR_FOR_PROJECT.command,
+				title: `Disable ${errorLabel} for the entire project`,
+				arguments: [textDocumentUri, diagnostic]
+			},
+			diagnostics: [diagnostic],
+			isPreferred: false
+		};
+		disableActions.push(disableInProjectAction);
 	}
-	return ignoreActions;
+	return disableActions;
 }
 
 // Create action to view documentation
@@ -167,7 +174,7 @@ function createViewDocAction(diagnostic: Diagnostic, textDocumentUri: string): C
 		title: `Show documentation for ${errorLabel}`,
 		kind: CodeActionKind.QuickFix,
 		command: {
-			command: 'groovyLint.showRuleDocumentation',
+			command: COMMAND_SHOW_RULE_DOCUMENTATION.command,
 			title: `Show documentation for ${errorLabel}`,
 			arguments: [ruleCode]
 		},
@@ -239,11 +246,11 @@ export async function applyQuickFixesInFile(diagnostics: Diagnostic[], textDocum
 	docManager.validateTextDocument(textDocument);
 }
 
-// Add suppress warning
-export async function addSuppressWarning(diagnostic: Diagnostic, textDocumentUri: string, scope: string, docManager: DocumentsManager) {
+// Disable error with comment groovylint-disable
+export async function disableErrorWithComment(diagnostic: Diagnostic, textDocumentUri: string, scope: string, docManager: DocumentsManager) {
 	// Sometimes it comes there whereas it shouldn't ... let's avoid a crash
 	if (diagnostic == null) {
-		console.warn('Warning: we should not be in addSuppressWarning as there is no diagnostic set');
+		console.warn('Warning: we should not be in disableErrorWithComment as there is no diagnostic set');
 		return;
 	}
 
@@ -251,38 +258,74 @@ export async function addSuppressWarning(diagnostic: Diagnostic, textDocumentUri
 	const allLines = docManager.getTextDocumentLines(textDocument);
 	// Get line to check or create
 	let linePos: number = 0;
-	let removeAll = false;
+	let disableKey: string = '';
 	switch (scope) {
-		case 'line': linePos = (diagnostic?.range?.start?.line) || 0; break;
-		case 'file': linePos = 0; removeAll = true; break;
+		case 'line':
+			linePos = getDiagnosticRangeInfo(diagnostic.range, 'start').line || 0;
+			disableKey = 'groovylint-disable-next-line';
+			break;
+		case 'file':
+			linePos = 0;
+			disableKey = 'groovylint-disable';
+			break;
 	}
 	const line: string = allLines[linePos];
 	const prevLine: string = allLines[(linePos === 0) ? 0 : linePos - 1] || '';
 	const indent = " ".repeat(line.search(/\S/));
 	const errorCode = (diagnostic.code as string).split('-')[0];
-	// Create updated @SuppressWarnings line
-	if (prevLine.includes('@SuppressWarnings')) {
-		const alreadyExistingWarnings = prevLine.trimLeft().replace('@SuppressWarnings', '')
-			.replace('(', '').replace(')', '')
-			.replace('[', '').replace(']', '')
-			.replace(/'/g, '').split(',');
-		alreadyExistingWarnings.push(errorCode);
-		alreadyExistingWarnings.sort();
-		const suppressWarningLine = indent + `@SuppressWarnings(['${[...new Set(alreadyExistingWarnings)].join("','")}'])`;
-		await applyTextDocumentEditOnWorkspace(docManager, textDocument, suppressWarningLine, { replaceLinePos: (linePos === 0) ? 0 : linePos - 1 });
-		docManager.removeDiagnostics([diagnostic], textDocument.uri, removeAll);
+	// Update existing /* groovylint-disable */ or /* groovylint-disable-next-line */
+	const commentRules = parseGroovyLintComment(disableKey, prevLine);
+	if (commentRules) {
+		commentRules.push(errorCode);
+		commentRules.sort();
+		const disableLine = indent + `/* ${disableKey} ${[...new Set(commentRules)].join(", ")} */`;
+		await applyTextDocumentEditOnWorkspace(docManager, textDocument, disableLine, { replaceLinePos: (linePos === 0) ? 0 : linePos - 1 });
+		docManager.removeDiagnostics([diagnostic], textDocument.uri, disableKey === 'groovylint-disable');
 	}
 	else {
-		// Add new @SuppressWarnings line
-		const suppressWarningLine = indent + `@SuppressWarnings(['${errorCode}'])`;
-		await applyTextDocumentEditOnWorkspace(docManager, textDocument, suppressWarningLine, { insertLinePos: linePos });
-		docManager.removeDiagnostics([diagnostic], textDocument.uri, removeAll, linePos);
+		// Add new /* groovylint-disable */ or /* groovylint-disable-next-line */
+		const disableLine = indent + `/* ${disableKey} ${errorCode} */`;
+		await applyTextDocumentEditOnWorkspace(docManager, textDocument, disableLine, { insertLinePos: linePos });
+		docManager.removeDiagnostics([diagnostic], textDocument.uri, disableKey === 'groovylint-disable', linePos);
 	}
 }
 
-// Add suppress warning
-export async function alwaysIgnoreError(diagnostic: Diagnostic, textDocumentUri: string, docManager: DocumentsManager) {
-	debug(`Request ignore error in all workspace from ${textDocumentUri}`);
+/* Depending of context, diagnostic.range can be 
+{ start : {line: 1, character:1}, end : {line: 2, character:2} }
+or 
+[ {line: 1, character:1}, {line: 2, character:2] ]
+*/
+function getDiagnosticRangeInfo(range: any, startOrEnd: string): any {
+	if (Array.isArray(range)) {
+		return (startOrEnd === 'start') ? range[0] : range[1]
+	}
+	else {
+		return range[startOrEnd];
+	}
+}
+
+// Parse groovylint comment 
+function parseGroovyLintComment(type: string, line: string) {
+	if (line.includes(type)) {
+		const typeDetail = line
+			.replace("/*", "")
+			.replace("//", "")
+			.replace("*/", "")
+			.replace(type, "")
+			.trim();
+		if (typeDetail) {
+			const errors = typeDetail.split(",").map((errType: string) => errType.trim());
+			return errors;
+		}
+		return [];
+	}
+	return false;
+}
+
+
+// Create/ Update .groovylintrc.json file
+export async function disableErrorForProject(diagnostic: Diagnostic, textDocumentUri: string, docManager: DocumentsManager) {
+	debug(`Request disable error in all project from ${textDocumentUri}`);
 	// Sometimes it comes there whereas it shouldn't ... let's avoid a crash
 	if (diagnostic == null) {
 		console.warn('Warning: we should not be in alwaysIgnoreError as there is no diagnostic set');
@@ -291,7 +334,7 @@ export async function alwaysIgnoreError(diagnostic: Diagnostic, textDocumentUri:
 	const textDocument: TextDocument = docManager.getDocumentFromUri(textDocumentUri);
 	// Get line to check or create
 	const errorCode: string = (diagnostic.code as string).split('-')[0];
-	debug(`Error code to be ignored is ${errorCode}`);
+	debug(`Error code to be disabled is ${errorCode}`);
 	// Get or create configuration file path using NpmGroovyLint instance associated to this document
 	const docLinter = docManager.getDocLinter(textDocument.uri);
 	const textDocumentFilePath: string = URI.parse(textDocument.uri).fsPath;
@@ -299,8 +342,8 @@ export async function alwaysIgnoreError(diagnostic: Diagnostic, textDocumentUri:
 	let configFilePath: string = await docLinter.getConfigFilePath(startPath);
 	let configFileContent = JSON.parse(fse.readFileSync(configFilePath, "utf8").toString());
 	if (configFilePath.endsWith(".groovylintrc-recommended.json")) {
-		const workspaceFolder = docManager.getCurrentWorkspaceFolder();
-		configFilePath = `${workspaceFolder}/.groovylintrc.json`;
+		const projectFolder = docManager.getCurrentWorkspaceFolder();
+		configFilePath = `${projectFolder}/.groovylintrc.json`;
 		configFileContent = { extends: "recommended", rules: {} };
 	}
 	debug(`Config file to be created/updated is ${configFilePath}`);

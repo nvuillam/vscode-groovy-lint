@@ -115,11 +115,11 @@
 			},
 			{
 				"command": "groovyLint.lintFix",
-				"title": "Fix all errors"
+				"title": "Fix all auto-fixable problems"
 			},
 			{
 				"command": "groovyLint.lintFolder",
-				"title": "Lint Groovy in folder"
+				"title": "Lint Groovy file in this folder"
 			}
 		],
 		"menus": {

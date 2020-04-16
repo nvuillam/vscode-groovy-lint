@@ -1,12 +1,23 @@
 import { TextDocuments, Diagnostic, DiagnosticSeverity, WorkspaceFolder } from 'vscode-languageserver';
 import { TextDocument, DocumentUri, TextEdit } from 'vscode-languageserver-textdocument';
 import { executeLinter } from './linter';
-import { applyQuickFixes, applyQuickFixesInFile, addSuppressWarning, alwaysIgnoreError } from './codeActions';
+import { applyQuickFixes, applyQuickFixesInFile, disableErrorWithComment, disableErrorForProject } from './codeActions';
 import { isTest, showRuleDocumentation } from './clientUtils';
 import { URI } from 'vscode-uri';
 import path = require('path');
 import { StatusNotification, VsCodeGroovyLintSettings } from './types';
 import { lintFolder } from './folder';
+import {
+	COMMAND_LINT,
+	COMMAND_LINT_FIX,
+	COMMAND_LINT_QUICKFIX,
+	COMMAND_LINT_QUICKFIX_FILE,
+	COMMAND_DISABLE_ERROR_FOR_LINE,
+	COMMAND_DISABLE_ERROR_FOR_FILE,
+	COMMAND_DISABLE_ERROR_FOR_PROJECT,
+	COMMAND_SHOW_RULE_DOCUMENTATION,
+	COMMAND_LINT_FOLDER
+} from './commands';
 const debug = require("debug")("vscode-groovy-lint");
 
 // Documents manager
@@ -55,12 +66,12 @@ export class DocumentsManager {
 		}
 
 		// Command: Lint
-		if (params.command === 'groovyLint.lint') {
+		if (params.command === COMMAND_LINT.command) {
 			const document: TextDocument = this.getDocumentFromUri(this.currentTextDocumentUri)!;
 			await this.validateTextDocument(document);
 		}
 		// Command: Fix
-		else if (params.command === 'groovyLint.lintFix') {
+		else if (params.command === COMMAND_LINT_FIX.command) {
 			let document: TextDocument = this.getDocumentFromUri(this.currentTextDocumentUri)!;
 			await this.validateTextDocument(document, { fix: true });
 			// Then lint again
@@ -68,37 +79,37 @@ export class DocumentsManager {
 			this.validateTextDocument(newDoc); // After fix, lint again
 		}
 		// Command: Apply quick fix
-		else if (params.command === 'groovyLint.quickFix') {
+		else if (params.command === COMMAND_LINT_QUICKFIX.command) {
 			const [textDocumentUri, diagnostic] = params.arguments!;
 			await applyQuickFixes([diagnostic], textDocumentUri, this);
 		}
 		// Command: Apply quick fix in all file
-		else if (params.command === 'groovyLint.quickFixFile') {
+		else if (params.command === COMMAND_LINT_QUICKFIX_FILE.command) {
 			const [textDocumentUri, diagnostic] = params.arguments!;
 			await applyQuickFixesInFile([diagnostic], textDocumentUri, this);
 		}
-		// NV: not working yet 
-		else if (params.command === 'groovyLint.addSuppressWarning') {
+		// Ignore error
+		else if (params.command === COMMAND_DISABLE_ERROR_FOR_LINE.command) {
 			const [textDocumentUri, diagnostic] = params.arguments!;
-			await addSuppressWarning(diagnostic, textDocumentUri, 'line', this);
+			await disableErrorWithComment(diagnostic, textDocumentUri, 'line', this);
 		}
-		// NV: not working yet 
-		else if (params.command === 'groovyLint.addSuppressWarningFile') {
+		// Ignore error in entire file
+		else if (params.command === COMMAND_DISABLE_ERROR_FOR_FILE.command) {
 			const [textDocumentUri, diagnostic] = params.arguments!;
-			await addSuppressWarning(diagnostic, textDocumentUri, 'file', this);
+			await disableErrorWithComment(diagnostic, textDocumentUri, 'file', this);
 		}
 		// Command: Update .groovylintrc.json to ignore error in the future
-		else if (params.command === 'groovyLint.alwaysIgnoreError') {
+		else if (params.command === COMMAND_DISABLE_ERROR_FOR_PROJECT.command) {
 			const [textDocumentUri, diagnostic] = params.arguments!;
-			await alwaysIgnoreError(diagnostic, textDocumentUri, this);
+			await disableErrorForProject(diagnostic, textDocumentUri, this);
 		}
 		// Show rule documentation
-		else if (params.command === 'groovyLint.showRuleDocumentation') {
+		else if (params.command === COMMAND_SHOW_RULE_DOCUMENTATION.command) {
 			const [ruleCode] = params.arguments!;
 			await showRuleDocumentation(ruleCode, this);
 		}
 		// Command: Lint folder
-		else if (params.command === 'groovyLint.lintFolder') {
+		else if (params.command === COMMAND_LINT_FOLDER.command) {
 			const folders: Array<any> = params.arguments[1];
 			await lintFolder(folders, this);
 		}

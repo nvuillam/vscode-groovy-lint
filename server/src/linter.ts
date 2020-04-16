@@ -8,6 +8,7 @@ import { applyTextDocumentEditOnWorkspace, getUpdatedSource, createTextEdit, not
 import { parseLinterResults } from './linterParser';
 import { StatusNotification, OpenNotification } from './types';
 import { ShowMessageRequestParams, MessageType } from 'vscode-languageserver';
+import { COMMAND_LINT_FIX } from './commands';
 const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
 const debug = require("debug")("vscode-groovy-lint");
 const { performance } = require('perf_hooks');
@@ -170,7 +171,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		docManager.connection.sendRequest('window/showMessageRequest', msg).then(async (rqstResp: any) => {
 			// If user clicked Process Again, run again the related command
 			if (rqstResp && rqstResp.title === processAgainTitle) {
-				const commandAgain = (format) ? 'vscode.executeFormatDocumentProvider' : (fix) ? 'groovyLint.lintFix' : '';
+				const commandAgain = (format) ? 'vscode.executeFormatDocumentProvider' : (fix) ? COMMAND_LINT_FIX.command : '';
 				debug(`Process again command ${commandAgain} after user clicked on message`);
 				await docManager.connection.client.executeCommand(commandAgain, [textDocument.uri], {});
 			}
