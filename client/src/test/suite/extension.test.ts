@@ -122,7 +122,7 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		await disableRule('groovyLint.disableRule', testDocs['tinyGroovy'].doc.uri, 'UnnecessarySemicolon', lineNb + 1);
 
 		const newSource = getActiveEditorText();
-		const allLines = newSource.split('\r\n');
+		const allLines = newSource.replace(/\r?\n/g, "\r\n").split("\r\n");
 		assert(allLines[lineNb - 1].includes(`/* groovylint-disable-next-line Indentation, UnnecessarySemicolon */`), 'groovylint-disable-next-line not added correctly: ' + allLines[lineNb - 1]);
 
 	}).timeout(30000);
@@ -135,7 +135,7 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		await disableRule('groovyLint.disableRuleInFile', testDocs['tinyGroovy'].doc.uri, 'DuplicateStringLiteral', null);
 
 		const newSource = getActiveEditorText();
-		const allLines = newSource.split('\r\n');
+		const allLines = newSource.replace(/\r?\n/g, "\r\n").split("\r\n");
 		assert(allLines[0].includes('/* groovylint-disable CompileStatic, DuplicateStringLiteral */'), 'groovylint-disable not added correctly : ' + allLines[0]);
 
 	}).timeout(30000);
