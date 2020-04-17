@@ -260,26 +260,31 @@ export async function disableErrorWithComment(diagnostic: Diagnostic, textDocume
 	let linePos: number = 0;
 	let disableKey: string = '';
 	switch (scope) {
+		// Get single error line position
 		case 'line':
 			linePos = getDiagnosticRangeInfo(diagnostic.range, 'start').line || 0;
 			disableKey = 'groovylint-disable-next-line';
 			break;
+		// Manage shebang case ( https://en.wikipedia.org/wiki/Shebang_(Unix) ): use first or second line if shebang
 		case 'file':
-			linePos = 0;
+			linePos = (allLines[0] && allLines[0].startsWith('#!')) ? 1 : 0;
 			disableKey = 'groovylint-disable';
 			break;
 	}
 	const line: string = allLines[linePos];
-	const prevLine: string = allLines[(linePos === 0) ? 0 : linePos - 1] || '';
+	const prevLinePos = (linePos === 0) ? 0 : (linePos === 1) ? 1 : linePos - 1;
+	const prevLine: string = allLines[prevLinePos] || '';
 	const indent = " ".repeat(line.search(/\S/));
 	const errorCode = (diagnostic.code as string).split('-')[0];
+	// Avoid new lint to be triggered, as diagnostics will be up to date thanks to removeDiagnostics()
+	docManager.recordSkipNextOnDidChangeContent(textDocument.uri);
 	// Update existing /* groovylint-disable */ or /* groovylint-disable-next-line */
 	const commentRules = parseGroovyLintComment(disableKey, prevLine);
 	if (commentRules) {
 		commentRules.push(errorCode);
 		commentRules.sort();
 		const disableLine = indent + `/* ${disableKey} ${[...new Set(commentRules)].join(", ")} */`;
-		await applyTextDocumentEditOnWorkspace(docManager, textDocument, disableLine, { replaceLinePos: (linePos === 0) ? 0 : linePos - 1 });
+		await applyTextDocumentEditOnWorkspace(docManager, textDocument, disableLine, { replaceLinePos: prevLinePos });
 		docManager.removeDiagnostics([diagnostic], textDocument.uri, disableKey === 'groovylint-disable');
 	}
 	else {
@@ -297,7 +302,7 @@ or
 */
 function getDiagnosticRangeInfo(range: any, startOrEnd: string): any {
 	if (Array.isArray(range)) {
-		return (startOrEnd === 'start') ? range[0] : range[1]
+		return (startOrEnd === 'start') ? range[0] : range[1];
 	}
 	else {
 		return range[startOrEnd];

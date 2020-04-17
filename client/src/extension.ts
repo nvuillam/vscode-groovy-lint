@@ -136,7 +136,7 @@ async function updateStatus(status: StatusParams): Promise<any> {
 	// Start linting / fixing, or notify error
 	if (['lint.start', 'lint.start.fix', 'lint.start.format', 'lint.error'].includes(status.state)) {
 		statusList.push(status);
-		// Really open document, so tab will not be replaced by next preview
+		// Really open document previewed documents, so tab will not be replaced by next preview
 		for (const docDef of status.documents) {
 			const documentTextEditors = vscode.window.visibleTextEditors.filter(txtDoc => txtDoc.document.uri.toString() === docDef.documentUri);
 			if (documentTextEditors && documentTextEditors[0]) {
@@ -157,7 +157,7 @@ async function updateStatus(status: StatusParams): Promise<any> {
 	}
 	// Cancelled NPM Groovy Lint request (remove all jobs ith same URI)
 	else if (status.state.startsWith('lint.cancel')) {
-		statusList = statusList.filter(statusObj => statusObj.documents[0].documentUri !== status.documents[0].documentUri);
+		statusList = statusList.filter(statusObj => statusObj.id !== status.id);
 	}
 	// Refresh status bar content (icon + tooltip)
 	await refreshStatusBar();
@@ -205,7 +205,7 @@ async function refreshStatusBar(): Promise<any> {
 		return (status.state === 'lint.start') ? '• analyzing ' + status.lastFileName + ' ...' :
 			(status.state === 'lint.start.fix') ? '• fixing ' + status.lastFileName + ' ...' :
 				(status.state === 'lint.start.format') ? '• formatting ' + status.lastFileName + ' ...' :
-					(status.state === 'lint.start.error') ? 'Error while processing ' + status.lastFileName :
+					(status.state === 'lint.error') ? 'Error while processing ' + status.lastFileName :
 						`ERROR in GroovyLint: unknown status ${status.state} (plz contact developers if you see that`;
 	});
 	if (tooltips.length > 0) {

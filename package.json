@@ -190,8 +190,8 @@
 						"onType",
 						"user"
 					],
-					"default": "onSave",
-					"description": "Run the linter on save (onSave), on type (onType) or after user request (user)"
+					"default": "onType",
+					"description": "Run the linter on type (recommended), on save (if you have a slow config), or after user request"
 				},
 				"groovyLint.fix.enable": {
 					"scope": "resource",

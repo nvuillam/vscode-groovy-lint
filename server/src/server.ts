@@ -14,13 +14,16 @@ import {
     TextDocumentChangeEvent
 } from 'vscode-languageserver';
 import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument';
-import { provideQuickFixCodeActions } from './codeActions';
+const { performance } = require('perf_hooks');
 
+import { provideQuickFixCodeActions } from './codeActions';
 import { DocumentsManager } from './DocumentsManager';
 import { commands } from './commands';
 import { ActiveDocumentNotification } from './types';
 const debug = require("debug")("vscode-groovy-lint");
 const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
+
+const onTypeDelayBeforeLint = 4000;
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -118,7 +121,6 @@ connection.onCodeAction(async (codeActionParams: CodeActionParams): Promise<Code
 
 // Notification from client that active window has changed
 connection.onNotification(ActiveDocumentNotification.type, async (params) => {
-    debug(`Active text editor has changed to ${params.uri}`);
     docManager.setCurrentDocumentUri(params.uri);
     await docManager.setCurrentWorkspaceFolder(params.uri);
 });
@@ -133,11 +135,20 @@ docManager.documents.onDidOpen(async (event) => {
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
+let lastCall: string;
 docManager.documents.onDidChangeContent(async (change: TextDocumentChangeEvent<TextDocument>) => {
     docManager.setCurrentDocumentUri(change.document.uri);
     const settings = await docManager.getDocumentSettings(change.document.uri);
-    if (settings.lint.trigger === 'onType') {
-        await docManager.validateTextDocument(change.document);
+    const skip = docManager.checkSkipNextOnDidChangeContent(change.document.uri);
+    if (settings.lint.trigger === 'onType' && !skip) {
+        // Wait 5 seconds to request linting (if new lint for same doc just arrived, just skip linting)
+        lastCall = `${change.document.uri}-${performance.now()}`;
+        const lastCallLocal = lastCall + '';
+        setTimeout(async () => {
+            if (lastCall === lastCallLocal) {
+                await docManager.validateTextDocument(change.document);
+            }
+        }, onTypeDelayBeforeLint);
     }
 });
 

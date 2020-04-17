@@ -1,12 +1,15 @@
 # Change Log
 
-### [0.9.0] UNRELEASED
+### [0.9.0] 2020-04-17
 
+- **Default lint mode to "onType"** (use onSave or user if you prefer to not lint while typing), after 4 seconds of inactivity after last source update
 - New contextual commands: 
-  - Disable rule for the current line
-  - Disable rule for the entire file
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.3.1
+  - **Disable rule for the current line**
+  - **Disable rule for the entire file**
+- Do not open files in tabs when diagnostics are from Lint Folder command
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.4.0
   - [Disable rules using comments in source](https://github.com/nvuillam/npm-groovy-lint#disabling-rules-in-source) using [eslint style](https://eslint.org/docs/user-guide/configuring#disabling-rules-with-inline-comments)
+  - Cancel a CodeNarc Lint when a similar CodeNarcServer request is received (allowing onType mode for language servers)
 
 ### [0.8.2] 2020-04-13 
 

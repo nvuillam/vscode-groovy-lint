@@ -8,7 +8,32 @@
 			"name": "Launch Client",
 			"runtimeExecutable": "${execPath}",
 			"args": [
-				"--extensionDevelopmentPath=${workspaceRoot}"
+				"--extensionDevelopmentPath=${workspaceRoot}",
+				"--disable-extensions"
+			],
+			"env": {
+				"DEBUG": "vscode-groovy-lint"
+			},
+			"outFiles": [
+				"${workspaceRoot}/client/out/**/*.js"
+			],
+			"preLaunchTask": {
+				"type": "npm",
+				"script": "watch"
+			},
+			"smartStep": true,
+			"skipFiles": [
+				"<node_internals>/**"
+			]
+		},
+		{
+			"type": "extensionHost",
+			"request": "launch",
+			"name": "Launch Client (FINE)",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceRoot}",
+				"--disable-extensions"
 			],
 			"env": {
 				"DEBUG": "vscode-groovy-lint,npm-groovy-lint"
@@ -78,6 +103,13 @@
 			"name": "Groovy Lint debug",
 			"configurations": [
 				"Launch Client",
+				"Attach to Server"
+			]
+		},
+		{
+			"name": "Groovy Lint debug (FINE)",
+			"configurations": [
+				"Launch Client (FINE)",
 				"Attach to Server"
 			]
 		}

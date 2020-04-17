@@ -45,7 +45,7 @@ Formatting and Auto-fix are still in beta version, please post an [issue](https:
 | `groovyLint.enable`              | Controls whether GroovyLint is enabled or not                                                   | true             |
 | `groovyLint.lint.trigger`        | Run the linter on save (onSave), on type (onType) , or on user request                          | onSave           |
 | `groovyLint.format.enable`       | Controls whether the groovy formatter is enabled or not                                         | true             |
-| `groovyLint.fix.enable`          | Run the auto-fixer on save (onSave), on type (onType) , or on user request                          | true             |
+| `groovyLint.fix.enable`          | Run the auto-fixer on save (onSave), on type (onType) , or on user request                      | true             |
 | `groovyLint.fix.trigger`         | Run the fixer on save (onSave), or on user request                                              | user             |
 | `groovyLint.basic.loglevel`      | Linting error level (error, warning,info)                                                       | info             |
 | `groovyLint.basic.verbose`       | Turn on to have verbose logs                                                                    | false            |
@@ -57,7 +57,7 @@ Formatting and Auto-fix are still in beta version, please post an [issue](https:
 - Node.js >= 12 is required to run this package. If you can't upgrade, you can use [nvm](https://github.com/nvm-sh/nvm) to have [different node versions on your computer](https://www.sitepoint.com/quick-tip-multiple-versions-node-nvm/)
 
 - As CodeNarc is run in background with java/groovy, performances could be improved on large files (do not hesitate to provide advices !)
-But do not worry, as the groovy linting is provided by a background local server, your VsCode won't be slowed
+But do not worry, as the groovy linting is provided by a background local server, your VsCode won't be slowed. 
 
 ## Contribute
 
@@ -73,6 +73,17 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+### [0.9.0] 2020-04-17
+
+- **Default lint mode to "onType"** (use onSave or user if you prefer to not lint while typing), after 4 seconds of inactivity after last source update
+- New contextual commands: 
+  - **Disable rule for the current line**
+  - **Disable rule for the entire file**
+- Do not open files in tabs when diagnostics are from Lint Folder command
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.4.0
+  - [Disable rules using comments in source](https://github.com/nvuillam/npm-groovy-lint#disabling-rules-in-source) using [eslint style](https://eslint.org/docs/user-guide/configuring#disabling-rules-with-inline-comments)
+  - Cancel a CodeNarc Lint when a similar CodeNarcServer request is received (allowing onType mode for language servers)
+  
 ### [0.8.1] 2020-04-13
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.2.0

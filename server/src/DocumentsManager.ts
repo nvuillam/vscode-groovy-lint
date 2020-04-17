@@ -43,6 +43,8 @@ export class DocumentsManager {
 	private docsDiagnostics: Map<String, Diagnostic[]> = new Map<String, Diagnostic[]>();
 	private docsDiagsQuickFixes: Map<String, any[]> = new Map<String, any[]>();
 	private ruleDescriptions: Map<String, any[]> = new Map<String, any[]>();
+	private skipNextOnDidChangeContents: string[] = [];
+
 	// Lint/fix queue
 	private currentlyLinted: any[] = [];
 	private queuedLints: any[] = [];
@@ -141,6 +143,20 @@ export class DocumentsManager {
 		return false;
 	}
 
+	// Record that next onDidChangeContent must be skipped ( after disable codeActions for example)
+	recordSkipNextOnDidChangeContent(docUri: string): void {
+		this.skipNextOnDidChangeContents.push(docUri);
+	}
+
+	// Checks if the next onDidChangeContent must be skipped
+	checkSkipNextOnDidChangeContent(docUri: string): boolean {
+		if (this.skipNextOnDidChangeContents.includes(docUri)) {
+			this.skipNextOnDidChangeContents.splice(this.skipNextOnDidChangeContents.indexOf(docUri), 1);
+			return true;
+		}
+		return false;
+	}
+
 	// Get document settings from workspace configuration or cache
 	getDocumentSettings(resource: string): Thenable<VsCodeGroovyLintSettings> {
 		let result = this.documentSettings.get(resource);
@@ -171,28 +187,58 @@ export class DocumentsManager {
 
 	// Validate a text document by calling linter
 	async validateTextDocument(textDocument: TextDocument, opts: any = {}): Promise<TextEdit[]> {
-		// Find if document is already been linted
-		const currentActionsOnDoc = this.currentlyLinted.filter((currLinted) => currLinted.uri === textDocument.uri);
-		// Current document is not already linted, let's lint it now !
-		if (currentActionsOnDoc.length === 0) {
+		// Find if document is already being formatted or fixed
+		const currentLintsOnDoc = this.currentlyLinted.filter((currLinted) =>
+			currLinted.uri === textDocument.uri
+		);
+		const duplicateLintsOnDoc = currentLintsOnDoc.filter((currLinted) =>
+			!this.isUpdateRequest(currLinted.options) &&
+			currLinted.source === textDocument.getText()
+		);
+		const currentActionsOnDoc = currentLintsOnDoc.filter((currLinted) =>
+			this.isUpdateRequest(currLinted.options)
+		);
+
+		// Duplicate lint request with same doc content: do not trigger a new lint as there is a current one
+		if (duplicateLintsOnDoc.length > 0 && !this.isUpdateRequest(opts)) {
+			return Promise.resolve([]);
+		}
+		// Current document is not currently formatted/fixed, let's lint it now !
+		else if (currentActionsOnDoc.length === 0 &&
+			(!(this.isUpdateRequest(opts) && currentLintsOnDoc.length > 0))
+		) {
+
 			// Add current lint in currentlyLinted
-			this.currentlyLinted.push({ uri: textDocument.uri, options: opts });
+			const source = textDocument.getText();
+			this.currentlyLinted.push({ uri: textDocument.uri, options: opts, source: source });
 			const res = await executeLinter(textDocument, this, opts);
-			// Remove current lint from currently linter
-			const justLintedPos = this.currentlyLinted.findIndex((currLinted) => JSON.stringify({ uri: currLinted.uri, options: currLinted.options }) === JSON.stringify({ uri: textDocument.uri, options: opts }));
+
+			// Remove current lint from currently linted
+			const justLintedPos = this.currentlyLinted.findIndex((currLinted) =>
+				JSON.stringify({ uri: currLinted.uri, options: currLinted.options }) === JSON.stringify({ uri: textDocument.uri, options: opts }) &&
+				currLinted.source === source);
 			this.currentlyLinted.splice(justLintedPos, 1);
+
 			// Check if there is another lint in queue for the same file
 			const indexNextInQueue = this.queuedLints.findIndex((queuedItem) => queuedItem.uri === textDocument.uri);
+
 			// There is another lint in queue for the same file: process it
 			if (indexNextInQueue > -1) {
 				const lintToProcess = this.queuedLints[indexNextInQueue];
 				this.queuedLints.splice(indexNextInQueue, 1);
 				debug(`Run queued lint for ${textDocument.uri} (${JSON.stringify(lintToProcess.options || '{}')})`);
 				this.validateTextDocument(textDocument, lintToProcess.options).then(async (resVal) => {
-					// If format has not been performed directly , lint again after it is processes
+					// If format has not been performed by queue request , lint again after it is processed
 					if (lintToProcess.options.format === true, resVal && resVal.length > 0) {
 						const documentUpdated = this.getDocumentFromUri(textDocument.uri);
-						this.validateTextDocument(documentUpdated);
+						const newDoc = this.getUpToDateTextDocument(documentUpdated);
+						this.validateTextDocument(newDoc);
+					}
+					// If fix has not been performed by queue request , lint again after it is processed
+					else if (lintToProcess.options.fix === true) {
+						const documentUpdated = this.getDocumentFromUri(textDocument.uri);
+						const newDoc = this.getUpToDateTextDocument(documentUpdated);
+						this.validateTextDocument(newDoc);
 					}
 				});
 				return Promise.resolve([]);
@@ -200,10 +246,11 @@ export class DocumentsManager {
 				return res;
 			}
 		}
+		// Document is currently formatted or fixed: add the request in queue !
 		else {
 			// gather current lints details
 			const currentFormatsOnDoc = currentActionsOnDoc.filter((currLinted) => currLinted.options && currLinted.options.format === true);
-			const currentFixesOnDoc = currentActionsOnDoc.filter((currLinted) => currLinted.options && currLinted.options.format === true);
+			const currentFixesOnDoc = currentActionsOnDoc.filter((currLinted) => currLinted.options && currLinted.options.fix === true);
 
 			// Format request and no current format or fix: add in queue
 			if (opts.format === true && currentFormatsOnDoc.length === 0 && currentFixesOnDoc.length === 0) {
@@ -219,10 +266,15 @@ export class DocumentsManager {
 			}
 			// All other cases: do not add in queue, else actions would be redundant
 			else {
-				debug(`Skipped request : ${textDocument.uri} (${JSON.stringify(opts || '{}')})`);
+				debug(`WE SHOULD NOT BE HERE : ${textDocument.uri} (${JSON.stringify(opts || '{}')})`);
 			}
 			return Promise.resolve([]);
 		}
+	}
+
+	// Returns true if the request is format or fix
+	isUpdateRequest(options: any) {
+		return [options.format, options.fix].includes(true);
 	}
 
 	// Cancels a document validation
