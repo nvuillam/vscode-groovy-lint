@@ -38,7 +38,7 @@
 		"codenarc",
 		"linter",
 		"npm-groovy-lint",
-		"autofix",
+		"auto-fix",
 		"fix",
 		"format",
 		"package",
@@ -115,11 +115,11 @@
 			},
 			{
 				"command": "groovyLint.lintFix",
-				"title": "Fix all errors"
+				"title": "Fix all auto-fixable problems"
 			},
 			{
 				"command": "groovyLint.lintFolder",
-				"title": "Lint Groovy in folder"
+				"title": "Lint Groovy file in this folder"
 			}
 		],
 		"menus": {
@@ -190,8 +190,8 @@
 						"onType",
 						"user"
 					],
-					"default": "onSave",
-					"description": "Run the linter on save (onSave), on type (onType) or after user request (user)"
+					"default": "onType",
+					"description": "Run the linter on type (recommended), on save (if you have a slow config), or after user request"
 				},
 				"groovyLint.fix.enable": {
 					"scope": "resource",

@@ -40,7 +40,7 @@ export async function lintFolder(folders: Array<any>, docManager: DocumentsManag
 				}
 				// Lint one doc after another , to do not busy too much the processor
 				if (continueLinting === true) {
-					await docManager.validateTextDocument(textDocument, { showDocumentIfErrors: true });
+					await docManager.validateTextDocument(textDocument, { displayErrorsEvenIfDocumentClosed: true });
 				}
 			}
 		}

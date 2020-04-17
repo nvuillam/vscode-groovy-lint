@@ -1,10 +1,21 @@
 # Change Log
 
-## [0.8.2] 2020-04-13 
+### [0.9.0] 2020-04-17
+
+- **Default lint mode to "onType"** (use onSave or user if you prefer to not lint while typing), after 4 seconds of inactivity after last source update
+- New contextual commands: 
+  - **Disable rule for the current line**
+  - **Disable rule for the entire file**
+- Do not open files in tabs when diagnostics are from Lint Folder command
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.4.0
+  - [Disable rules using comments in source](https://github.com/nvuillam/npm-groovy-lint#disabling-rules-in-source) using [eslint style](https://eslint.org/docs/user-guide/configuring#disabling-rules-with-inline-comments)
+  - Cancel a CodeNarc Lint when a similar CodeNarcServer request is received (allowing onType mode for language servers)
+
+### [0.8.2] 2020-04-13 
 
 - New fix of [#18 _(codeAction failed with message: Cannot read property 'split' of undefined)_](https://github.com/nvuillam/vscode-groovy-lint/issues/18): error when diagnostics provided by another VsCode extension
 
-## [0.8.1] 2020-04-13
+### [0.8.1] 2020-04-13
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.2.0
   - Display **source parsing errors**
@@ -13,7 +24,7 @@
     - SpaceAfterWhile
 - Remove useless files from VsCode extension package
 
-## [0.7.2] 2020-04-12
+### [0.7.2] 2020-04-12
 
 - Fix error [#18 _(codeAction failed with message: Cannot read property 'split' of undefined)_](https://github.com/nvuillam/vscode-groovy-lint/issues/18)
 - Add more automated tests for CodeActions
@@ -75,7 +86,7 @@
 
 - Fixes:
   - Provide CodeActions even when there is no QuickFix (Ignore in all files, Show documentation)
-  - Fix npm-groovt-lint requests queue management
+  - Fix npm-groovy-lint requests queue management
   - If a file contains groovy errors, display info diagnostic while linting/formatting/fixing again
   - Fix "infinite" status bar spinner when a lint/format/fix actions has been cancelled
 - Technical:

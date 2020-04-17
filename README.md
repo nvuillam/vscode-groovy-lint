@@ -20,15 +20,17 @@ Formatting and Auto-fix are still in beta version, please post an [issue](https:
 
 ## Features
 
-| Command                         | Description                                                                                    | Access                                                                                                   |
-|---------------------------------|------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
-| **Analyze code**                | Lint the code of the current tab                                                               | Ctrl+Shit+F9<br/>Contextual</br>Status bar<br/>Commands                                                  |
-| **Format**                      | Format the code of the current tab                                                             | Shift+Alt+F<br/>Contextual</br>Commands                                                                  |
-| **Fix all errors**              | Fix the code of the current tab                                                                | Contextual</br>Commands                                                                                  |
-| **Lint folder**                 | Lint all applicable files of a folder                                                          | Contextual                                                                                               |
-| Fix single error                | Apply quick fix for a single error                                                             | Quick Fix<br/>Diagnostic                                                                                 |
-| Fix _errorType_ in entire file  | Apply quick fix for all errors of the same type in the currrent tab                            | Quick Fix<br/>Diagnostic                                                                                 |
-| Ignore _errorType_ in workspace | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to ignore this error type) | Quick Fix<br/>Diagnostic                                                                          |
+| Command                                | Description                                                                                      | Access                                                                                                   |
+|----------------------------------------|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
+| **Analyze code**                       | Lint the code of the current file                                                                 | Ctrl+Shit+F9<br/>Contextual</br>Status bar<br/>Commands                                                  |
+| **Format**                             | Format the code of the current file                                                               | Shift+Alt+F<br/>Contextual</br>Commands                                                                  |
+| **Fix all auto-fixable problems**      | Fix the code of the current file                                                                | Contextual</br>Commands                                                                                  |
+| **Lint folder**                        | Lint all applicable files of a folder                                                            | Contextual                                                                                               |
+| Fix single error                       | Apply quick fix for a single problem                                                               | Quick Fix<br/>Diagnostic                                                                                 |
+| Fix _rule_ in entire file              | Apply quick fix for all problems related to the same rule in the current file                              | Quick Fix<br/>Diagnostic                                                                                 |
+| Disable _rule_ for this line           | Disable rule only for current line                                                               | Quick Fix<br/>Diagnostic                                                                                 |
+| Disable _rule_ for this entire file    | Disable rule in the entire file                                                                  | Quick Fix<br/>Diagnostic                                                                                 |
+| Disable _rule_ for this entire project | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to disable this rule) | Quick Fix<br/>Diagnostic                                                                                 |
 
 - ***Contextual***: *right click in source code or on folder*
 - ***Commands***: *Ctrl+Shift+P then type command name*
@@ -43,19 +45,19 @@ Formatting and Auto-fix are still in beta version, please post an [issue](https:
 | `groovyLint.enable`              | Controls whether GroovyLint is enabled or not                                                   | true             |
 | `groovyLint.lint.trigger`        | Run the linter on save (onSave), on type (onType) , or on user request                          | onSave           |
 | `groovyLint.format.enable`       | Controls whether the groovy formatter is enabled or not                                         | true             |
-| `groovyLint.fix.enable`          | Run the linter on save (onSave), on type (onType) , or on user request                          | true             |
+| `groovyLint.fix.enable`          | Run the auto-fixer on save (onSave), on type (onType) , or on user request                      | true             |
 | `groovyLint.fix.trigger`         | Run the fixer on save (onSave), or on user request                                              | user             |
 | `groovyLint.basic.loglevel`      | Linting error level (error, warning,info)                                                       | info             |
 | `groovyLint.basic.verbose`       | Turn on to have verbose logs                                                                    | false            |
 | `groovyLint.basic.config`        | [NPM groovy lint configuration file](https://github.com/nvuillam/npm-groovy-lint#configuration) | .groovylintrc.js |
-| `groovyLint.debug.enable`        | Display more logs in VsCode Output panel (select "GroovyLint") for issue investigation          | false            |                                                                  | false            |
+| `groovyLint.debug.enable`        | Display more logs in VsCode Output panel (select "GroovyLint") for issue investigation          | false            |
 
 ## Known Issues
 
 - Node.js >= 12 is required to run this package. If you can't upgrade, you can use [nvm](https://github.com/nvm-sh/nvm) to have [different node versions on your computer](https://www.sitepoint.com/quick-tip-multiple-versions-node-nvm/)
 
-- As CodeNarc is runned in background with java/groovy, performances could be improved on large files (do not hesitate to provide advices !)
-But do not worry, as the groovy linting is provided by a background local server, your VsCode won't be slowed
+- As CodeNarc is run in background with java/groovy, performances could be improved on large files (do not hesitate to provide advices !)
+But do not worry, as the groovy linting is provided by a background local server, your VsCode won't be slowed. 
 
 ## Contribute
 
@@ -71,7 +73,18 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
-## [0.8.1] 2020-04-13
+### [0.9.0] 2020-04-17
+
+- **Default lint mode to "onType"** (use onSave or user if you prefer to not lint while typing), after 4 seconds of inactivity after last source update
+- New contextual commands: 
+  - **Disable rule for the current line**
+  - **Disable rule for the entire file**
+- Do not open files in tabs when diagnostics are from Lint Folder command
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.4.0
+  - [Disable rules using comments in source](https://github.com/nvuillam/npm-groovy-lint#disabling-rules-in-source) using [eslint style](https://eslint.org/docs/user-guide/configuring#disabling-rules-with-inline-comments)
+  - Cancel a CodeNarc Lint when a similar CodeNarcServer request is received (allowing onType mode for language servers)
+  
+### [0.8.1] 2020-04-13
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.2.0
   - Display **source parsing errors**
@@ -80,7 +93,7 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
     - SpaceAfterWhile
 - Remove useless files from VsCode extension package
 
-## [0.7.2] 2020-04-12
+### [0.7.2] 2020-04-12
 
 - Fix error [#18 _(codeAction failed with message: Cannot read property 'split' of undefined)_](https://github.com/nvuillam/vscode-groovy-lint/issues/18)
 - Add more automated tests for CodeActions
@@ -134,7 +147,7 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 - Fixes:
   - Provide CodeActions even when there is no QuickFix (Ignore in all files, Show documentation)
-  - Fix npm-groovt-lint requests queue management
+  - Fix npm-groovy-lint requests queue management
   - If a file contains groovy errors, display info diagnostic while linting/formatting/fixing again
   - Fix "infinite" status bar spinner when a lint/format/fix actions has been cancelled
 - Technical:

@@ -8,6 +8,7 @@ import { applyTextDocumentEditOnWorkspace, getUpdatedSource, createTextEdit, not
 import { parseLinterResults } from './linterParser';
 import { StatusNotification, OpenNotification } from './types';
 import { ShowMessageRequestParams, MessageType } from 'vscode-languageserver';
+import { COMMAND_LINT_FIX } from './commands';
 const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
 const debug = require("debug")("vscode-groovy-lint");
 const { performance } = require('perf_hooks');
@@ -96,6 +97,9 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		output: 'none',
 		verbose: settings.basic.verbose
 	};
+
+	const npmGroovyLintExecParam: any = {};
+
 	// Request formatting
 	if (format) {
 		npmGroovyLintConfig.format = true;
@@ -110,6 +114,11 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 			npmGroovyLintConfig.fixrules = opts.fixrules.join(',');
 		}
 	}
+	else {
+		// Calculate requestKey (used to cancel current lint when a duplicate new one is incoming) only if not format or fix
+		const requestKey = npmGroovyLintConfig.sourcefilepath + '-' + npmGroovyLintConfig.output;
+		npmGroovyLintExecParam.requestKey = requestKey;
+	}
 	let linter;
 
 	// If source has not changed, do not lint again
@@ -121,11 +130,21 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		// Run npm-groovy-lint linter/fixer
 		docManager.deleteDocLinter(textDocument.uri);
 		console.info(`Start ${verb} ${textDocument.uri}`);
-		linter = new NpmGroovyLint(npmGroovyLintConfig, {});
+		linter = new NpmGroovyLint(npmGroovyLintConfig, npmGroovyLintExecParam);
 		try {
 			await linter.run();
 			if (!format) {
 				docManager.setDocLinter(textDocument.uri, linter);
+			}
+			// Managed cancelled lint case
+			if (linter.status === 9) {
+				docManager.connection.sendNotification(StatusNotification.type, {
+					id: linterTaskId,
+					state: 'lint.cancel',
+					documents: [{ documentUri: textDocument.uri }],
+					lastFileName: fileNm
+				});
+				return Promise.resolve([]);
 			}
 		} catch (e) {
 			// If error, send notification to client
@@ -170,7 +189,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		docManager.connection.sendRequest('window/showMessageRequest', msg).then(async (rqstResp: any) => {
 			// If user clicked Process Again, run again the related command
 			if (rqstResp && rqstResp.title === processAgainTitle) {
-				const commandAgain = (format) ? 'vscode.executeFormatDocumentProvider' : (fix) ? 'groovyLint.lintFix' : '';
+				const commandAgain = (format) ? 'vscode.executeFormatDocumentProvider' : (fix) ? COMMAND_LINT_FIX.command : '';
 				debug(`Process again command ${commandAgain} after user clicked on message`);
 				await docManager.connection.client.executeCommand(commandAgain, [textDocument.uri], {});
 			}
@@ -203,7 +222,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		await docManager.updateDiagnostics(textDocument.uri, diagnostics);
 	}
 	// Remove diagnostics in case the file has been closed since the lint request
-	else if (!docManager.isDocumentOpenInClient(textDocument.uri)) {
+	else if (!docManager.isDocumentOpenInClient(textDocument.uri) && !(opts.displayErrorsEvenIfDocumentClosed === true)) {
 		await docManager.updateDiagnostics(textDocument.uri, []);
 	}
 	// Update diagnostics if this is not a format or fix calls (for format & fix, a lint is called just after)
@@ -242,7 +261,7 @@ async function manageFixSourceBeforeCallingLinter(source: string, textDocument: 
 			};
 			let req: any;
 			let msgResponseReceived = false;
-			// When message box closes after no action, Promise is never fullfilled, so track that case to unlock linter queue
+			// When message box closes after no action, Promise is never fulfilled, so track that case to unlock linter queue
 			setTimeout(async () => {
 				if (msgResponseReceived === false) {
 					await docManager.cancelDocumentValidation(textDocument.uri);

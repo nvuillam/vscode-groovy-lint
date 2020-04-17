@@ -1,12 +1,23 @@
 import { TextDocuments, Diagnostic, DiagnosticSeverity, WorkspaceFolder } from 'vscode-languageserver';
 import { TextDocument, DocumentUri, TextEdit } from 'vscode-languageserver-textdocument';
 import { executeLinter } from './linter';
-import { applyQuickFixes, applyQuickFixesInFile, addSuppressWarning, alwaysIgnoreError } from './codeActions';
+import { applyQuickFixes, applyQuickFixesInFile, disableErrorWithComment, disableErrorForProject } from './codeActions';
 import { isTest, showRuleDocumentation } from './clientUtils';
 import { URI } from 'vscode-uri';
 import path = require('path');
 import { StatusNotification, VsCodeGroovyLintSettings } from './types';
 import { lintFolder } from './folder';
+import {
+	COMMAND_LINT,
+	COMMAND_LINT_FIX,
+	COMMAND_LINT_QUICKFIX,
+	COMMAND_LINT_QUICKFIX_FILE,
+	COMMAND_DISABLE_ERROR_FOR_LINE,
+	COMMAND_DISABLE_ERROR_FOR_FILE,
+	COMMAND_DISABLE_ERROR_FOR_PROJECT,
+	COMMAND_SHOW_RULE_DOCUMENTATION,
+	COMMAND_LINT_FOLDER
+} from './commands';
 const debug = require("debug")("vscode-groovy-lint");
 
 // Documents manager
@@ -32,6 +43,8 @@ export class DocumentsManager {
 	private docsDiagnostics: Map<String, Diagnostic[]> = new Map<String, Diagnostic[]>();
 	private docsDiagsQuickFixes: Map<String, any[]> = new Map<String, any[]>();
 	private ruleDescriptions: Map<String, any[]> = new Map<String, any[]>();
+	private skipNextOnDidChangeContents: string[] = [];
+
 	// Lint/fix queue
 	private currentlyLinted: any[] = [];
 	private queuedLints: any[] = [];
@@ -55,12 +68,12 @@ export class DocumentsManager {
 		}
 
 		// Command: Lint
-		if (params.command === 'groovyLint.lint') {
+		if (params.command === COMMAND_LINT.command) {
 			const document: TextDocument = this.getDocumentFromUri(this.currentTextDocumentUri)!;
 			await this.validateTextDocument(document);
 		}
 		// Command: Fix
-		else if (params.command === 'groovyLint.lintFix') {
+		else if (params.command === COMMAND_LINT_FIX.command) {
 			let document: TextDocument = this.getDocumentFromUri(this.currentTextDocumentUri)!;
 			await this.validateTextDocument(document, { fix: true });
 			// Then lint again
@@ -68,37 +81,37 @@ export class DocumentsManager {
 			this.validateTextDocument(newDoc); // After fix, lint again
 		}
 		// Command: Apply quick fix
-		else if (params.command === 'groovyLint.quickFix') {
+		else if (params.command === COMMAND_LINT_QUICKFIX.command) {
 			const [textDocumentUri, diagnostic] = params.arguments!;
 			await applyQuickFixes([diagnostic], textDocumentUri, this);
 		}
 		// Command: Apply quick fix in all file
-		else if (params.command === 'groovyLint.quickFixFile') {
+		else if (params.command === COMMAND_LINT_QUICKFIX_FILE.command) {
 			const [textDocumentUri, diagnostic] = params.arguments!;
 			await applyQuickFixesInFile([diagnostic], textDocumentUri, this);
 		}
-		// NV: not working yet 
-		else if (params.command === 'groovyLint.addSuppressWarning') {
+		// Ignore error
+		else if (params.command === COMMAND_DISABLE_ERROR_FOR_LINE.command) {
 			const [textDocumentUri, diagnostic] = params.arguments!;
-			await addSuppressWarning(diagnostic, textDocumentUri, 'line', this);
+			await disableErrorWithComment(diagnostic, textDocumentUri, 'line', this);
 		}
-		// NV: not working yet 
-		else if (params.command === 'groovyLint.addSuppressWarningFile') {
+		// Ignore error in entire file
+		else if (params.command === COMMAND_DISABLE_ERROR_FOR_FILE.command) {
 			const [textDocumentUri, diagnostic] = params.arguments!;
-			await addSuppressWarning(diagnostic, textDocumentUri, 'file', this);
+			await disableErrorWithComment(diagnostic, textDocumentUri, 'file', this);
 		}
 		// Command: Update .groovylintrc.json to ignore error in the future
-		else if (params.command === 'groovyLint.alwaysIgnoreError') {
+		else if (params.command === COMMAND_DISABLE_ERROR_FOR_PROJECT.command) {
 			const [textDocumentUri, diagnostic] = params.arguments!;
-			await alwaysIgnoreError(diagnostic, textDocumentUri, this);
+			await disableErrorForProject(diagnostic, textDocumentUri, this);
 		}
 		// Show rule documentation
-		else if (params.command === 'groovyLint.showRuleDocumentation') {
+		else if (params.command === COMMAND_SHOW_RULE_DOCUMENTATION.command) {
 			const [ruleCode] = params.arguments!;
 			await showRuleDocumentation(ruleCode, this);
 		}
 		// Command: Lint folder
-		else if (params.command === 'groovyLint.lintFolder') {
+		else if (params.command === COMMAND_LINT_FOLDER.command) {
 			const folders: Array<any> = params.arguments[1];
 			await lintFolder(folders, this);
 		}
@@ -125,6 +138,20 @@ export class DocumentsManager {
 	// Check if document is opened in client
 	isDocumentOpenInClient(docUri: string): boolean {
 		if (this.documents.get(docUri)) {
+			return true;
+		}
+		return false;
+	}
+
+	// Record that next onDidChangeContent must be skipped ( after disable codeActions for example)
+	recordSkipNextOnDidChangeContent(docUri: string): void {
+		this.skipNextOnDidChangeContents.push(docUri);
+	}
+
+	// Checks if the next onDidChangeContent must be skipped
+	checkSkipNextOnDidChangeContent(docUri: string): boolean {
+		if (this.skipNextOnDidChangeContents.includes(docUri)) {
+			this.skipNextOnDidChangeContents.splice(this.skipNextOnDidChangeContents.indexOf(docUri), 1);
 			return true;
 		}
 		return false;
@@ -160,28 +187,58 @@ export class DocumentsManager {
 
 	// Validate a text document by calling linter
 	async validateTextDocument(textDocument: TextDocument, opts: any = {}): Promise<TextEdit[]> {
-		// Find if document is already been linted
-		const currentActionsOnDoc = this.currentlyLinted.filter((currLinted) => currLinted.uri === textDocument.uri);
-		// Current document is not already linted, let's lint it now !
-		if (currentActionsOnDoc.length === 0) {
+		// Find if document is already being formatted or fixed
+		const currentLintsOnDoc = this.currentlyLinted.filter((currLinted) =>
+			currLinted.uri === textDocument.uri
+		);
+		const duplicateLintsOnDoc = currentLintsOnDoc.filter((currLinted) =>
+			!this.isUpdateRequest(currLinted.options) &&
+			currLinted.source === textDocument.getText()
+		);
+		const currentActionsOnDoc = currentLintsOnDoc.filter((currLinted) =>
+			this.isUpdateRequest(currLinted.options)
+		);
+
+		// Duplicate lint request with same doc content: do not trigger a new lint as there is a current one
+		if (duplicateLintsOnDoc.length > 0 && !this.isUpdateRequest(opts)) {
+			return Promise.resolve([]);
+		}
+		// Current document is not currently formatted/fixed, let's lint it now !
+		else if (currentActionsOnDoc.length === 0 &&
+			(!(this.isUpdateRequest(opts) && currentLintsOnDoc.length > 0))
+		) {
+
 			// Add current lint in currentlyLinted
-			this.currentlyLinted.push({ uri: textDocument.uri, options: opts });
+			const source = textDocument.getText();
+			this.currentlyLinted.push({ uri: textDocument.uri, options: opts, source: source });
 			const res = await executeLinter(textDocument, this, opts);
-			// Remove current lint from currently linter
-			const justLintedPos = this.currentlyLinted.findIndex((currLinted) => JSON.stringify({ uri: currLinted.uri, options: currLinted.options }) === JSON.stringify({ uri: textDocument.uri, options: opts }));
+
+			// Remove current lint from currently linted
+			const justLintedPos = this.currentlyLinted.findIndex((currLinted) =>
+				JSON.stringify({ uri: currLinted.uri, options: currLinted.options }) === JSON.stringify({ uri: textDocument.uri, options: opts }) &&
+				currLinted.source === source);
 			this.currentlyLinted.splice(justLintedPos, 1);
+
 			// Check if there is another lint in queue for the same file
 			const indexNextInQueue = this.queuedLints.findIndex((queuedItem) => queuedItem.uri === textDocument.uri);
+
 			// There is another lint in queue for the same file: process it
 			if (indexNextInQueue > -1) {
 				const lintToProcess = this.queuedLints[indexNextInQueue];
 				this.queuedLints.splice(indexNextInQueue, 1);
 				debug(`Run queued lint for ${textDocument.uri} (${JSON.stringify(lintToProcess.options || '{}')})`);
 				this.validateTextDocument(textDocument, lintToProcess.options).then(async (resVal) => {
-					// If format has not been performed directly , lint again after it is processes
+					// If format has not been performed by queue request , lint again after it is processed
 					if (lintToProcess.options.format === true, resVal && resVal.length > 0) {
 						const documentUpdated = this.getDocumentFromUri(textDocument.uri);
-						this.validateTextDocument(documentUpdated);
+						const newDoc = this.getUpToDateTextDocument(documentUpdated);
+						this.validateTextDocument(newDoc);
+					}
+					// If fix has not been performed by queue request , lint again after it is processed
+					else if (lintToProcess.options.fix === true) {
+						const documentUpdated = this.getDocumentFromUri(textDocument.uri);
+						const newDoc = this.getUpToDateTextDocument(documentUpdated);
+						this.validateTextDocument(newDoc);
 					}
 				});
 				return Promise.resolve([]);
@@ -189,29 +246,35 @@ export class DocumentsManager {
 				return res;
 			}
 		}
+		// Document is currently formatted or fixed: add the request in queue !
 		else {
 			// gather current lints details
-			const currentFormatsOnDdoc = currentActionsOnDoc.filter((currLinted) => currLinted.options && currLinted.options.format === true);
-			const currentFixesOnDdoc = currentActionsOnDoc.filter((currLinted) => currLinted.options && currLinted.options.format === true);
+			const currentFormatsOnDoc = currentActionsOnDoc.filter((currLinted) => currLinted.options && currLinted.options.format === true);
+			const currentFixesOnDoc = currentActionsOnDoc.filter((currLinted) => currLinted.options && currLinted.options.fix === true);
 
 			// Format request and no current format or fix: add in queue
-			if (opts.format === true && currentFormatsOnDdoc.length === 0 && currentFixesOnDdoc.length === 0) {
+			if (opts.format === true && currentFormatsOnDoc.length === 0 && currentFixesOnDoc.length === 0) {
 				// add applyNow option because TextEdits won't be returned to formatting provided. edit textDocument directly from language server
 				opts.applyNow = true;
 				this.queuedLints.push({ uri: textDocument.uri, options: opts });
 				debug(`Added in queue: ${textDocument.uri} (${JSON.stringify(opts)})`);
 			}
 			// Fix request and no current fix: add in queue
-			else if (opts.fix === true && currentFixesOnDdoc.length === 0) {
+			else if (opts.fix === true && currentFixesOnDoc.length === 0) {
 				this.queuedLints.push({ uri: textDocument.uri, options: opts });
 				debug(`Added in queue: ${textDocument.uri} (${JSON.stringify(opts || '{}')})`);
 			}
 			// All other cases: do not add in queue, else actions would be redundant
 			else {
-				debug(`Skipped request : ${textDocument.uri} (${JSON.stringify(opts || '{}')})`);
+				debug(`WE SHOULD NOT BE HERE : ${textDocument.uri} (${JSON.stringify(opts || '{}')})`);
 			}
 			return Promise.resolve([]);
 		}
+	}
+
+	// Returns true if the request is format or fix
+	isUpdateRequest(options: any) {
+		return [options.format, options.fix].includes(true);
 	}
 
 	// Cancels a document validation
