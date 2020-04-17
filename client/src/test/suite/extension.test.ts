@@ -70,11 +70,11 @@ suite('VsCode GroovyLint Test Suite', async () => {
 	// Lint document
 	test("2.0.0 Lint big document", async () => {
 		console.log("Start 2.0.0 Lint big document");
-		await waitUntil(() => diagnosticsChanged(testDocs['bigGroovy'].doc.uri, []), 180000);
+		await waitUntil(() => diagnosticsChanged(testDocs['bigGroovy'].doc.uri, []), 240000);
 		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['bigGroovy'].doc.uri);
 
 		assert(docDiagnostics.length === numberOfDiagnosticsForBigGroovyLint, `${numberOfDiagnosticsForBigGroovyLint} GroovyLint diagnostics found after lint (${docDiagnostics.length} returned)`);
-	}).timeout(180000);
+	}).timeout(240000);
 
 	// Format document without updating diagnostics
 	test("2.1.0 Format big document", async () => {
