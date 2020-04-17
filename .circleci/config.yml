@@ -4,7 +4,7 @@
     win: circleci/windows@2.2.0
 
   jobs:
-    debian: 
+    debian_jdk8: 
       docker:
         - image: circleci/openjdk:8-jdk-buster-node-browsers
       steps:
@@ -26,6 +26,42 @@
             command: |
               ./node_modules/.bin/nyc report --reporter text-lcov > coverage.lcov
               curl -s https://codecov.io/bash | bash
+
+    debian_jdk11: 
+      docker:
+        - image: circleci/openjdk:11-jdk-buster-node-browsers
+      steps:
+        - checkout
+        - run:
+            name: Install dependencies
+            command: npm install --unsafe-perm
+        - run:
+            name: Lint
+            command: npm run lint
+        - run:
+            name: Compile
+            command: npm run compile
+        - run:
+            name: Test 
+            command: npm run test
+
+    debian_jdk13: 
+      docker:
+        - image: circleci/openjdk:13-jdk-buster-node-browsers
+      steps:
+        - checkout
+        - run:
+            name: Install dependencies
+            command: npm install --unsafe-perm
+        - run:
+            name: Lint
+            command: npm run lint
+        - run:
+            name: Compile
+            command: npm run compile
+        - run:
+            name: Test 
+            command: npm run test
 
     windows: 
       executor:
@@ -51,6 +87,7 @@
     version: 2
     "vscode-groovy-lint-build-test":
       jobs:
-        - debian
-        - windows
+        - debian_jdk8
+        - debian_jdk11
+#        - windows # Disabled until CircleCI allows it to work again with its free plan
 
