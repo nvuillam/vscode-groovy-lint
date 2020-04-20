@@ -1,5 +1,10 @@
 # Change Log
 
+### [0.9.1] 2020-04-20
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.4.1
+    - CodeNarcServer: Use cachedThreadPool instead of fixedThreadPool
+
 ### [0.9.0] 2020-04-17
 
 - **Default lint mode to "onType"** (use onSave or user if you prefer to not lint while typing), after 4 seconds of inactivity after last source update
