@@ -73,6 +73,11 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+### [0.9.1] 2020-04-20
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.4.1
+    - CodeNarcServer: Use cachedThreadPool instead of fixedThreadPool
+
 ### [0.9.0] 2020-04-17
 
 - **Default lint mode to "onType"** (use onSave or user if you prefer to not lint while typing), after 4 seconds of inactivity after last source update
@@ -129,68 +134,9 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
     - SpaceAfterSwitch
 - Add Jenkinsfile in test files
 
-### [0.6.2] 2020-04-02
+### PREVIOUS VERSIONS
 
-- Warn user in case of fix error(s) failures, and advise to do so manually
-- Improve QuickFix action performances
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v3.2.3
-  - Improve performances
-  - Fix indentation when rules IfStatementBraces or ElseBlockBraces are corrected during a format or a fix
-- Fixes
-  - Infinite spinner when using QuickFix "Fix in all file"
-
-### [0.6.0] 2020-03-31
-
-- New animated gif for [VsCode Groovy Lint home page](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
-- Increase size of **Show rule documentation** quick action message, and add a "Read More" link to CodeNarc WebSite
-- If source has been updated by the user during a format or fix, do not apply the formatting/fix to avoid overriding the user updates, and notify the user
-
-- Fixes:
-  - Provide CodeActions even when there is no QuickFix (Ignore in all files, Show documentation)
-  - Fix npm-groovy-lint requests queue management
-  - If a file contains groovy errors, display info diagnostic while linting/formatting/fixing again
-  - Fix "infinite" status bar spinner when a lint/format/fix actions has been cancelled
-- Technical:
-  - Harmonize notifications URIS with new namespace: groovylintlsp
-  - Reorganize files: types.ts for structures, and mode commands in commands.ts
-  - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v3.2.2
-
-### [0.5.3] 2020-03-29
-
-- New diagnostic QuickAction: Show rule documentation
-- Fix location error to create .groovylintrc.json from a QuickFix when user has multiple workspaces
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v3.2.1
-
-### [0.5.0] 2020-03-26 
-
-- New command "Format" (Right click in code editor -> format, or Shift+Alt+F)
-- [Automated tests](https://github.com/nvuillam/vscode-groovy-lint/blob/master/client/src/test/suite/extension.test.ts) with mocha and vscode-test
-- [CI Integration (CircleCI)](https://app.circleci.com/pipelines/github/nvuillam/vscode-groovy-lint), build & run tests on Linux & Windows
-- If hidden, show Diagnostics panel after first lint result. If closed again by the user, it won't be reopened
-- Update README (doc + badges)
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v3.2.0
-- Fixes 
-  - Tab focus should not be disrupted by VsCode Groovy Lint
-
-### [0.4.1] 2020-03-23
-
-- Fix blocking issue when using QuickFix Action (source was not replaced). If someone knows how to make good automated tests for a VsCode extension, please contact me !
-- Update README
-
-### [0.4.0] 2020-03-23
-
-- Upgrade to npm-groovy-lint v3.1.3
-- Hide GroovyLint status bar item when the active VsCode file is not Groovy code (and if no GroovyLint action in progress)
-- Add screenshot image in README
-- Add CONTRIBUTING section
-- Fix issue when creating/updating .groovylintrc.js file when the VsCode Workspace has multiple folders
-- Fix tabs navigation issue
-
-### 0.3.0 2020-03-22
-
-- Initial release of VsCode Groovy Lint
-
-_See complete [CHANGELOG](https://github.com/nvuillam/vscode-groovy-lint/blob/master/CHANGELOG.md)_
+See complete [CHANGELOG](https://github.com/nvuillam/vscode-groovy-lint/blob/master/CHANGELOG.md)
 
 -----------------------------------------------------------------------------------------------------------
 

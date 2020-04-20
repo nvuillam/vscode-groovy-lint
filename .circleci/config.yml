@@ -89,5 +89,5 @@
       jobs:
         - debian_jdk8
         - debian_jdk11
-#        - windows # Disabled until CircleCI allows it to work again with its free plan
+        - windows # Disable if CircleCI reached limit of free plan
 
