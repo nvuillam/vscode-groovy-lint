@@ -70,7 +70,7 @@ export class DocumentsManager {
 		// Command: Lint
 		if (params.command === COMMAND_LINT.command) {
 			const document: TextDocument = this.getDocumentFromUri(this.currentTextDocumentUri)!;
-			await this.validateTextDocument(document);
+			await this.validateTextDocument(document, { force: true });
 		}
 		// Command: Fix
 		else if (params.command === COMMAND_LINT_FIX.command) {
@@ -78,7 +78,7 @@ export class DocumentsManager {
 			await this.validateTextDocument(document, { fix: true });
 			// Then lint again
 			const newDoc = this.getUpToDateTextDocument(document);
-			this.validateTextDocument(newDoc); // After fix, lint again
+			this.validateTextDocument(newDoc, { force: true }); // After fix, lint again
 		}
 		// Command: Apply quick fix
 		else if (params.command === COMMAND_LINT_QUICKFIX.command) {

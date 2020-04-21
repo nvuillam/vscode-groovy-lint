@@ -14,7 +14,7 @@ const debug = require("debug")("vscode-groovy-lint");
 const { performance } = require('perf_hooks');
 
 // Validate a groovy file (just lint, or also format or fix)
-export async function executeLinter(textDocument: TextDocument, docManager: DocumentsManager, opts: any = { fix: false, format: false, showDocumentIfErrors: false }): Promise<TextEdit[]> {
+export async function executeLinter(textDocument: TextDocument, docManager: DocumentsManager, opts: any = { fix: false, format: false, showDocumentIfErrors: false, force: false }): Promise<TextEdit[]> {
 	debug(`Request execute npm-groovy-lint for ${textDocument.uri} with options ${JSON.stringify(opts)}`);
 	const perfStart = performance.now();
 
@@ -50,10 +50,10 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		return Promise.resolve([]);
 	}
 
-	// Check if there is an existing NpmGroovyLint instance with same source
+	// Check if there is an existing NpmGroovyLint instance with same source (except if format, fix or force)
 	let isSimpleLintIdenticalSource = false;
 	const prevLinter = docManager.getDocLinter(textDocument.uri);
-	if (prevLinter && prevLinter.options.source === source && ![opts.format, opts.fix].includes(true)) {
+	if (prevLinter && prevLinter.options.source === source && ![opts.format, opts.fix, opts.force].includes(true)) {
 		isSimpleLintIdenticalSource = true;
 	}
 

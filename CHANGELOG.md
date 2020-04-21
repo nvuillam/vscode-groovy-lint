@@ -1,5 +1,9 @@
 # Change Log
 
+### [0.9.2] 2020-04-20
+
+- Hotfix crazy status bar item
+
 ### [0.9.1] 2020-04-20
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.4.1
