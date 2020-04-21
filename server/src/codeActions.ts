@@ -215,7 +215,7 @@ export async function applyQuickFixes(diagnostics: Diagnostic[], textDocumentUri
 	if (docLinter.status === 0) {
 		// Apply updates to textDocument
 		await applyTextDocumentEditOnWorkspace(docManager, textDocument, getUpdatedSource(docLinter, textDocument.getText()));
-		docManager.validateTextDocument(textDocument);
+		docManager.validateTextDocument(textDocument, { force: true });
 	}
 	// Just Notify client of end of linting 
 	docManager.connection.sendNotification(StatusNotification.type, {

@@ -133,8 +133,11 @@ export function deactivate(): Thenable<void> {
 
 // Update status list
 async function updateStatus(status: StatusParams): Promise<any> {
-	// Start linting / fixing, or notify error
-	if (['lint.start', 'lint.start.fix', 'lint.start.format', 'lint.error'].includes(status.state)) {
+	const incomingStatusDocUri = getStatusParamUri(status);
+	// Start linting / formatting / fixing
+	if (status.state.startsWith('lint.start')) {
+		// Remove doublons on same document
+		statusList = statusList.filter(statusObj => incomingStatusDocUri !== getStatusParamUri(statusObj));
 		statusList.push(status);
 		// Really open document previewed documents, so tab will not be replaced by next preview
 		for (const docDef of status.documents) {
@@ -148,20 +151,33 @@ async function updateStatus(status: StatusParams): Promise<any> {
 	else if (status.state.startsWith('lint.end')) {
 		// Update status list
 		statusList = statusList.filter(statusObj => statusObj.id !== status.id);
-		statusList = statusList.filter(statusObj => !(statusObj.state === 'lint.error' && statusObj.lastFileName === status.lastFileName));
 		// Show markers panel just once (after the user can choose to close it)
 		if (outputChannelShowedOnce === false) {
 			vscode.commands.executeCommand('workbench.panel.markers.view.focus');
 			outputChannelShowedOnce = true;
 		}
 	}
-	// Cancelled NPM Groovy Lint request (remove all jobs ith same URI)
+	// Technical Error: display it for a minute, then remove it
+	else if (status.state.startsWith('lint.error')) {
+		statusList.push(status);
+		setTimeout(async () => {
+			statusList = statusList.filter(statusObj => statusObj.id !== status.id);
+			await refreshStatusBar();
+		}, 20000);
+	}
+	// Cancelled NPM Groovy Lint request
 	else if (status.state.startsWith('lint.cancel')) {
 		statusList = statusList.filter(statusObj => statusObj.id !== status.id);
 	}
 	// Refresh status bar content (icon + tooltip)
 	await refreshStatusBar();
 }
+
+// Get URI from StatusParams
+function getStatusParamUri(status: StatusParams): string {
+	return (status.documents && status.documents[0]) ? status.documents[0].documentUri : null;
+}
+
 
 // Notify language server of the currently viewed document
 async function notifyDocumentToServer(): Promise<any> {
