@@ -1,8 +1,8 @@
 # Change Log
 
-### [0.9.2] 2020-04-20
+### [0.9.2] 2020-04-21
 
-- Hotfix crazy status bar item
+- Hotfix crazy status bar item ([#26](https://github.com/nvuillam/vscode-groovy-lint/pull/26))
 
 ### [0.9.1] 2020-04-20
 
