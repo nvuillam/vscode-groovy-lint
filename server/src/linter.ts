@@ -59,7 +59,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 
 	// Manage format & fix params
 	let format = false;
-	let verb = 'linting';
+	let verb = 'analyzing';
 	// Add format param if necessary
 	if (opts.format) {
 		format = true;
@@ -123,7 +123,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 
 	// If source has not changed, do not lint again
 	if (isSimpleLintIdenticalSource === true) {
-		debug(`Ignoring linting of ${textDocument.uri} as its content has not changed since previous lint`);
+		debug(`Ignoring new analyze of ${textDocument.uri} as its content has not changed since previous lint`);
 		linter = prevLinter;
 	}
 	else {
@@ -149,7 +149,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		} catch (e) {
 			// If error, send notification to client
 			console.error('VsCode Groovy Lint error: ' + e.message + '\n' + e.stack);
-			debug(`Error linting ${textDocument.uri}` + e.message + '\n' + e.stack);
+			debug(`Error processing ${textDocument.uri}` + e.message + '\n' + e.stack);
 			docManager.connection.sendNotification(StatusNotification.type, {
 				id: linterTaskId,
 				state: 'lint.error',

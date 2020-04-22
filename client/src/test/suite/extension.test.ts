@@ -37,7 +37,7 @@ const numberOfGroovyLintCommands = 9;
 //const numberOfDiagnosticsForBigGroovyLintFix = 683;
 
 const numberOfDiagnosticsForTinyGroovyLint = 39;
-const numberOfDiagnosticsForTinyGroovyLintFix = 20;
+const numberOfDiagnosticsForTinyGroovyLintFix = 12;
 
 const numberOfDiagnosticsForJenkinsfileLint = 203;
 const numberOfDiagnosticsForJenkinsfileLintFix = 202;
@@ -117,28 +117,37 @@ suite('VsCode GroovyLint Test Suite', async () => {
 	test("3.0.0.1 Disable next line", async () => {
 		console.log("3.0.0.1  Disable next line");
 		const lineNb = 7;
-
+		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['tinyGroovy'].doc.uri);
 		await disableRule('groovyLint.disableRule', testDocs['tinyGroovy'].doc.uri, 'Indentation', lineNb);
+		await waitUntil(() => diagnosticsChanged(testDocs['tinyGroovy'].doc.uri, docDiagnostics), 30000);
+
+		const docDiagnostics2 = vscode.languages.getDiagnostics(testDocs['tinyGroovy'].doc.uri);
 		await disableRule('groovyLint.disableRule', testDocs['tinyGroovy'].doc.uri, 'UnnecessarySemicolon', lineNb + 1);
+		await waitUntil(() => diagnosticsChanged(testDocs['tinyGroovy'].doc.uri, docDiagnostics2), 30000);
 
 		const newSource = getActiveEditorText();
 		const allLines = newSource.replace(/\r?\n/g, "\r\n").split("\r\n");
 		assert(allLines[lineNb - 1].includes(`/* groovylint-disable-next-line Indentation, UnnecessarySemicolon */`), 'groovylint-disable-next-line not added correctly: ' + allLines[lineNb - 1]);
 
-	}).timeout(30000);
+	}).timeout(60000);
 
 	// Disable rules for entire file
 	test("3.0.0.2 Disable rules in all file", async () => {
 		console.log("3.0.0.2 Disable rules in all file");
 
+		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['tinyGroovy'].doc.uri);
 		await disableRule('groovyLint.disableRuleInFile', testDocs['tinyGroovy'].doc.uri, 'CompileStatic', null);
+		await waitUntil(() => diagnosticsChanged(testDocs['tinyGroovy'].doc.uri, docDiagnostics), 30000);
+
+		const docDiagnostics2 = vscode.languages.getDiagnostics(testDocs['tinyGroovy'].doc.uri);
 		await disableRule('groovyLint.disableRuleInFile', testDocs['tinyGroovy'].doc.uri, 'DuplicateStringLiteral', null);
+		await waitUntil(() => diagnosticsChanged(testDocs['tinyGroovy'].doc.uri, docDiagnostics2), 30000);
 
 		const newSource = getActiveEditorText();
 		const allLines = newSource.replace(/\r?\n/g, "\r\n").split("\r\n");
 		assert(allLines[0].includes('/* groovylint-disable CompileStatic, DuplicateStringLiteral */'), 'groovylint-disable not added correctly : ' + allLines[0]);
 
-	}).timeout(30000);
+	}).timeout(60000);
 
 	// Quick fix error
 	test("3.0.1 Quick fix error in tiny document", async () => {

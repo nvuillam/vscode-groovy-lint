@@ -134,7 +134,7 @@ export function deactivate(): Thenable<void> {
 // Update status list
 async function updateStatus(status: StatusParams): Promise<any> {
 	const incomingStatusDocUri = getStatusParamUri(status);
-	// Start linting / formatting / fixing
+	// Start analyzing / formatting / fixing
 	if (status.state.startsWith('lint.start')) {
 		// Remove doublons on same document
 		statusList = statusList.filter(statusObj => incomingStatusDocUri !== getStatusParamUri(statusObj));
@@ -219,9 +219,9 @@ async function refreshStatusBar(): Promise<any> {
 	// Compute and display job statuses
 	const tooltips = statusList.map((status) => {
 		return (status.state === 'lint.start') ? '• analyzing ' + status.lastFileName + ' ...' :
-			(status.state === 'lint.start.fix') ? '• fixing ' + status.lastFileName + ' ...' :
+			(status.state === 'lint.start.fix') ? '• auto-fixing ' + status.lastFileName + ' ...' :
 				(status.state === 'lint.start.format') ? '• formatting ' + status.lastFileName + ' ...' :
-					(status.state === 'lint.error') ? 'Error while processing ' + status.lastFileName :
+					(status.state === 'lint.error') ? '• Error while processing ' + status.lastFileName :
 						`ERROR in GroovyLint: unknown status ${status.state} (plz contact developers if you see that`;
 	});
 	if (tooltips.length > 0) {

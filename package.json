@@ -119,7 +119,7 @@
 			},
 			{
 				"command": "groovyLint.lintFolder",
-				"title": "Lint Groovy file in this folder"
+				"title": "Analyze groovy files in this folder"
 			}
 		],
 		"menus": {
