@@ -1,5 +1,13 @@
 # Change Log
 
+### [0.9.3] 2020-04-22
+
+- Fixes 
+  - Crash when apply QuickFix after disabling an error with a comment
+  - Error when groovylint-disable and groovylint-disable-next-line are both at the beginning of the source file
+  - Decrease delay before onType lint from 4 seconds to 3 seconds
+  - Misspellings
+
 ### [0.9.2] 2020-04-21
 
 - Hotfix crazy status bar item ([#26](https://github.com/nvuillam/vscode-groovy-lint/pull/26))

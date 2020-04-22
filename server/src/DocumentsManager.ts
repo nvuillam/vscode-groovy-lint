@@ -386,7 +386,7 @@ export class DocumentsManager {
 					start: { line: 0, character: 0 },
 					end: { line: 0, character: 0 }
 				},
-				message: `GroovyLint is ${optns.verb}...`,
+				message: `GroovyLint is ${optns.verb} code...`,
 				source: 'GroovyLint'
 			};
 			await this.connection.sendDiagnostics({ uri: docUri, diagnostics: [waitingDiagnostic] });

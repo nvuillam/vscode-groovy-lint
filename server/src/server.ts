@@ -23,7 +23,7 @@ import { ActiveDocumentNotification } from './types';
 const debug = require("debug")("vscode-groovy-lint");
 const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
 
-const onTypeDelayBeforeLint = 4000;
+const onTypeDelayBeforeLint = 3000;
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -137,7 +137,11 @@ docManager.documents.onDidOpen(async (event) => {
 // when the text document first opened or when its content has changed.
 let lastCall: string;
 docManager.documents.onDidChangeContent(async (change: TextDocumentChangeEvent<TextDocument>) => {
+    if (change.document.languageId !== 'groovy') {
+        return;
+    }
     docManager.setCurrentDocumentUri(change.document.uri);
+    docManager.deleteDocLinter(change.document.uri);
     const settings = await docManager.getDocumentSettings(change.document.uri);
     const skip = docManager.checkSkipNextOnDidChangeContent(change.document.uri);
     if (settings.lint.trigger === 'onType' && !skip) {

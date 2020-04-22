@@ -18,7 +18,7 @@ export async function lintFolder(folders: Array<any>, docManager: DocumentsManag
 	// Function to lint all applicable files of a folder
 	async function processLintFolder() {
 		const folderList = folders.map(fldr => fldr.fsPath);
-		debug(`Start linting folder(s): ${folderList.join(',')}`);
+		debug(`Start analyzing folder(s): ${folderList.join(',')}`);
 		// Browse each folder
 		for (const folder of folderList) {
 			// List applicable files of folder
@@ -44,7 +44,7 @@ export async function lintFolder(folders: Array<any>, docManager: DocumentsManag
 				}
 			}
 		}
-		debug(`Completed linting folder(s): ${folderList.join(',')}`);
+		debug(`Completed analyzing folder(s): ${folderList.join(',')}`);
 		isLinting = false;
 	}
 
@@ -56,10 +56,10 @@ export async function lintFolder(folders: Array<any>, docManager: DocumentsManag
 		if (isLinting === true) {
 			const msg: ShowMessageRequestParams = {
 				type: MessageType.Info,
-				message: `'Linting all files of a folder can be long, please be patient :)'`,
+				message: `'Analyzing all files of a folder can be long, please be patient :)'`,
 				actions: [
 					{ title: "Ok, keep going" },
-					{ title: "Cancel lint of folders" }
+					{ title: "Cancel analysis of folder files" }
 				]
 			};
 			const req = await docManager.connection.sendRequest('window/showMessageRequest', msg);

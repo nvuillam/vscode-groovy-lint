@@ -285,14 +285,17 @@ export async function disableErrorWithComment(diagnostic: Diagnostic, textDocume
 		commentRules.sort();
 		const disableLine = indent + `/* ${disableKey} ${[...new Set(commentRules)].join(", ")} */`;
 		await applyTextDocumentEditOnWorkspace(docManager, textDocument, disableLine, { replaceLinePos: prevLinePos });
-		docManager.removeDiagnostics([diagnostic], textDocument.uri, disableKey === 'groovylint-disable');
+		// Removed as validateTextDocument is called after. Worse performances but safer. 
+		// docManager.removeDiagnostics([diagnostic], textDocument.uri, disableKey === 'groovylint-disable');
 	}
 	else {
 		// Add new /* groovylint-disable */ or /* groovylint-disable-next-line */
 		const disableLine = indent + `/* ${disableKey} ${errorCode} */`;
 		await applyTextDocumentEditOnWorkspace(docManager, textDocument, disableLine, { insertLinePos: linePos });
-		docManager.removeDiagnostics([diagnostic], textDocument.uri, disableKey === 'groovylint-disable', linePos);
+		// Removed as validateTextDocument is called after. Worse performances but safer. 
+		// docManager.removeDiagnostics([diagnostic], textDocument.uri, disableKey === 'groovylint-disable', linePos);
 	}
+	docManager.validateTextDocument(textDocument, { force: true });
 }
 
 /* Depending of context, diagnostic.range can be 
@@ -311,7 +314,8 @@ function getDiagnosticRangeInfo(range: any, startOrEnd: string): any {
 
 // Parse groovylint comment 
 function parseGroovyLintComment(type: string, line: string) {
-	if (line.includes(type)) {
+	if (line.includes(type) &&
+		!(type === 'groovylint-disable' && line.includes('groovylint-disable-next-line'))) {
 		const typeDetail = line
 			.replace("/*", "")
 			.replace("//", "")
