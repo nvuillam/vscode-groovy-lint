@@ -1,8 +1,19 @@
-# Change Log
+## Change Log
+
+### [0.9.4] 2020-04-28
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.5.0 [Davide Bizzarri](https://github.com/b1zzu)
+  - Configuration updates ([#29](https://github.com/nvuillam/npm-groovy-lint/issues/29)):
+    - New default config "recommended-jenkinsfile". Use it with argument `--config recommended-jenkinsfile`
+    - Allow to directly target a config file name. Use it with argument `--config /my/custom/path/.groovylintrc-custom-name.json`
+    - Allow to send a string key that will be used to find config file `--config custom-name`
+  - Updated fix rules:
+    - IfStatementBraces
+    - ElseStatementBraces
 
 ### [0.9.3] 2020-04-22
 
-- Fixes 
+- Fixes
   - Crash when apply QuickFix after disabling an error with a comment
   - Error when groovylint-disable and groovylint-disable-next-line are both at the beginning of the source file
   - Decrease delay before onType lint from 4 seconds to 3 seconds
@@ -15,12 +26,12 @@
 ### [0.9.1] 2020-04-20
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.4.1
-    - CodeNarcServer: Use cachedThreadPool instead of fixedThreadPool
+  - CodeNarcServer: Use cachedThreadPool instead of fixedThreadPool
 
 ### [0.9.0] 2020-04-17
 
 - **Default lint mode to "onType"** (use onSave or user if you prefer to not lint while typing), after 4 seconds of inactivity after last source update
-- New contextual commands: 
+- New contextual commands:
   - **Disable rule for the current line**
   - **Disable rule for the entire file**
 - Do not open files in tabs when diagnostics are from Lint Folder command
@@ -28,7 +39,7 @@
   - [Disable rules using comments in source](https://github.com/nvuillam/npm-groovy-lint#disabling-rules-in-source) using [eslint style](https://eslint.org/docs/user-guide/configuring#disabling-rules-with-inline-comments)
   - Cancel a CodeNarc Lint when a similar CodeNarcServer request is received (allowing onType mode for language servers)
 
-### [0.8.2] 2020-04-13 
+### [0.8.2] 2020-04-13
 
 - New fix of [#18 _(codeAction failed with message: Cannot read property 'split' of undefined)_](https://github.com/nvuillam/vscode-groovy-lint/issues/18): error when diagnostics provided by another VsCode extension
 
@@ -37,7 +48,7 @@
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.2.0
   - Display **source parsing errors**
   - New fix rules (thanks [CatSue](https://github.com/CatSue) !):
-    - SpaceAfterSemicolon 
+    - SpaceAfterSemicolon
     - SpaceAfterWhile
 - Remove useless files from VsCode extension package
 
@@ -125,8 +136,8 @@
 - If hidden, show Diagnostics panel after first lint result. If closed again by the user, it won't be reopened
 - Update README (doc + badges)
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v3.2.0
-- Fixes 
-  - Tab focus should not be disrupted by VsCode Groovy Lint 
+- Fixes
+  - Tab focus should not be disrupted by VsCode Groovy Lint
 
 ### [0.4.1] 2020-03-23
 
