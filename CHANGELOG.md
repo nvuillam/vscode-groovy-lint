@@ -1,5 +1,11 @@
 ## Change Log
 
+### [0.9.5] 2020-04-29
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.5.4
+  - Take in account user overridden indentation space (and other rules) when using --format option [#31](https://github.com/nvuillam/npm-groovy-lint/issues/31)
+  - Handle better CodeNarcServer concurrent calls
+
 ### [0.9.4] 2020-04-28
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.5.0 [Davide Bizzarri](https://github.com/b1zzu)

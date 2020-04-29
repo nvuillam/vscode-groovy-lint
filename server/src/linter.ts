@@ -1,6 +1,7 @@
 /* eslint-disable eqeqeq */
 import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
+import * as fse from "fs-extra";
 import * as path from 'path';
 
 import { DocumentsManager } from './DocumentsManager';
@@ -282,8 +283,23 @@ async function manageFixSourceBeforeCallingLinter(source: string, textDocument: 
 				fixTabs = true;
 			}
 		}
+		// Get indent length from config file then apply it on file instead of tabs
 		if (docManager.autoFixTabs || fixTabs) {
-			const replaceChars = " ".repeat(docManager.indentLength);
+			let indentLength = 4; // Default
+			const textDocumentFilePath: string = URI.parse(textDocument.uri).fsPath;
+			const tmpLinter = new NpmGroovyLint({
+				sourcefilepath: textDocumentFilePath,
+				output: 'none'
+			}, {});
+			const tmpStartPath = path.dirname(textDocumentFilePath);
+			let tmpConfigFilePath: string = await tmpLinter.getConfigFilePath(tmpStartPath);
+			if (tmpConfigFilePath) {
+				const configUser = await tmpLinter.loadConfig(tmpConfigFilePath, 'format');
+				if (configUser.rules && configUser.rules['Indentation'] && configUser.rules['Indentation']["spacesPerIndentLevel"]) {
+					indentLength = configUser.rules['Indentation']["spacesPerIndentLevel"];
+				}
+			}
+			const replaceChars = " ".repeat(indentLength);
 			source = source.replace(/\t/g, replaceChars);
 			await applyTextDocumentEditOnWorkspace(docManager, textDocument, source);
 			debug(`Replaces tabs by spaces in ${textDocument.uri}`);

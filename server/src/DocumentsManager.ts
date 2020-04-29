@@ -27,7 +27,6 @@ export class DocumentsManager {
 	// connection to client
 	connection: any;
 
-	indentLength = 4; // TODO: Nice to set as config later... when we'll be able to generate RuleSets from vsCode config
 	autoFixTabs = false;
 
 	// Counter for job id
