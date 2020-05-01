@@ -1,5 +1,18 @@
 ## Change Log
 
+### [0.10.0] 2020-05-01
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.6.0
+  - New fix rules
+    - SpaceBeforeClosingBrace
+    - UnnecessaryDefInMethodDeclaration
+    - UnnecessaryPackageReference
+    - UnnecessaryParenthesesForMethodCallWithClosure
+
+  - Updated fix rules
+    - MisorderedStaticImports: Fix `@Grapes` killer fixing rule
+    - ElseBlockBrace: issue when instruction is on the same line than `else`
+
 ### [0.9.5] 2020-04-29
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.5.4
