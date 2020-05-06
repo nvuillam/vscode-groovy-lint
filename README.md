@@ -74,6 +74,22 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+### [0.11.0] 2020-05-06
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.7.0
+  - New fix rules
+    - BracesForClass
+    - BracesForForLoop
+    - BracesForIfElse
+    - BracesForMethod
+    - BracesForTryCatchFinally
+    - ExplicitArrayListInstantiation
+    - MissingBlankLineAfterImports
+    - MissingBlankLineAfterPackage
+
+  - Updated fix rules
+    - UnnecessaryGString: Fix replacements containing `\n` and `\r`
+
 ### [0.10.0] 2020-05-01
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.6.0
