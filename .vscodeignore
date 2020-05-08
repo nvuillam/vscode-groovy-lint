@@ -13,7 +13,6 @@ client/node_modules/**/CHANGELOG
 client/node_modules/**/LICENSE
 client/node_modules/**/examples/**
 client/node_modules/**/example/**
-client/node_modules/**/test/**
 client/node_modules/**/.travis.yml
 client/node_modules/**/.npmignore
 client/node_modules/**/.editorconfig
@@ -28,7 +27,6 @@ server/node_modules/**/CHANGELOG
 server/node_modules/**/LICENSE
 server/node_modules/**/examples/**
 server/node_modules/**/example/**
-server/node_modules/**/test/**
 server/node_modules/**/.travis.yml
 server/node_modules/**/.npmignore
 server/node_modules/**/.editorconfig
@@ -59,7 +57,6 @@ images/**
 **/Makefile
 **/*.map
 **/*.ts
-**/test.js
 **/*.markdown
 **/yarn.lock
 .eslintrc.json
