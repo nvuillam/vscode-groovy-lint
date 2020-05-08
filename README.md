@@ -74,6 +74,29 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+### [0.12.0] 2020-05-08
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.8.0
+  - New fix rules
+    - AssignmentInConditional
+    - DuplicateImport
+    - ExplicitLinkedListInstantiation
+    - InsecureRandom
+    - UnnecessaryDefInVariableDeclaration
+    - UnnecessaryDotClass
+    - UnnecessaryFinalOnPrivateMethod
+    - UnnecessaryInstantiationToGetClass
+
+  - Updated fix rules
+    - BracesForForLoop: False positive triggering messy code after fixing
+    - UnnecessaryGString: Fix multiline replacements ( `"""` by `'''` )
+
+  - Fixes :
+    - Launch JVM with high memory (`-Xms256m -Xmx2048m`) to improve performances on big files
+    - Increase CodeNarcServ call timeout (+ Manage ETIMEOUT as result, not only ECONNREFUSED )
+
+- Exclude more files from the VsCode extension package
+
 ### [0.11.0] 2020-05-06
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.7.0

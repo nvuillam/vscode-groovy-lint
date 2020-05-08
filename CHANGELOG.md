@@ -1,6 +1,29 @@
-## Change Log
+# Changelog
 
-### [0.11.0] 2020-05-06
+## [0.12.0] 2020-05-08
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.8.0
+  - New fix rules
+    - AssignmentInConditional
+    - DuplicateImport
+    - ExplicitLinkedListInstantiation
+    - InsecureRandom
+    - UnnecessaryDefInVariableDeclaration
+    - UnnecessaryDotClass
+    - UnnecessaryFinalOnPrivateMethod
+    - UnnecessaryInstantiationToGetClass
+
+  - Updated fix rules
+    - BracesForForLoop: False positive triggering messy code after fixing
+    - UnnecessaryGString: Fix multiline replacements ( `"""` by `'''` )
+
+  - Fixes :
+    - Launch JVM with high memory (`-Xms256m -Xmx2048m`) to improve performances on big files
+    - Increase CodeNarcServ call timeout (+ Manage ETIMEOUT as result, not only ECONNREFUSED )
+
+- Exclude more files from the VsCode extension package
+
+## [0.11.0] 2020-05-06
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.7.0
   - New fix rules
@@ -16,7 +39,7 @@
   - Updated fix rules
     - UnnecessaryGString: Fix replacements containing `\n` and `\r`
 
-### [0.10.0] 2020-05-01
+## [0.10.0] 2020-05-01
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.6.0
   - New fix rules
@@ -29,13 +52,13 @@
     - MisorderedStaticImports: Fix `@Grapes` killer fixing rule
     - ElseBlockBrace: issue when instruction is on the same line than `else`
 
-### [0.9.5] 2020-04-29
+## [0.9.5] 2020-04-29
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.5.4
   - Take in account user overridden indentation space (and other rules) when using --format option [#31](https://github.com/nvuillam/npm-groovy-lint/issues/31)
   - Handle better CodeNarcServer concurrent calls
 
-### [0.9.4] 2020-04-28
+## [0.9.4] 2020-04-28
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.5.0 [Davide Bizzarri](https://github.com/b1zzu)
   - Configuration updates ([#29](https://github.com/nvuillam/npm-groovy-lint/issues/29)):
@@ -46,7 +69,7 @@
     - IfStatementBraces
     - ElseStatementBraces
 
-### [0.9.3] 2020-04-22
+## [0.9.3] 2020-04-22
 
 - Fixes
   - Crash when apply QuickFix after disabling an error with a comment
@@ -54,16 +77,16 @@
   - Decrease delay before onType lint from 4 seconds to 3 seconds
   - Misspellings
 
-### [0.9.2] 2020-04-21
+## [0.9.2] 2020-04-21
 
 - Hotfix crazy status bar item ([#26](https://github.com/nvuillam/vscode-groovy-lint/pull/26))
 
-### [0.9.1] 2020-04-20
+## [0.9.1] 2020-04-20
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.4.1
   - CodeNarcServer: Use cachedThreadPool instead of fixedThreadPool
 
-### [0.9.0] 2020-04-17
+## [0.9.0] 2020-04-17
 
 - **Default lint mode to "onType"** (use onSave or user if you prefer to not lint while typing), after 4 seconds of inactivity after last source update
 - New contextual commands:
@@ -74,11 +97,11 @@
   - [Disable rules using comments in source](https://github.com/nvuillam/npm-groovy-lint#disabling-rules-in-source) using [eslint style](https://eslint.org/docs/user-guide/configuring#disabling-rules-with-inline-comments)
   - Cancel a CodeNarc Lint when a similar CodeNarcServer request is received (allowing onType mode for language servers)
 
-### [0.8.2] 2020-04-13
+## [0.8.2] 2020-04-13
 
 - New fix of [#18 _(codeAction failed with message: Cannot read property 'split' of undefined)_](https://github.com/nvuillam/vscode-groovy-lint/issues/18): error when diagnostics provided by another VsCode extension
 
-### [0.8.1] 2020-04-13
+## [0.8.1] 2020-04-13
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.2.0
   - Display **source parsing errors**
@@ -87,7 +110,7 @@
     - SpaceAfterWhile
 - Remove useless files from VsCode extension package
 
-### [0.7.2] 2020-04-12
+## [0.7.2] 2020-04-12
 
 - Fix error [#18 _(codeAction failed with message: Cannot read property 'split' of undefined)_](https://github.com/nvuillam/vscode-groovy-lint/issues/18)
 - Add more automated tests for CodeActions
@@ -96,12 +119,12 @@
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.1.0
   - Upgrade to [Groovy 3.0.3](https://dl.bintray.com/groovy/maven/apache-groovy-binary-3.0.3.zip)
 
-### [0.7.1] 2020-04-09
+## [0.7.1] 2020-04-09
 
 - Add setting **groovyLint.debug.enable** : Display more logs in VsCode Output panel (select "GroovyLint") for issue investigation
 - Update settings definition in README documentation
 
-### [0.7.0] 2020-04-08
+## [0.7.0] 2020-04-08
 
 - New command **Lint Groovy in folder** available in folder context menu
 - Performances: avoid to lint again a file if it has already been linter with the same content
@@ -123,11 +146,11 @@
     - SpaceAfterSwitch
 - Add Jenkinsfile in test files
 
-### [0.6.3] 2020-04-03
+## [0.6.3] 2020-04-03
 
 - Improve QuickFix actions labels
 
-### [0.6.2] 2020-04-02
+## [0.6.2] 2020-04-02
 
 - Warn user in case of fix error(s) failures, and advise to do so manually
 - Improve QuickFix action performances
@@ -137,11 +160,11 @@
 - Fixes
   - Infinite spinner when using QuickFix "Fix in all file"
 
-### [0.6.1] 2020-04-01
+## [0.6.1] 2020-04-01
 
 - Hotfix: republish again with regenerated compiled Javascript from Typescript
 
-### [0.6.0] 2020-03-31
+## [0.6.0] 2020-03-31
 
 - New animated gif for [VsCode Groovy Lint home page](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
 - Increase size of **Show rule documentation** quick action message, and add a "Read More" link to CodeNarc WebSite
@@ -157,13 +180,13 @@
   - Reorganize files: types.ts for structures, and mode commands in commands.ts
   - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v3.2.2
 
-### [0.5.3] 2020-03-29
+## [0.5.3] 2020-03-29
 
 - New diagnostic QuickAction: Show rule documentation
 - Fix location error to create .groovylintrc.json from a QuickFix when user has multiple workspaces
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v3.2.1
 
-### [0.5.0] 2020-03-26
+## [0.5.0] 2020-03-26
 
 - New command "Format" (Right click in code editor -> format, or Shift+Alt+F)
 - [Automated tests](https://github.com/nvuillam/vscode-groovy-lint/blob/master/client/src/test/suite/extension.test.ts) with mocha and vscode-test
@@ -174,12 +197,12 @@
 - Fixes
   - Tab focus should not be disrupted by VsCode Groovy Lint
 
-### [0.4.1] 2020-03-23
+## [0.4.1] 2020-03-23
 
 - Fix blocking issue when using QuickFix Action (source was not replaced). If someone knows how to make good automated tests for a VsCode extension, please contact me !
 - Change README
 
-### [0.4.0] 2020-03-23
+## [0.4.0] 2020-03-23
 
 - Upgrade to npm-groovy-lint v3.1.3
 - Hide GroovyLint status bar item when the active VsCode file is not Groovy code (and if no GroovyLint action in progress)
@@ -188,6 +211,6 @@
 - Fix issue when creating/updating .groovylintrc.js file when the VsCode Workspace has multiple folders
 - Fix tabs navigation issue
 
-### 0.3.0 2020-03-22
+## 0.3.0 2020-03-22
 
 - Initial release
