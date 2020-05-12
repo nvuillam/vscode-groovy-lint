@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0] 2020-05-12
+
+- New setting `groovyLint.insight.enable`: Allow to send anonymous usage statistics used only to improve the tool (we will of course never send your code or sensitive information)
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.10.2
+  - Collect anonymous usage statistics using [analytics](https://www.npmjs.com/package/analytics) & [@analytics-segment](https://github.com/DavidWells/analytics/tree/master/packages/analytics-plugin-segment), in order to make new improvements based on how users use this package. Analytics obviously does not receive sensitive information like your code, as you can see in [analytics.js](https://github.com/nvuillam/npm-groovy-lint/blob/master/src/analytics.js).
+
 ## [0.12.0] 2020-05-08
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.8.0
