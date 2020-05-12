@@ -44,4 +44,5 @@ export interface VsCodeGroovyLintSettings {
 	fix: any;
 	format: any;
 	basic: any;
+	insight: any;
 }
