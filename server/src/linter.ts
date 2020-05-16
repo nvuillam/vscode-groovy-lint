@@ -147,6 +147,13 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 					lastFileName: fileNm
 				});
 				return Promise.resolve([]);
+			} else if (linter.status !== 0 && linter.error && linter.error.msg) {
+				console.error('===========================================================================');
+				console.error('===========================================================================');
+				console.error('npm-groovy-lint error: ' + linter.error.msg + '\n' + linter.error.stack);
+				console.error('If you still have an error, post an issue to get help: https://github.com/nvuillam/vscode-groovy-lint/issues');
+				console.error('===========================================================================');
+				console.error('===========================================================================');
 			}
 		} catch (e) {
 			// If error, send notification to client
