@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.13.2] 2020-05-12
+## [0.13.2] 2020-05-16
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.11.1
   - Improve error messages
