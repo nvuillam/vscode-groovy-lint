@@ -77,6 +77,11 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+### [0.14.0] 2020-05-18
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.12.0
+  - Improve **performances** and **compatibility**
+
 ### [0.13.0] 2020-05-12
 
 - New setting `groovyLint.insight.enable`: Allow to send anonymous usage statistics used only to improve the tool (we will of course never send your code or sensitive information)
