@@ -123,6 +123,18 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	}
 	let linter;
 
+	// Add Indent size provided by VsCode API
+	if (settings.tabSize && settings.format.useDocumentIndentSize === true) {
+		npmGroovyLintConfig.rulesets = `Indentation{"spacesPerIndentLevel":${settings.tabSize}}`;
+		npmGroovyLintConfig.rulesetsoverridetype = "appendConfig";
+	}
+	// Disable Indentation rule if Indent size setting is not found
+	else if (settings.format.useDocumentIndentSize === true) {
+		npmGroovyLintConfig.rulesets = `Indentation{"enabled":false}`;
+		npmGroovyLintConfig.rulesetsoverridetype = "appendConfig";
+	}
+
+
 	// If source has not changed, do not lint again
 	if (isSimpleLintIdenticalSource === true) {
 		debug(`Ignoring new analyze of ${textDocument.uri} as its content has not changed since previous lint`);

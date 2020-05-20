@@ -25,7 +25,8 @@
 	},
 	"categories": [
 		"Programming Languages",
-		"Linters"
+		"Linters",
+		"Formatters"
 	],
 	"repository": {
 		"type": "git",
@@ -214,6 +215,12 @@
 					"type": "boolean",
 					"default": true,
 					"description": "Enables GroovyLint as a formatter."
+				},
+				"groovyLint.format.useDocumentIndentSize": {
+					"scope": "resource",
+					"type": "boolean",
+					"default": true,
+					"description": "Use the indent size provided by VsCode (overrides Indentation.spacesPerIndentLevel property in .groovylintrc.json)"
 				},
 				"groovyLint.basic.loglevel": {
 					"scope": "resource",

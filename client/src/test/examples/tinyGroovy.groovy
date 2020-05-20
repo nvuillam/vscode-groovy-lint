@@ -3,7 +3,7 @@ import groovy.json.*
 import groovy.time.TimeCategory
 import static groovyx.gpars.GParsPool.withPool
 
-        def script = new GroovyScriptEngine( '.' ).with{
+        def script = new GroovyScriptEngine( "." ).with{
                 loadScriptByName( 'Utils.groovy' ) ;
    }
 this.metaClass.mixin script

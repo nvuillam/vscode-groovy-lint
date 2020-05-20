@@ -39,10 +39,11 @@ export namespace OpenNotification {
 
 // Usable settings
 export interface VsCodeGroovyLintSettings {
-	enable: boolean;
-	lint: any;
-	fix: any;
-	format: any;
-	basic: any;
-	insight: any;
+	enable?: boolean;
+	lint?: any;
+	fix?: any;
+	format?: any;
+	basic?: any;
+	insight?: any;
+	tabSize?: number;
 }

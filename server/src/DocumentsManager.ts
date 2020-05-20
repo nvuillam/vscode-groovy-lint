@@ -169,6 +169,13 @@ export class DocumentsManager {
 		return result!;
 	}
 
+	async updateDocumentSettings(resource: string, settingUpdate: VsCodeGroovyLintSettings) {
+		let docSettings = await this.getDocumentSettings(resource);
+		docSettings = Object.assign(docSettings, settingUpdate);
+		this.documentSettings.set(resource, docSettings as unknown as any);
+		return docSettings;
+	}
+
 	// Remove document settings when closed
 	removeDocumentSettings(uri: string) {
 		if (uri === 'all') {

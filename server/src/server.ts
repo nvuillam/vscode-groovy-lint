@@ -93,7 +93,10 @@ connection.onExecuteCommand(async (params: ExecuteCommandParams) => {
 // Handle formatting request from client
 connection.onDocumentFormatting(async (params: DocumentFormattingParams): Promise<TextEdit[]> => {
     const { textDocument } = params;
-    debug(`Formatting request received from client for ${textDocument.uri}`);
+    debug(`Formatting request received from client for ${textDocument.uri} with params ${JSON.stringify(params)}`);
+    if (params && params.options.tabSize) {
+        docManager.updateDocumentSettings(textDocument.uri, { tabSize: params.options.tabSize });
+    }
     const document = docManager.getDocumentFromUri(textDocument.uri);
     const textEdits: TextEdit[] = await docManager.formatTextDocument(document);
     // Lint again the sources
