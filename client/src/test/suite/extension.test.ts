@@ -36,7 +36,7 @@ const numberOfGroovyLintCommands = 9;
 //const numberOfDiagnosticsForBigGroovyLint = 4361;
 //const numberOfDiagnosticsForBigGroovyLintFix = 683;
 
-const numberOfDiagnosticsForTinyGroovyLint = 39;
+const numberOfDiagnosticsForTinyGroovyLint = 32;
 const numberOfDiagnosticsForTinyGroovyLintFix = 9;
 
 const numberOfDiagnosticsForJenkinsfileLint = 203;
@@ -116,18 +116,18 @@ suite('VsCode GroovyLint Test Suite', async () => {
 	// Disable rules for a line
 	test("3.0.0.1 Disable next line", async () => {
 		console.log("3.0.0.1  Disable next line");
-		const lineNb = 7;
+		const lineNb = 6;
 		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['tinyGroovy'].doc.uri);
-		await disableRule('groovyLint.disableRule', testDocs['tinyGroovy'].doc.uri, 'Indentation', lineNb);
+		await disableRule('groovyLint.disableRule', testDocs['tinyGroovy'].doc.uri, 'SpaceBeforeOpeningBrace', lineNb);
 		await waitUntil(() => diagnosticsChanged(testDocs['tinyGroovy'].doc.uri, docDiagnostics), 30000);
 
 		const docDiagnostics2 = vscode.languages.getDiagnostics(testDocs['tinyGroovy'].doc.uri);
-		await disableRule('groovyLint.disableRule', testDocs['tinyGroovy'].doc.uri, 'UnnecessarySemicolon', lineNb + 1);
+		await disableRule('groovyLint.disableRule', testDocs['tinyGroovy'].doc.uri, 'UnnecessaryGString', lineNb + 1);
 		await waitUntil(() => diagnosticsChanged(testDocs['tinyGroovy'].doc.uri, docDiagnostics2), 30000);
 
 		const newSource = getActiveEditorText();
 		const allLines = newSource.replace(/\r?\n/g, "\r\n").split("\r\n");
-		assert(allLines[lineNb - 1].includes(`/* groovylint-disable-next-line Indentation, UnnecessarySemicolon */`), 'groovylint-disable-next-line not added correctly: ' + allLines[lineNb - 1]);
+		assert(allLines[lineNb - 1].includes(`/* groovylint-disable-next-line SpaceBeforeOpeningBrace, UnnecessaryGString */`), 'groovylint-disable-next-line not added correctly: ' + allLines[lineNb - 1]);
 
 	}).timeout(60000);
 
@@ -154,7 +154,7 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		console.log("Start 3.0.1 Quick fix an error in tiny document");
 		const textBefore = getActiveEditorText();
 		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['tinyGroovy'].doc.uri);
-		const diagnostic = docDiagnostics.filter(diag => (diag.code as string).startsWith('Indentation'))[0];
+		const diagnostic = docDiagnostics.filter(diag => (diag.code as string).startsWith('UnnecessarySemicolon'))[0];
 		// Request code actions
 		const codeActions = await executeCommand('vscode.executeCodeActionProvider', [
 			testDocs['tinyGroovy'].doc.uri,
@@ -177,7 +177,7 @@ suite('VsCode GroovyLint Test Suite', async () => {
 		console.log("Start 3.0.2 Quick fix and error type in tiny document");
 		const textBefore = getActiveEditorText();
 		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['tinyGroovy'].doc.uri);
-		const diagnostic = docDiagnostics.filter(diag => (diag.code as string).startsWith('Indentation'))[0];
+		const diagnostic = docDiagnostics.filter(diag => (diag.code as string).startsWith('UnnecessarySemicolon'))[0];
 		// Request code actions
 		const codeActions = await executeCommand('vscode.executeCodeActionProvider', [
 			testDocs['tinyGroovy'].doc.uri,
@@ -352,8 +352,8 @@ async function disableRule(cmd: string, docUri: vscode.Uri, ruleName: string, li
 	const textBefore = getActiveEditorText();
 	const docDiagnostics = vscode.languages.getDiagnostics(docUri);
 	const diagnostic = docDiagnostics.filter(diag => (diag.code as string).startsWith(ruleName) && (line == null || diag.range.start.line === (line - 1)))[0];
-	console.log('Diagnostic identified: ' + JSON.stringify(diagnostic));
-	assert(diagnostic != null, `Diagnostic not found at line ${line}\n : ${textBefore.split('\r\n')[line]}`);
+	console.log(`Diagnostic ${ruleName} identified: ${JSON.stringify(diagnostic)}`);
+	assert(diagnostic != null, `Diagnostic ${ruleName} not found at line ${line}\n : ${textBefore.split('\r\n')[line]}`);
 	// Request code actions
 	const codeActions = await executeCommand('vscode.executeCodeActionProvider', [
 		docUri,

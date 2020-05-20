@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.0] 2020-05-18
+
+- Use Indent size provided by VsCode Formatter API [#34](https://github.com/nvuillam/vscode-groovy-lint/issues/34)
+- Add Formatter in Vs Code extension categories [#41](https://github.com/nvuillam/vscode-groovy-lint/issues/41)
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.13.0
+  - Manage to send options for rules sent in `rulesets`: Ex: `Indentation{"spacesPerIndentLevel":2,"severity":"warning"},UnnecessarySemicolon`
+
 ## [0.14.0] 2020-05-18
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.12.0
