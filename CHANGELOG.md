@@ -1,6 +1,11 @@
 # Changelog
 
-## [0.15.0] 2020-05-18
+## [0.15.1] 2020-05-22
+
+- Troubleshoot Java installation issue
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.14.0
+
+## [0.15.0] 2020-05-21
 
 - Use Indent size provided by VsCode Formatter API [#34](https://github.com/nvuillam/vscode-groovy-lint/issues/34)
 - Add Formatter in Vs Code extension categories [#41](https://github.com/nvuillam/vscode-groovy-lint/issues/41)
