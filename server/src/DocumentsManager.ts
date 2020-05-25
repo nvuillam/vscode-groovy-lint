@@ -439,11 +439,11 @@ export class DocumentsManager {
 		// Enable debug logs if setting is set
 		const debugLib = require("debug");
 		if (settings.debug && settings.debug.enable === true) {
-			debugLib.enable('vscode-groovy-lint,npm-groovy-lint');
+			debugLib.enable('vscode-groovy-lint,npm-groovy-lint,java-caller');
 		}
 		// Disable if not set
 		else {
-			debugLib.disable('vscode-groovy-lint,npm-groovy-lint');
+			debugLib.disable('vscode-groovy-lint,npm-groovy-lint,java-caller');
 		}
 	}
 }
