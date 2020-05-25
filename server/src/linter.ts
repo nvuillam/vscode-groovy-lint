@@ -9,7 +9,7 @@ import { parseLinterResults } from './linterParser';
 import { StatusNotification, OpenNotification } from './types';
 import { ShowMessageRequestParams, MessageType, ShowMessageRequest } from 'vscode-languageserver';
 import { COMMAND_LINT_FIX } from './commands';
-const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
+const NpmGroovyLint = require("npm-groovy-lint/lib/groovy-lint.js");
 const debug = require("debug")("vscode-groovy-lint");
 const { performance } = require('perf_hooks');
 

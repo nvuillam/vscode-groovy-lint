@@ -21,7 +21,7 @@ import { DocumentsManager } from './DocumentsManager';
 import { commands } from './commands';
 import { ActiveDocumentNotification } from './types';
 const debug = require("debug")("vscode-groovy-lint");
-const NpmGroovyLint = require("npm-groovy-lint/jdeploy-bundle/groovy-lint.js");
+const NpmGroovyLint = require("npm-groovy-lint/lib/groovy-lint.js");
 
 const onTypeDelayBeforeLint = 3000;
 
