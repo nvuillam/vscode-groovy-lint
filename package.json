@@ -202,7 +202,7 @@
 				},
 				"groovyLint.fix.trigger": {
 					"scope": "resource",
-					"type": "boolean",
+					"type": "string",
 					"enum": [
 						"onSave",
 						"user"
