@@ -186,6 +186,17 @@ export class DocumentsManager {
 		}
 	}
 
+	// Lint again all open documents (after change of config)
+	async lintAgainAllOpenDocuments() {
+		await this.refreshDebugMode();
+		// Reset all cached document settings
+		this.removeDocumentSettings('all');
+		// Revalidate all open text documents
+		for (const doc of this.documents.all()) {
+			await this.validateTextDocument(doc, { force: true });
+		};
+	}
+
 	// Format a text document
 	async formatTextDocument(textDocument: TextDocument): Promise<TextEdit[]> {
 		return await this.validateTextDocument(textDocument, { format: true });

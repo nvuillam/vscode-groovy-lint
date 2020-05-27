@@ -388,6 +388,9 @@ export async function disableErrorForProject(diagnostic: Diagnostic, textDocumen
 	const removeAll = true;
 	docManager.removeDiagnostics([diagnostic], textDocument.uri, removeAll);
 
+	// Lint again all open documents
+	docManager.lintAgainAllOpenDocuments();
+
 	// Show message to user and propose to open the configuration file
 	const msg: ShowMessageRequestParams = {
 		type: MessageType.Info,
