@@ -76,13 +76,7 @@ connection.onExit(async () => {
 // wait N seconds in case a new config change arrive, run just after the last one
 connection.onDidChangeConfiguration(async (change) => {
     debug(`change configuration event received: lint again all open documents`);
-    await docManager.refreshDebugMode();
-    // Reset all cached document settings
-    docManager.removeDocumentSettings('all');
-    // Revalidate all open text documents
-    for (const doc of docManager.documents.all()) {
-        await docManager.validateTextDocument(doc);
-    };
+    await docManager.lintAgainAllOpenDocuments();
 });
 
 // Handle command requests from client

@@ -75,9 +75,12 @@ export class DocumentsManager {
 		else if (params.command === COMMAND_LINT_FIX.command) {
 			let document: TextDocument = this.getDocumentFromUri(this.currentTextDocumentUri)!;
 			await this.validateTextDocument(document, { fix: true });
-			// Then lint again
-			const newDoc = this.getUpToDateTextDocument(document);
-			this.validateTextDocument(newDoc, { force: true }); // After fix, lint again
+
+			setTimeout(() => { // Wait 500ms so we are more sure that the textDocument is already updated
+				// Then lint again
+				const newDoc = this.getUpToDateTextDocument(document);
+				this.validateTextDocument(newDoc, { force: true }); // After fix, lint again
+			}, 500);
 		}
 		// Command: Apply quick fix
 		else if (params.command === COMMAND_LINT_QUICKFIX.command) {
@@ -184,6 +187,17 @@ export class DocumentsManager {
 		else {
 			this.documentSettings.delete(uri);
 		}
+	}
+
+	// Lint again all open documents (after change of config)
+	async lintAgainAllOpenDocuments() {
+		await this.refreshDebugMode();
+		// Reset all cached document settings
+		this.removeDocumentSettings('all');
+		// Revalidate all open text documents
+		for (const doc of this.documents.all()) {
+			await this.validateTextDocument(doc, { force: true });
+		};
 	}
 
 	// Format a text document

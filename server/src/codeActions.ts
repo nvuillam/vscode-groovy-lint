@@ -212,19 +212,22 @@ export async function applyQuickFixes(diagnostics: Diagnostic[], textDocumentUri
 	const { fixFailures } = parseLinterResults(docLinter.lintResult, textDocument.getText(), textDocument, docManager);
 	// Notify user of failures if existing
 	await notifyFixFailures(fixFailures, docManager);
-	if (docLinter.status === 0) {
-		// Apply updates to textDocument
-		await applyTextDocumentEditOnWorkspace(docManager, textDocument, getUpdatedSource(docLinter, textDocument.getText()));
-		docManager.validateTextDocument(textDocument, { force: true });
-	}
-	// Just Notify client of end of linting 
-	docManager.connection.sendNotification(StatusNotification.type, {
+	// Just Notify client of end of fixing 
+	await docManager.connection.sendNotification(StatusNotification.type, {
 		state: 'lint.end',
 		documents: [{
 			documentUri: textDocument.uri
 		}],
 		lastFileName: textDocument.uri
 	});
+	// Apply updates to textDocument
+	if (docLinter.status === 0) {
+		await applyTextDocumentEditOnWorkspace(docManager, textDocument, getUpdatedSource(docLinter, textDocument.getText()));
+		setTimeout(() => { // Wait 500ms so we are more sure that the textDocument is already updated
+			const newDoc = docManager.getUpToDateTextDocument(textDocument);
+			docManager.validateTextDocument(newDoc, { force: true });
+		}, 500);
+	}
 	debug(`End fixing ${textDocument.uri}`);
 }
 
@@ -243,7 +246,10 @@ export async function applyQuickFixesInFile(diagnostics: Diagnostic[], textDocum
 	await docManager.validateTextDocument(textDocument, { fix: true, fixrules: [fixRule] });
 	// Lint after call
 	debug(`Request new lint of ${textDocumentUri} after fix action`);
-	docManager.validateTextDocument(textDocument);
+	setTimeout(() => { // Wait 500ms so we are more sure that the textDocument is already updated
+		const newDoc = docManager.getUpToDateTextDocument(textDocument);
+		docManager.validateTextDocument(newDoc, { force: true });
+	}, 500);
 }
 
 // Disable error with comment groovylint-disable
@@ -387,6 +393,9 @@ export async function disableErrorForProject(diagnostic: Diagnostic, textDocumen
 	// Remove Diagnostics corresponding to this error
 	const removeAll = true;
 	docManager.removeDiagnostics([diagnostic], textDocument.uri, removeAll);
+
+	// Lint again all open documents
+	docManager.lintAgainAllOpenDocuments();
 
 	// Show message to user and propose to open the configuration file
 	const msg: ShowMessageRequestParams = {
