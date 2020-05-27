@@ -75,9 +75,12 @@ export class DocumentsManager {
 		else if (params.command === COMMAND_LINT_FIX.command) {
 			let document: TextDocument = this.getDocumentFromUri(this.currentTextDocumentUri)!;
 			await this.validateTextDocument(document, { fix: true });
-			// Then lint again
-			const newDoc = this.getUpToDateTextDocument(document);
-			this.validateTextDocument(newDoc, { force: true }); // After fix, lint again
+
+			setTimeout(() => { // Wait 500ms so we are more sure that the textDocument is already updated
+				// Then lint again
+				const newDoc = this.getUpToDateTextDocument(document);
+				this.validateTextDocument(newDoc, { force: true }); // After fix, lint again
+			}, 500);
 		}
 		// Command: Apply quick fix
 		else if (params.command === COMMAND_LINT_QUICKFIX.command) {

@@ -77,7 +77,30 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
-## [0.16.0] 2020-25-05
+### [0.16.1] 2020-05-27
+
+- Fixes
+  - When a rule is ignored for all project (updating .groovylintrc.json), lint again all open documents [(#46)](https://github.com/nvuillam/vscode-groovy-lint/issues/47)
+  - Setting `groovyLint.fix.trigger` was not updateable [(#47)](https://github.com/nvuillam/vscode-groovy-lint/issues/47)
+  - After applying a QuickFix, wait for the text to be updated to trigger a new code analysis
+  - Better catch and display of fatal errors
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.0.2
+  - Avoid to apply wrong fix in case of CodeNarc false positive
+  - New fix rules
+    - BlankLineBeforePackage
+  - Updated fix rules
+    - BracesForIfElse
+    - BracesForMethod
+    - BracesForTryCatchFinally
+    - ClassEndsWithBlankLine
+    - ClassStartsWithBlankLine
+    - MissingBlankLineAfterImports
+    - MissingBlankLineAfterPackage
+    - UnnecessaryGroovyImport
+    - UnusedImport
+
+### [0.16.0] 2020-05-25
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.0.0
   - **BIG BANG**: Improve performances, compatibility, architecture and delivery
@@ -87,7 +110,7 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
     - Get rid of [request](https://github.com/request/request) dependency
       - Use [axios](https://github.com/axios/axios) for promisified http calls
 
-## [0.15.1] 2020-05-22
+### [0.15.1] 2020-05-22
 
 - Troubleshoot Java installation issue
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.14.0

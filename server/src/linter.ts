@@ -13,9 +13,7 @@ const NpmGroovyLint = require("npm-groovy-lint/lib/groovy-lint.js");
 const debug = require("debug")("vscode-groovy-lint");
 const { performance } = require('perf_hooks');
 
-let warnedAboutErrors = false;
 const issuesUrl = "https://github.com/nvuillam/vscode-groovy-lint/issues";
-
 
 // Validate a groovy file (just lint, or also format or fix)
 export async function executeLinter(textDocument: TextDocument, docManager: DocumentsManager, opts: any = { fix: false, format: false, showDocumentIfErrors: false, force: false }): Promise<TextEdit[]> {
@@ -163,38 +161,44 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 				});
 				return Promise.resolve([]);
 			} else if (linter.status !== 0 && linter.error && linter.error.msg) {
-				// Fatal unexpected error
+				// Fatal unexpected error: display in console
 				console.error('===========================================================================');
 				console.error('===========================================================================');
 				console.error('npm-groovy-lint error: ' + linter.error.msg + '\n' + linter.error.stack);
 				console.error(`If you still have an error, post an issue to get help: ${issuesUrl}`);
 				console.error('===========================================================================');
 				console.error('===========================================================================');
-				// Display message to user once by session
-				if (warnedAboutErrors === false) {
-					const reportErrorLabel = 'Report error';
-					let errorMessageForUser = `There has been an unexpected error while calling npm-groovy-lint`;
-					await new Promise(resolve => {
-						require("find-java-home")((err: any) => {
-							if (err) {
-								errorMessageForUser = "Java is required to use VsCode Groovy Lint, as CodeNarc is written in Java/Groovy. Please install Java (version 8 minimum) https://www.java.com/download ,then type \"java -version\" in command line to verify that the installation is correct";
-							}
-							resolve();
-						});
+				// Notify UI of the error
+				docManager.connection.sendNotification(StatusNotification.type, {
+					id: linterTaskId,
+					state: 'lint.error',
+					documents: [{ documentUri: textDocument.uri }],
+					lastFileName: fileNm
+				});
+				// Display message to user 
+				const reportErrorLabel = 'Report error';
+				let errorMessageForUser = `There has been an unexpected error while calling npm-groovy-lint. Please join the end of the logs in Output/GroovyLint if you report the issue`;
+				await new Promise(resolve => {
+					require("find-java-home")((err: any) => {
+						if (err) {
+							errorMessageForUser = "Java is required to use VsCode Groovy Lint, as CodeNarc is written in Java/Groovy. Please install Java (version 8 minimum) https://www.java.com/download ,then type \"java -version\" in command line to verify that the installation is correct";
+						}
+						resolve();
 					});
-					const msg: ShowMessageRequestParams = {
-						type: MessageType.Error,
-						message: errorMessageForUser,
-						actions: [
-							{ title: reportErrorLabel }
-						]
-					};
-					const res = await docManager.connection.sendRequest(ShowMessageRequest.type, msg);
-					if (res.title === reportErrorLabel) {
-						docManager.connection.sendNotification(OpenNotification.type, { url: issuesUrl });
-					}
-					warnedAboutErrors = true;
+				});
+				const msg: ShowMessageRequestParams = {
+					type: MessageType.Error,
+					message: errorMessageForUser,
+					actions: [
+						{ title: reportErrorLabel }
+					]
+				};
+				const res = await docManager.connection.sendRequest(ShowMessageRequest.type, msg);
+				// Open repo issues page if use clicks on Report
+				if (res.title === reportErrorLabel) {
+					docManager.connection.sendNotification(OpenNotification.type, { url: issuesUrl });
 				}
+				return Promise.resolve([]);
 			}
 		} catch (e) {
 			// If error, send notification to client
