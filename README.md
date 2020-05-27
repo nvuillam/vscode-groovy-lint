@@ -77,7 +77,7 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
-### [0.16.1] 2020-05-27
+### [0.16.2] 2020-05-27
 
 - Fixes
   - When a rule is ignored for all project (updating .groovylintrc.json), lint again all open documents [(#46)](https://github.com/nvuillam/vscode-groovy-lint/issues/47)
