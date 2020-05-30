@@ -77,6 +77,16 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+### [0.16.3] 2020-05-30
+
+- Fixes
+  - Issue when requesting lints too quickly just after the extension is launched [(#51)](https://github.com/nvuillam/vscode-groovy-lint/issues/51)
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.0.3
+  - Updated fix rules
+    - Indentation
+    - IndentationClosingBrace
+
 ### [0.16.2] 2020-05-27
 
 - Fixes
@@ -110,120 +120,6 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
     - Get rid of [request](https://github.com/request/request) dependency
       - Use [axios](https://github.com/axios/axios) for promisified http calls
 
-### [0.15.1] 2020-05-22
-
-- Troubleshoot Java installation issue
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.14.0
-
-### [0.15.0] 2020-05-21
-
-- Use Indent size provided by VsCode Formatter API [#34](https://github.com/nvuillam/vscode-groovy-lint/issues/34)
-- Add Formatter in Vs Code extension categories [#41](https://github.com/nvuillam/vscode-groovy-lint/issues/41)
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.13.0
-
-### [0.14.0] 2020-05-18
-
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.12.0
-  - Improve **performances** and **compatibility**
-
-### [0.13.0] 2020-05-12
-
-- New setting `groovyLint.insight.enable`: Allow to send anonymous usage statistics used only to improve the tool (we will of course never send your code or sensitive information)
-
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.10.2
-  - Collect anonymous usage statistics using [analytics](https://www.npmjs.com/package/analytics) & [@analytics-segment](https://github.com/DavidWells/analytics/tree/master/packages/analytics-plugin-segment), in order to make new improvements based on how users use this package. Analytics obviously does not receive sensitive information like your code, as you can see in [analytics.js](https://github.com/nvuillam/npm-groovy-lint/blob/master/src/analytics.js).
-
-### [0.12.0] 2020-05-08
-
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.8.0
-  - New fix rules
-    - AssignmentInConditional
-    - DuplicateImport
-    - ExplicitLinkedListInstantiation
-    - InsecureRandom
-    - UnnecessaryDefInVariableDeclaration
-    - UnnecessaryDotClass
-    - UnnecessaryFinalOnPrivateMethod
-    - UnnecessaryInstantiationToGetClass
-
-  - Updated fix rules
-    - BracesForForLoop: False positive triggering messy code after fixing
-    - UnnecessaryGString: Fix multiline replacements ( `"""` by `'''` )
-
-  - Fixes :
-    - Launch JVM with high memory (`-Xms256m -Xmx2048m`) to improve performances on big files
-    - Increase CodeNarcServ call timeout (+ Manage ETIMEOUT as result, not only ECONNREFUSED )
-
-- Exclude more files from the VsCode extension package
-
-### [0.11.0] 2020-05-06
-
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.7.0
-  - New fix rules
-    - BracesForClass
-    - BracesForForLoop
-    - BracesForIfElse
-    - BracesForMethod
-    - BracesForTryCatchFinally
-    - ExplicitArrayListInstantiation
-    - MissingBlankLineAfterImports
-    - MissingBlankLineAfterPackage
-
-  - Updated fix rules
-    - UnnecessaryGString: Fix replacements containing `\n` and `\r`
-
-### [0.10.0] 2020-05-01
-
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.6.0
-  - New fix rules
-    - SpaceBeforeClosingBrace
-    - UnnecessaryDefInMethodDeclaration
-    - UnnecessaryPackageReference
-    - UnnecessaryParenthesesForMethodCallWithClosure
-
-  - Updated fix rules
-    - MisorderedStaticImports: Fix `@Grapes` killer fixing rule
-    - ElseBlockBrace: issue when instruction is on the same line than `else`
-
-### [0.9.4] 2020-04-28
-
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.5.0 [Davide Bizzarri](https://github.com/b1zzu)
-  - Configuration updates ([#29](https://github.com/nvuillam/npm-groovy-lint/issues/29)):
-    - New default config "recommended-jenkinsfile". Use it with argument `--config recommended-jenkinsfile`
-    - Allow to directly target a config file name. Use it with argument `--config /my/custom/path/.groovylintrc-custom-name.json`
-    - Allow to send a string key that will be used to find config file `--config custom-name`
-  - Updated fix rules:
-    - IfStatementBraces
-    - ElseStatementBraces
-
-### [0.9.3] 2020-04-22
-
-- Fixes
-  - Crash when apply QuickFix after disabling an error with a comment
-  - Error when groovylint-disable and groovylint-disable-next-line are both at the beginning of the source file
-  - Decrease delay before onType lint from 4 seconds to 3 seconds
-  - Misspellings
-
-### [0.9.2] 2020-04-21
-
-- Hotfix crazy status bar item ([#26](https://github.com/nvuillam/vscode-groovy-lint/pull/26))
-
-### [0.9.1] 2020-04-20
-
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.4.1
-  - CodeNarcServer: Use cachedThreadPool instead of fixedThreadPool
-
-### [0.9.0] 2020-04-17
-
-- **Default lint mode to "onType"** (use onSave or user if you prefer to not lint while typing), after 4 seconds of inactivity after last source update
-- New contextual commands:
-  - **Disable rule for the current line**
-  - **Disable rule for the entire file**
-- Do not open files in tabs when diagnostics are from Lint Folder command
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.4.0
-  - [Disable rules using comments in source](https://github.com/nvuillam/npm-groovy-lint#disabling-rules-in-source) using [eslint style](https://eslint.org/docs/user-guide/configuring#disabling-rules-with-inline-comments)
-  - Cancel a CodeNarc Lint when a similar CodeNarcServer request is received (allowing onType mode for language servers)
-  
 ### PREVIOUS VERSIONS
 
 See complete [CHANGELOG](https://github.com/nvuillam/vscode-groovy-lint/blob/master/CHANGELOG.md)
