@@ -22,6 +22,7 @@ const debug = require("debug")("vscode-groovy-lint");
 
 // Documents manager
 export class DocumentsManager {
+
 	// list of documents managed by the client
 	documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 	// connection to client

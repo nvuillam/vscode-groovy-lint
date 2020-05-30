@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.16.3] 2020-05-30
+
+- Fixes
+  - Issue when requesting lints too quickly just after the extension is launched [(#51)](https://github.com/nvuillam/vscode-groovy-lint/issues/51)
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.0.3
+  - Updated fix rules
+    - Indentation
+    - IndentationClosingBrace
+
 ## [0.16.2] 2020-05-27
 
 - Fixes

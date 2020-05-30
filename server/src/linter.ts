@@ -80,6 +80,26 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	// Get a new task id
 	const linterTaskId = docManager.getNewTaskId();
 
+	// If the first lint request is not completed yet, wait for it, to be sure the CodeNarc server is already running to process next requests
+	if (linterTaskId > 1 && docManager.getRuleDescriptions().size === 0) {
+		debug('Wait for initial lint request to be completed before running the following ones');
+		await new Promise((resolve) => {
+			const waitSrvInterval = setInterval(() => {
+				if (docManager.getRuleDescriptions().size > 0) {
+					clearInterval(waitSrvInterval);
+					resolve();
+				}
+			}, 300);
+			// FailSafe just in case... but we shouldn't get there
+			setTimeout(() => {
+				if (docManager.getRuleDescriptions().size === 0) {
+					clearInterval(waitSrvInterval);
+					resolve();
+				}
+			}, 120000);
+		});
+	}
+
 	// Notify client that lint is starting
 	docManager.connection.sendNotification(StatusNotification.type, {
 		id: linterTaskId,
