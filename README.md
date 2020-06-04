@@ -77,6 +77,11 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+## [0.16.4] 2020-06-04
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.1.0
+  - Install Java 8 using node-jre in case java version found is higher than Java 11 (CodeNarc compatibility is Java 8 to 11)
+
 ### [0.16.3] 2020-05-30
 
 - Fixes
