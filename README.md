@@ -77,6 +77,12 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+## [0.17.1] 2020-07-05
+
+Fixes:
+
+- Fix npm-groovy-lint formatting arguments when loglevel is not **info**
+
 ### [0.17.0] 2020-07-01
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.4.1
