@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^8.1.0",
-    "npm-groovy-lint": "^5.4.1",
+    "npm-groovy-lint": "^5.5.0",
     "vscode-languageserver-textdocument": "^1.0.1"
   }
 }

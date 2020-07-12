@@ -255,6 +255,16 @@
 					"default": false,
 					"description": "Display debugging info in output panel"
 				},
+				"groovyLint.java.executable": {
+					"scope": "resource",
+					"type": "string",
+					"description": "Path to java executable if you do not want to use system default"
+				},
+				"groovyLint.java.options": {
+					"scope": "resource",
+					"type": "string",
+					"description": "Comma separated arguments for java (default \"-Xms256m,-Xmx2048m\")"
+				},
 				"groovyLint.insight.enable": {
 					"scope": "resource",
 					"type": "boolean",

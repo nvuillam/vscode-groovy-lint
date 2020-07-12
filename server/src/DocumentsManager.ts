@@ -4,6 +4,7 @@ import { executeLinter } from './linter';
 import { applyQuickFixes, applyQuickFixesInFile, disableErrorWithComment, disableErrorForProject } from './codeActions';
 import { isTest, showRuleDocumentation } from './clientUtils';
 import { URI } from 'vscode-uri';
+import os = require('os');
 import path = require('path');
 import { StatusNotification, VsCodeGroovyLintSettings } from './types';
 import { lintFolder } from './folder';
@@ -298,6 +299,14 @@ export class DocumentsManager {
 		return [options.format, options.fix].includes(true);
 	}
 
+	// Cancel all current and future document validations
+	async cancelAllDocumentValidations() {
+		this.queuedLints = [];
+		for (const currLinted of this.currentlyLinted) {
+			await this.cancelDocumentValidation(currLinted.uri);
+		}
+	}
+
 	// Cancels a document validation
 	async cancelDocumentValidation(textDocumentUri: string) {
 		// Remove duplicates in queue ( ref: https://stackoverflow.com/a/56757215/7113625 )
@@ -380,9 +389,10 @@ export class DocumentsManager {
 
 	// Split source string into array of lines
 	getTextDocumentLines(textDocument: TextDocument) {
-		return textDocument.getText()
-			.replace(/\r?\n/g, "\r\n")
-			.split("\r\n");
+		let normalizedString = textDocument.getText() + "";
+		normalizedString = normalizedString.replace(/\r/g, "");
+		normalizedString = normalizedString.replace(/\n/g, os.EOL);
+		return normalizedString.split(os.EOL);
 	}
 
 	// Update diagnostics on client and store them in docsDiagnostics field

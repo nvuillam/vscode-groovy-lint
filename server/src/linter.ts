@@ -155,6 +155,13 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		npmGroovyLintConfig.rulesetsoverridetype = "appendConfig";
 	}
 
+	// Java & options override
+	if (settings.java.executable) {
+		npmGroovyLintConfig.javaexecutable = settings.java.executable;
+	}
+	if (settings.java.options) {
+		npmGroovyLintConfig.javaoptions = settings.java.options;
+	}
 
 	// If source has not changed, do not lint again
 	if (isSimpleLintIdenticalSource === true) {

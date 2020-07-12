@@ -49,8 +49,10 @@ Formatting and Auto-fix are still in beta version, please post an [issue](https:
 | `groovyLint.fix.trigger`         | Run the fixer on save (onSave), or on user request                                              | user             |
 | `groovyLint.basic.loglevel`      | Linting error level (error, warning,info)                                                       | info             |
 | `groovyLint.basic.verbose`       | Turn on to have verbose logs                                                                    | false            |
-| `groovyLint.basic.config`        | [NPM groovy lint configuration file](https://github.com/nvuillam/npm-groovy-lint#configuration) | .groovylintrc.js |
+| `groovyLint.basic.config`        | [NPM groovy lint configuration file](https://github.com/nvuillam/npm-groovy-lint#configuration) | .groovylintrc.json |
 | `groovyLint.debug.enable`        | Display more logs in VsCode Output panel (select "GroovyLint") for issue investigation          | false            |
+| `groovyLint.java.executable`     | Override java executable to use <br/>Example: C:\\Program Files\\Java\\jdk1.8.0_144\\bin\\java.exe          | java            |
+| `groovyLint.java.options`        | Override java options to use                                                                    | "-Xms256m,-Xmx2048m"            |
 | `groovyLint.insight.enable`      | Allow to send anonymous usage statistics used only to improve the tool (we will of course never send your code)   | true            |
 
 ## Troubleshooting
@@ -77,7 +79,14 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
-## [0.17.1] 2020-07-05
+### [0.18.0] 2020-07-12
+
+- New settings **groovyLint.java.executable** and **groovyLint.java.options**
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.5.0
+  - Allow to override java executable and options [(#54)](https://github.com/nvuillam/vscode-groovy-lint/issues/54)
+  - Use os.EOL [(#65)](https://github.com/nvuillam/npm-groovy-lint/pull/65) solving  [(#63)](https://github.com/nvuillam/npm-groovy-lint/issues/63) --fix for indentation adds CRLF line-endings to all files it touches
+
+### [0.17.1] 2020-07-05
 
 Fixes:
 
