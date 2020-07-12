@@ -44,6 +44,7 @@ export interface VsCodeGroovyLintSettings {
 	fix?: any;
 	format?: any;
 	basic?: any;
+	java?: any
 	insight?: any;
 	tabSize?: number;
 }

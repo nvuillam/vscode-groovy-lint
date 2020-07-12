@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.0] 2020-07-12
+
+- New settings **groovyLint.java.executable** and **groovyLint.java.options**
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.5.0
+  - Allow to override java executable and options [(#54)](https://github.com/nvuillam/vscode-groovy-lint/issues/54)
+  - Use os.EOL [(#65)](https://github.com/nvuillam/npm-groovy-lint/pull/65) solving  [(#63)](https://github.com/nvuillam/npm-groovy-lint/issues/63) --fix for indentation adds CRLF line-endings to all files it touches
+  
 ## [0.17.1] 2020-07-05
 
 Fixes:

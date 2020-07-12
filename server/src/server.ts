@@ -75,7 +75,9 @@ connection.onExit(async () => {
 // Lint again all opened documents in configuration changed 
 // wait N seconds in case a new config change arrive, run just after the last one
 connection.onDidChangeConfiguration(async (change) => {
-    debug(`change configuration event received: lint again all open documents`);
+    debug(`change configuration event received: restart server and lint again all open documents`);
+    await new NpmGroovyLint({ killserver: true }, {}).run();
+    await docManager.cancelAllDocumentValidations();
     await docManager.lintAgainAllOpenDocuments();
 });
 
