@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.18.1] 2020-08-01
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.8.0
+  - Fix part of [(#66)](https://github.com/nvuillam/vscode-groovy-lint/issues/66) Problem using on VSCode on macOS
+
 ## [0.18.0] 2020-07-12
 
 - New settings **groovyLint.java.executable** and **groovyLint.java.options**
