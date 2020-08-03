@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.19.0] 2020-08-03
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v6.0.0
+  - Improved performances
+
 ## [0.18.1] 2020-08-01
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.8.0
