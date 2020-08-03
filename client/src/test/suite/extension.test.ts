@@ -36,10 +36,10 @@ const numberOfGroovyLintCommands = 9;
 //const numberOfDiagnosticsForBigGroovyLint = 4361;
 //const numberOfDiagnosticsForBigGroovyLintFix = 683;
 
-const numberOfDiagnosticsForTinyGroovyLint = 32;
-const numberOfDiagnosticsForTinyGroovyLintFix = 9;
+const numberOfDiagnosticsForTinyGroovyLint = 41;
+const numberOfDiagnosticsForTinyGroovyLintFix = 17;
 
-const numberOfDiagnosticsForJenkinsfileLint = 203;
+const numberOfDiagnosticsForJenkinsfileLint = 284;
 const numberOfDiagnosticsForJenkinsfileLintFix = 202;
 
 suite('VsCode GroovyLint Test Suite', async () => {
