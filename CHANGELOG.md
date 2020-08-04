@@ -1,9 +1,11 @@
 # Changelog
 
-## [0.19.0] 2020-08-03
+## [1.0.0] 2020-08-04
 
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v6.0.0
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v6.1.1
+  - Upgrade to CodeNarc 1.6.1
   - Improved performances
+  - Fix formatting
 
 ## [0.18.1] 2020-08-01
 
