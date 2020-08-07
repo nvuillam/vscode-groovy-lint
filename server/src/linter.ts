@@ -114,7 +114,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		sourcefilepath: URI.parse(textDocument.uri).fsPath,
 		parse: true, // Parse by default but not if format or fix mode
 		nolintafter: true,
-		loglevel: (format)?'info':settings.basic.loglevel,
+		loglevel: (format) ? 'info' : settings.basic.loglevel,
 		returnrules: docManager.getRuleDescriptions().size > 0 ? false : true,
 		insight: ((settings?.insight?.enable) ? true : false),
 		output: 'none',

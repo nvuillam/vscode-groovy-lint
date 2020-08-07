@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD033 -->
 # VsCode Groovy Lint, Format and Fix
 
 [![Version](https://vsmarketplacebadge.apphb.com/version/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
@@ -78,6 +79,14 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 - [yuvmel](https://github.com/yuvmel), for his great support on [#18](https://github.com/nvuillam/vscode-groovy-lint/issues/18) that allowed VsCode Groovy Lint to work much better on Mac, Linux, and with other diagnostic extensions
 
 ## Release Notes
+
+### [1.0.0] 2020-08-07
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.0.0
+  - Upgrade to CodeNarc 1.6.1
+  - Improved performances
+  - Fix formatting
+  - New default recommended rules
 
 ### [0.18.1] 2020-08-01
 

@@ -17,9 +17,11 @@
 		"lint": "eslint client/src --ext ts && eslint server/src --ext ts",
 		"lint:fix": "eslint client/src --ext ts --fix && eslint server/src --ext ts --fix",
 		"pretest": "npm run compile && npm run lint",
+		"pretest:verbose": "npm run compile && npm run lint",
 		"test": "node ./client/out/test/runTest.js",
 		"test:coverage": "env AUTO_ACCEPT_REPLACE_TABS=activated node ./client/out/test/runTest.js --codecoverage",
 		"test:debug": "env AUTO_ACCEPT_REPLACE_TABS=activated node --inspect-brk ./client/out/test/runTest.js",
+		"test:verbose": "env AUTO_ACCEPT_REPLACE_TABS=activated DEBUG=npm-groovy-lint node ./client/out/test/runTest.js",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
 		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile"
 	},
