@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.0] 2020-08-10
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.1.0
+  - Externalize JavaCaller class into a separate package [java-caller](https://www.npmjs.com/package/java-caller) and use it
+
 ## [1.0.0] 2020-08-07
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.0.0
