@@ -80,6 +80,11 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+### [1.1.1] 2020-08-11
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.2.0
+  - Upgrade[java-caller](https://www.npmjs.com/package/java-caller) to v2.0.0 : better performances
+
 ### [1.1.0] 2020-08-10
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.1.0
