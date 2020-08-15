@@ -80,6 +80,11 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+### [1.2.0] 2020-08-15
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.3.0
+  - Allow to link to [CodeNarc RuleSet files](https://codenarc.github.io/CodeNarc/codenarc-creating-ruleset.html) from `.groovylintrc.json`, using property `"codenarcRulesets"`. Warning: doing so means that all other properties of config file will be ignored.
+
 ### [1.1.1] 2020-08-11
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.2.0
