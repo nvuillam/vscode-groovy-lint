@@ -80,9 +80,10 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
-## [1.2.2] 2020-08-21
+### [1.2.2] 2020-08-21
 
 - Allow user to hide future npm-groovy-lint error messages
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.4.0
 
 ### [1.2.0] 2020-08-15
 
