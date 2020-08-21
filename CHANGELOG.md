@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.2] 2020-08-21
+
+- Allow user to hide future npm-groovy-lint error messages
+- Manage correctly user choice `Never` for tabs auto-replacement by spaces
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.4.0
+
 ## [1.2.1] 2020-08-16
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.3.1
