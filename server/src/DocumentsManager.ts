@@ -30,6 +30,8 @@ export class DocumentsManager {
 	connection: any;
 
 	autoFixTabs = false;
+	ignoreNotifyCrashes = false;
+	ignoreNotifyFixError = false;
 
 	// Counter for job id
 	private currentTaskId: number = 0;

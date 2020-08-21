@@ -202,7 +202,12 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 					documents: [{ documentUri: textDocument.uri }],
 					lastFileName: fileNm
 				});
+				// If user decided so, do not display future crashes
+				if (docManager.ignoreNotifyCrashes === true) {
+					return Promise.resolve([]);
+				}
 				// Display message to user 
+				const doNotDisplayAgain = 'Do not display again';
 				const reportErrorLabel = 'Report error';
 				let errorMessageForUser = `There has been an unexpected error while calling npm-groovy-lint. Please join the end of the logs in Output/GroovyLint if you report the issue`;
 				await new Promise(resolve => {
@@ -217,13 +222,17 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 					type: MessageType.Error,
 					message: errorMessageForUser,
 					actions: [
-						{ title: reportErrorLabel }
+						{ title: reportErrorLabel },
+						{ title: doNotDisplayAgain }
 					]
 				};
 				const res = await docManager.connection.sendRequest(ShowMessageRequest.type, msg);
 				// Open repo issues page if use clicks on Report
 				if (res.title === reportErrorLabel) {
 					docManager.connection.sendNotification(OpenNotification.type, { url: issuesUrl });
+				}
+				else if (res.title === doNotDisplayAgain) {
+					docManager.ignoreNotifyCrashes = true;
 				}
 				return Promise.resolve([]);
 			}
