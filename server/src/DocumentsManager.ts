@@ -30,6 +30,7 @@ export class DocumentsManager {
 	connection: any;
 
 	autoFixTabs = false;
+	neverFixTabs = false;
 	ignoreNotifyCrashes = false;
 	ignoreNotifyFixError = false;
 

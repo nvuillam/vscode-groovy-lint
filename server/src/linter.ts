@@ -337,7 +337,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 
 // If necessary, fix source before sending it to CodeNarc
 async function manageFixSourceBeforeCallingLinter(source: string, textDocument: TextDocument, docManager: DocumentsManager): Promise<string> {
-	if (source.includes("\t")) {
+	if (source.includes("\t") && docManager.neverFixTabs === false) {
 		let fixTabs = false;
 		if (docManager.autoFixTabs === false) {
 			const msg: ShowMessageRequestParams = {
@@ -370,6 +370,8 @@ async function manageFixSourceBeforeCallingLinter(source: string, textDocument: 
 				docManager.autoFixTabs = true;
 			} else if (req.title === "Yes") {
 				fixTabs = true;
+			} else if (req.title === "Never") {
+				docManager.neverFixTabs = true;
 			}
 		}
 		// Get indent length from config file then apply it on file instead of tabs
