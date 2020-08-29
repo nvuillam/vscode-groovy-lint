@@ -80,6 +80,10 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+### [1.2.3] 2020-08-29
+
+- Fix bug on Windows when username contains space(s)
+
 ### [1.2.2] 2020-08-21
 
 - Allow user to hide future npm-groovy-lint error messages
