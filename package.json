@@ -107,6 +107,8 @@
 	"activationEvents": [
 		"onLanguage:groovy",
 		"workspaceContains:**/Jenkins*",
+		"workspaceContains:**/*.nf",
+		"workspaceContains:**/*.gradle",
 		"onCommand:groovyLint.lint"
 	],
 	"main": "./client/out/extension",

@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.4] 2020-08-29
+
+- Add .nf and .gradle extensions
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.5.0
+
 ## [1.2.3] 2020-08-29
 
 - Fix bug on Windows when username contains space(s)
