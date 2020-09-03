@@ -80,6 +80,12 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+### [1.2.5] 2020-08-29
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.5.2
+- Fix crash when empty groovy file
+- Fix crash when non-sense groovy file
+
 ### [1.2.3] 2020-08-29
 
 - Fix bug on Windows when username contains space(s)
