@@ -51,6 +51,11 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		debug(`User did not answer to the question: leave`);
 		return Promise.resolve([]);
 	}
+	// If file is empty, do not lint
+	else if (source === '') {
+		debug(`Empty file: no sources to lint`);
+		return Promise.resolve([]);
+	}
 
 	// Check if there is an existing NpmGroovyLint instance with same source (except if format, fix or force)
 	let isSimpleLintIdenticalSource = false;
@@ -228,10 +233,10 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 				};
 				const res = await docManager.connection.sendRequest(ShowMessageRequest.type, msg);
 				// Open repo issues page if use clicks on Report
-				if (res.title === reportErrorLabel) {
+				if (res?.title === reportErrorLabel) {
 					docManager.connection.sendNotification(OpenNotification.type, { url: issuesUrl });
 				}
-				else if (res.title === doNotDisplayAgain) {
+				else if (res?.title === doNotDisplayAgain) {
 					docManager.ignoreNotifyCrashes = true;
 				}
 				return Promise.resolve([]);
@@ -278,7 +283,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		};
 		docManager.connection.sendRequest('window/showMessageRequest', msg).then(async (rqstResp: any) => {
 			// If user clicked Process Again, run again the related command
-			if (rqstResp && rqstResp.title === processAgainTitle) {
+			if (rqstResp?.title === processAgainTitle) {
 				const commandAgain = (format) ? 'vscode.executeFormatDocumentProvider' : (fix) ? COMMAND_LINT_FIX.command : '';
 				debug(`Process again command ${commandAgain} after user clicked on message`);
 				await docManager.connection.client.executeCommand(commandAgain, [textDocument.uri], {});
@@ -366,11 +371,11 @@ async function manageFixSourceBeforeCallingLinter(source: string, textDocument: 
 			}
 			if (req == null) {
 				return 'cancel';
-			} else if (req.title === "Always (recommended)") {
+			} else if (req?.title === "Always (recommended)") {
 				docManager.autoFixTabs = true;
-			} else if (req.title === "Yes") {
+			} else if (req?.title === "Yes") {
 				fixTabs = true;
-			} else if (req.title === "Never") {
+			} else if (req?.title === "Never") {
 				docManager.neverFixTabs = true;
 			}
 		}
