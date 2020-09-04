@@ -1,6 +1,10 @@
 # Changelog
 
-## [1.2.6] 2020-08-29
+## [1.2.7] 2020-09-04
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.5.4
+
+## [1.2.6] 2020-09-02
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.5.2
 - Fix crash when empty groovy file
