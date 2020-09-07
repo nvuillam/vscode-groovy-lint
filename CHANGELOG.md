@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.2.8] 2020-09-04
+
+- Upgrade [mocha](https://mochajs.org/) version ([#82](https://github.com/nvuillam/vscode-groovy-lint/pull/82), by [Brian Thompson](https://github.com/proxxz))
+
 ## [1.2.7] 2020-09-04
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.5.4
