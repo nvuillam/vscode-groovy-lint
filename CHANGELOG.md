@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.0] 2020-11-08
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v8.0.0
+  - Upgrade to CodeNarc 2.0.0
+  - Improve performances
+
 ## [1.2.8] 2020-09-04
 
 - Upgrade [mocha](https://mochajs.org/) version ([#82](https://github.com/nvuillam/vscode-groovy-lint/pull/82), by [Brian Thompson](https://github.com/proxxz))
