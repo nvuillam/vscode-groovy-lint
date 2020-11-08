@@ -4,7 +4,6 @@ import {
 	CodeActionParams,
 	DiagnosticSeverity,
 	CodeActionKind,
-	TextDocument,
 	Diagnostic,
 	MessageType,
 	ShowMessageRequestParams
@@ -26,6 +25,7 @@ import {
 	COMMAND_SHOW_RULE_DOCUMENTATION
 } from './commands';
 import path = require('path');
+import { TextDocument } from 'vscode-languageserver-textdocument';
 const debug = require("debug")("vscode-groovy-lint");
 
 /**

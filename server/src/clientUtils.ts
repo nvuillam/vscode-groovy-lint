@@ -119,7 +119,7 @@ export async function notifyFixFailures(fixFailures: any[], docManager: Document
 		]
 	};
 	docManager.connection.sendRequest(ShowMessageRequest.type, msg).then((res: any) => {
-		if (res.title === doNotDisplayAgain) {
+		if (res && res.title === doNotDisplayAgain) {
 			docManager.ignoreNotifyFixError = true;
 		}
 	});
