@@ -80,11 +80,12 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
-### [1.3.0] 2020-11-08
+### [1.3.0] 2020-11-15
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v8.0.0
   - Upgrade to CodeNarc 2.0.0
   - Improve performances
+  - Fix bugs
 
 ### [1.2.7] 2020-09-04
 
@@ -120,85 +121,6 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.1.0
   - Externalize JavaCaller class into a separate package [java-caller](https://www.npmjs.com/package/java-caller) and use it
-
-### [1.0.0] 2020-08-07
-
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v7.0.0
-  - Upgrade to CodeNarc 1.6.1
-  - Improved performances
-  - Fix formatting
-  - New default recommended rules
-
-### [0.18.1] 2020-08-01
-
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.8.0
-  - Fix part of [(#66)](https://github.com/nvuillam/vscode-groovy-lint/issues/66) Problem using on VSCode on macOS
-
-### [0.18.0] 2020-07-12
-
-- New settings **groovyLint.java.executable** and **groovyLint.java.options**
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.5.0
-  - Allow to override java executable and options [(#54)](https://github.com/nvuillam/vscode-groovy-lint/issues/54)
-  - Use os.EOL [(#65)](https://github.com/nvuillam/npm-groovy-lint/pull/65) solving  [(#63)](https://github.com/nvuillam/npm-groovy-lint/issues/63) --fix for indentation adds CRLF line-endings to all files it touches
-
-### [0.17.1] 2020-07-05
-
-Fixes:
-
-- Fix npm-groovy-lint formatting arguments when loglevel is not **info**
-
-### [0.17.0] 2020-07-01
-
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.4.1
-  - CodeNarcServer listens to localhost only [(#59)](https://github.com/nvuillam/npm-groovy-lint/pull/59) solving [(#56)](https://github.com/nvuillam/npm-groovy-lint/issues/56)
-
-### [0.16.4] 2020-06-04
-
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.1.0
-  - Install Java 8 using node-jre in case java version found is higher than Java 11 (CodeNarc compatibility is Java 8 to 11)
-
-### [0.16.3] 2020-05-30
-
-- Fixes
-  - Issue when requesting lints too quickly just after the extension is launched [(#51)](https://github.com/nvuillam/vscode-groovy-lint/issues/51)
-
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.0.3
-  - Updated fix rules
-    - Indentation
-    - IndentationClosingBrace
-
-### [0.16.2] 2020-05-27
-
-- Fixes
-  - When a rule is ignored for all project (updating .groovylintrc.json), lint again all open documents [(#46)](https://github.com/nvuillam/vscode-groovy-lint/issues/47)
-  - Setting `groovyLint.fix.trigger` was not updateable [(#47)](https://github.com/nvuillam/vscode-groovy-lint/issues/47)
-  - After applying a QuickFix, wait for the text to be updated to trigger a new code analysis
-  - Better catch and display of fatal errors
-
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.0.2
-  - Avoid to apply wrong fix in case of CodeNarc false positive
-  - New fix rules
-    - BlankLineBeforePackage
-  - Updated fix rules
-    - BracesForIfElse
-    - BracesForMethod
-    - BracesForTryCatchFinally
-    - ClassEndsWithBlankLine
-    - ClassStartsWithBlankLine
-    - MissingBlankLineAfterImports
-    - MissingBlankLineAfterPackage
-    - UnnecessaryGroovyImport
-    - UnusedImport
-
-### [0.16.0] 2020-05-25
-
-- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.0.0
-  - **BIG BANG**: Improve performances, compatibility, architecture and delivery
-    - Get rid of [jDeploy](https://github.com/shannah/jdeploy) dependency
-      - Use own java-caller.js for java commands
-      - Update CircleCI config to use `npm link`instead of `jdeploy install`
-    - Get rid of [request](https://github.com/request/request) dependency
-      - Use [axios](https://github.com/axios/axios) for promisified http calls
 
 ### PREVIOUS VERSIONS
 
