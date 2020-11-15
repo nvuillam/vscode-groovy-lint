@@ -110,3 +110,5 @@ client/out/
 *.vsix
 
 .vscode-test/
+
+site/
