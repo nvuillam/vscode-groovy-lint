@@ -16,5 +16,23 @@ jobs:
         with:
           node-version: 12
       - run: pip install mkdocs-material mdx_truly_sane_lists
+      - run: npm ci
       - run: npm run compile
       - run: mkdocs gh-deploy --force
+
+      # This step will evaluate the repo status and report the change
+      - name: Check if there are changes
+        id: changes
+        if: ${{ success() }} || ${{ failure() }}
+        uses: UnicornGlobal/has-changes-action@v1.0.11
+
+      # Push new commit if applicable
+      - name: Prepare commit
+        if: steps.changes.outputs.changed == 1
+        run: sudo chown -Rc $UID .git/
+      - name: Commit and push applied linter fixes
+        if: steps.changes.outputs.changed == 1
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          commit_message: "[automation] Update documentation"

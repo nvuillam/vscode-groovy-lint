@@ -95,6 +95,7 @@
 		"jsesc",
 		"jsonify",
 		"picomatch",
+		"postcompile",
 		"preload",
 		"processinfo",
 		"readdirp",
