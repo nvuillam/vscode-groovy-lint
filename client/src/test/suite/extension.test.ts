@@ -37,7 +37,7 @@ const numberOfGroovyLintCommands = 9;
 //const numberOfDiagnosticsForBigGroovyLintFix = 683;
 
 const numberOfDiagnosticsForTinyGroovyLint = 33;
-const numberOfDiagnosticsForTinyGroovyLintFix = 10;
+const numberOfDiagnosticsForTinyGroovyLintFix = 11;
 
 const numberOfDiagnosticsForJenkinsfileLint = 369;
 const numberOfDiagnosticsForJenkinsfileLintFix = 283;
