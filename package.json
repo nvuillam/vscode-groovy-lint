@@ -13,6 +13,7 @@
 	"scripts": {
 		"precompile": "rimraf ./client/out/* && rimraf ./client/coverage/* && rimraf ./client/.nyc_output/* && rimraf ./server/out/* && rimraf ./server/coverage/* && rimraf ./server/.nyc_output/*",
 		"compile": "tsc -b",
+		"postcompile": "cp -f README.md docs/index.md",
 		"watch": "tsc -b -w",
 		"lint": "eslint client/src --ext ts && eslint server/src --ext ts",
 		"lint:fix": "eslint client/src --ext ts --fix && eslint server/src --ext ts --fix",
