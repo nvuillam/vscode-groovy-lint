@@ -195,7 +195,7 @@ Fixes:
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.0.0
   - **BIG BANG**: Improve performances, compatibility, architecture and delivery
     - Get rid of [jDeploy](https://github.com/shannah/jdeploy) dependency
-      - Use own [java-caller.js](https://github.com/nvuillam/npm-groovy-lint/blob/master/lib/java-caller.js) for java commands
+      - Use own java-caller.js for java commands
       - Update CircleCI config to use `npm link`instead of `jdeploy install`
     - Get rid of [request](https://github.com/request/request) dependency
       - Use [axios](https://github.com/axios/axios) for promisified http calls
