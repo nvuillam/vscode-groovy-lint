@@ -1,0 +1,44 @@
+site_name: VS Code Groovy Lint
+site_url: https://nvuillam.github.io/vscode-groovy-lint
+repo_url: https://github.com/nvuillam/vscode-groovy-lint
+edit_uri: tree/master/docs
+site_author: Nicolas Vuillamy
+# site_description-start
+site_description: Visual Studio Code extension to format and auto-fix Groovy, Jenkinsfile and Gradle files
+# site_description-end
+copyright: Copyright &copy; 2020 <a href="https://github.com/nvuillam">Nicolas Vuillamy</a>
+# google_analytics: ["G-3DM50255LC", "nvuillam.github.io/nvuillam"]
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.expand
+#    logo: assets/images/vscode-groovy-lint-square.png
+#    favicon: assets/images/vscode-groovy-lint-square.png
+markdown_extensions:
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - mdx_truly_sane_lists
+extra_javascript:
+  - https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js
+  - javascripts/tables.js
+extra_css:
+  - stylesheets/extra.css
+extra:
+  social:
+    - icon: fontawesome/regular/question-circle
+      link: https://github.com/nvuillam/vscode-groovy-lint/issues
+      title: Need help ? Post an issue :)
+    - icon: fontawesome/brands/github
+      link: https://github.com/nvuillam/vscode-groovy-lint
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/nvuillam
+  generator: false
+nav:
+  - "Home": "index.md"
+  - "Features": "./#features"
+  - "Extension settings": "./#extension-settings"
+  - "Contribute": "./#contribute"
+  - "Special thanks": "./#special-thanks"
+  - "Release notes": "./#release-notes"

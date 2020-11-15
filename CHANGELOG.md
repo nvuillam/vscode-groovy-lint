@@ -1,8 +1,14 @@
 # Changelog
 
+## [1.3.0] 2020-11-08
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v8.0.0
+  - Upgrade to CodeNarc 2.0.0
+  - Improve performances
+
 ## [1.2.8] 2020-09-04
 
-- Upgrade [mocha](https://mochajs.org/) version ([#82](https://github.com/nvuillam/vscode-groovy-lint/pull/82), by [Brian Thompson](https://github.com/proxxz))
+- Upgrade [mocha](https://mochajs.org/) version ([#82](https://github.com/nvuillam/vscode-groovy-lint/pull/82))
 
 ## [1.2.7] 2020-09-04
 
@@ -122,7 +128,7 @@ Fixes:
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.0.0
   - **BIG BANG**: Improve performances, compatibility, architecture and delivery
     - Get rid of [jDeploy](https://github.com/shannah/jdeploy) dependency
-      - Use own [java-caller.js](https://github.com/nvuillam/npm-groovy-lint/blob/master/lib/java-caller.js) for java commands
+      - Use own java-caller.js for java commands
       - Update CircleCI config to use `npm link`instead of `jdeploy install`
     - Get rid of [request](https://github.com/request/request) dependency
       - Use [axios](https://github.com/axios/axios) for promisified http calls
@@ -159,7 +165,7 @@ Fixes:
 - New setting `groovyLint.insight.enable`: Allow to send anonymous usage statistics used only to improve the tool (we will of course never send your code or sensitive information)
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.10.2
-  - Collect anonymous usage statistics using [analytics](https://www.npmjs.com/package/analytics) & [@analytics-segment](https://github.com/DavidWells/analytics/tree/master/packages/analytics-plugin-segment), in order to make new improvements based on how users use this package. Analytics obviously does not receive sensitive information like your code, as you can see in [analytics.js](https://github.com/nvuillam/npm-groovy-lint/blob/master/src/analytics.js).
+  - Collect anonymous usage statistics using [analytics](https://www.npmjs.com/package/analytics) & [@analytics-segment](https://github.com/DavidWells/analytics/tree/master/packages/analytics-plugin-segment), in order to make new improvements based on how users use this package. Analytics obviously does not receive sensitive information like your code, as you can see in [analytics.js](https://github.com/nvuillam/npm-groovy-lint/blob/master/lib/analytics.js).
 
 ## [0.12.0] 2020-05-08
 
