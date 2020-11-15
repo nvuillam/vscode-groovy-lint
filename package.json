@@ -22,7 +22,7 @@
 		"test:coverage": "env AUTO_ACCEPT_REPLACE_TABS=activated node ./client/out/test/runTest.js --codecoverage",
 		"test:debug": "env AUTO_ACCEPT_REPLACE_TABS=activated node --inspect-brk ./client/out/test/runTest.js",
 		"test:verbose": "env AUTO_ACCEPT_REPLACE_TABS=activated DEBUG=npm-groovy-lint node ./client/out/test/runTest.js",
-		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+		"postinstall": "cd client && npm install --unsafe-perm && cd ../server && npm install --unsafe-perm && cd ..",
 		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile"
 	},
 	"categories": [
