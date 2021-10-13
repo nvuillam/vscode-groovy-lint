@@ -37,7 +37,7 @@ const numberOfGroovyLintCommands = 9;
 //const numberOfDiagnosticsForBigGroovyLintFix = 683;
 
 const numberOfDiagnosticsForTinyGroovyLint = 33;
-const numberOfDiagnosticsForTinyGroovyLintFix = 11;
+const numberOfDiagnosticsForTinyGroovyLintFix = 19;
 
 const numberOfDiagnosticsForJenkinsfileLint = 369;
 const numberOfDiagnosticsForJenkinsfileLintFix = 283;
@@ -72,10 +72,10 @@ suite('VsCode GroovyLint Test Suite', async () => {
 			console.log("Start 2.0.0 Lint big document");
 			await waitUntil(() => diagnosticsChanged(testDocs['bigGroovy'].doc.uri, []), 240000);
 			const docDiagnostics = vscode.languages.getDiagnostics(testDocs['bigGroovy'].doc.uri);
-	
+
 			assert(docDiagnostics.length === numberOfDiagnosticsForBigGroovyLint, `${numberOfDiagnosticsForBigGroovyLint} GroovyLint diagnostics found after lint (${docDiagnostics.length} returned)`);
 		}).timeout(240000);
-	
+
 		// Format document without updating diagnostics
 		test("2.1.0 Format big document", async () => {
 			console.log("Start 2.1.0 Format big document");
@@ -85,10 +85,10 @@ suite('VsCode GroovyLint Test Suite', async () => {
 			await applyTextEditsOnDoc(testDocs['bigGroovy'].doc.uri, textEdits as vscode.TextEdit[]);
 			await waitUntil(() => diagnosticsChanged(testDocs['bigGroovy'].doc.uri, prevDiags), 100000); // Wait for linter to lint again after fix
 			const textAfter = getActiveEditorText();
-	
+
 			assert(textBefore !== textAfter, 'TextDocument text must be updated after format');
 		}).timeout(120000);
-	
+
 		// Fix document
 		test("2.2.0 Fix big document", async () => {
 			console.log("Start 2.2.0 Fix big document");
@@ -98,7 +98,7 @@ suite('VsCode GroovyLint Test Suite', async () => {
 			await waitUntil(() => diagnosticsChanged(testDocs['bigGroovy'].doc.uri, []), 100000);
 			const docDiagnostics = vscode.languages.getDiagnostics(testDocs['bigGroovy'].doc.uri);
 			const textAfter = getActiveEditorText();
-	
+
 			assert(textBefore !== textAfter, 'TextDocument text must be updated after fix');
 			assert(docDiagnostics.length === numberOfDiagnosticsForBigGroovyLintFix, `${numberOfDiagnosticsForBigGroovyLintFix} GroovyLint diagnostics found after lint (${docDiagnostics.length} returned)`);
 		}).timeout(200000);
