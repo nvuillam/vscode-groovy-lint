@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.5.0] 2021-10-20
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.0.0
+  - Upgrade to [CodeNarc 2.2](https://github.com/CodeNarc/CodeNarc/blob/master/CHANGELOG.md)
+  - Adds [Groovy 3.0.9](http://groovy-lang.org/changelogs/changelog-3.0.9.html) support.
+
 ## [1.4.0] 2020-12-15
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v8.1.0
@@ -290,7 +295,7 @@ Fixes:
 - Display a waiting info message when a Lint Folder request takes more than 5 seconds + allow to cancel the current operation
 - Fix perf issue when closing all visible text editors
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v4.1.0
-  - Upgrade to [Groovy 3.0.3](https://dl.bintray.com/groovy/maven/apache-groovy-binary-3.0.3.zip)
+  - Upgrade to [Groovy 3.0.3](http://groovy-lang.org/changelogs/changelog-3.0.3.html)
 
 ## [0.7.1] 2020-04-09
 
