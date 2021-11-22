@@ -1,6 +1,6 @@
 ---
 # Mega-Linter GitHub Action configuration file
-# More info at https://github.com/nvuillam/mega-linter#readme
+# More info at https://github.com/megalinter/megalinter#readme
 name: Mega-Linter
 
 on:
@@ -29,10 +29,10 @@ jobs:
 
       # Mega-Linter
       - name: Mega-Linter
-        uses: nvuillam/mega-linter@v4
+        uses: megalinter/megalinter@v5
         env:
           # All available variables are described in documentation
-          # https://github.com/nvuillam/mega-linter#configuration
+          # https://github.com/megalinter/megalinter#configuration
           VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }} # Validates all source when push on master, else just the git diff with master. Override with true if you always want to lint all sources
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FILTER_REGEX_EXCLUDE: (/examples/|docs/javascripts)
