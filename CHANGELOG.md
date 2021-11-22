@@ -5,6 +5,7 @@
   - Upgrade to [CodeNarc 2.2](https://github.com/CodeNarc/CodeNarc/blob/master/CHANGELOG.md)
   - Adds [Groovy 3.0.9](http://groovy-lang.org/changelogs/changelog-3.0.9.html) support.
 - Fix use of VsCode setting groovyLint.basic.config to use a generic npm-groovy-lint configuration file
+- Upgrade to MegaLinter v5 and move config in .mega-linter.yml file
 
 ## [1.4.0] 2020-12-15
 
