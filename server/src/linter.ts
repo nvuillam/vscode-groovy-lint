@@ -246,7 +246,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 				}
 				return Promise.resolve([]);
 			}
-		} catch (e: any) {
+		} catch (e) {
 			// If error, send notification to client
 			console.error('VsCode Groovy Lint error: ' + e.message + '\n' + e.stack);
 			debug(`Error processing ${textDocument.uri}` + e.message + '\n' + e.stack);
@@ -370,7 +370,7 @@ async function manageFixSourceBeforeCallingLinter(source: string, textDocument: 
 			try {
 				req = await docManager.connection.sendRequest('window/showMessageRequest', msg);
 				msgResponseReceived = true;
-			} catch (e: any) {
+			} catch (e) {
 				debug('No response from showMessageRequest: ' + e.message);
 				req = null;
 			}
