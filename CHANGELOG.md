@@ -4,7 +4,7 @@
 
 - Write your updates here !
 
-## [1.5.0] 2021-11-23
+## [1.5.1] 2021-11-23
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.0.0
   - Upgrade to [CodeNarc 2.2](https://github.com/CodeNarc/CodeNarc/blob/master/CHANGELOG.md)
