@@ -6,7 +6,7 @@
         ".vscode"
     ],
     "language": "en",
-    "version": 0.2,
+    "version": "0.2",
     "words": [
         "Affero",
         "Bizzarri",
@@ -87,6 +87,7 @@
         "jsonify",
         "jspm",
         "jsprim",
+        "lannonbr",
         "lcov",
         "lerna",
         "levn",
