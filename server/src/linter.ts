@@ -92,14 +92,14 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 			const waitSrvInterval = setInterval(() => {
 				if (docManager.getRuleDescriptions().size > 0) {
 					clearInterval(waitSrvInterval);
-					resolve();
+					resolve(true);
 				}
 			}, 300);
 			// FailSafe just in case... but we shouldn't get there
 			setTimeout(() => {
 				if (docManager.getRuleDescriptions().size === 0) {
 					clearInterval(waitSrvInterval);
-					resolve();
+					resolve(true);
 				}
 			}, 120000);
 		});
@@ -148,6 +148,11 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		npmGroovyLintExecParam.requestKey = requestKey;
 	}
 	let linter;
+
+	// Use generic config file if defined in VsCode
+	if (settings.basic.config) {
+		npmGroovyLintConfig.config = settings.basic.config ;
+	}
 
 	// Add Indent size provided by VsCode API
 	if (settings.tabSize && settings.format.useDocumentIndentSize === true) {
@@ -220,7 +225,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 						if (err) {
 							errorMessageForUser = "Java is required to use VsCode Groovy Lint, as CodeNarc is written in Java/Groovy. Please install Java (version 8 minimum) https://www.java.com/download ,then type \"java -version\" in command line to verify that the installation is correct";
 						}
-						resolve();
+						resolve(true);
 					});
 				});
 				const msg: ShowMessageRequestParams = {
@@ -241,7 +246,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 				}
 				return Promise.resolve([]);
 			}
-		} catch (e) {
+		} catch (e: any) {
 			// If error, send notification to client
 			console.error('VsCode Groovy Lint error: ' + e.message + '\n' + e.stack);
 			debug(`Error processing ${textDocument.uri}` + e.message + '\n' + e.stack);
@@ -365,7 +370,7 @@ async function manageFixSourceBeforeCallingLinter(source: string, textDocument: 
 			try {
 				req = await docManager.connection.sendRequest('window/showMessageRequest', msg);
 				msgResponseReceived = true;
-			} catch (e) {
+			} catch (e: any) {
 				debug('No response from showMessageRequest: ' + e.message);
 				req = null;
 			}

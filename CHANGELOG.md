@@ -1,9 +1,10 @@
 # Changelog
 
-## [1.5.0] 2021-10-20
+## [Unreleased] 2021-11-22
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.0.0
   - Upgrade to [CodeNarc 2.2](https://github.com/CodeNarc/CodeNarc/blob/master/CHANGELOG.md)
   - Adds [Groovy 3.0.9](http://groovy-lang.org/changelogs/changelog-3.0.9.html) support.
+- Fix use of VsCode setting groovyLint.basic.config to use a generic npm-groovy-lint configuration file
 
 ## [1.4.0] 2020-12-15
 
