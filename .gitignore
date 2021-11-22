@@ -112,3 +112,5 @@ client/out/
 .vscode-test/
 
 site/
+
+report/
