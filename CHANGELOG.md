@@ -4,6 +4,10 @@
 
 - Write your updates here !
 
+## [1.5.2] 2021-11-24
+
+- Fix TS error & package-lock.json version
+
 ## [1.5.1] 2021-11-23
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.0.0
