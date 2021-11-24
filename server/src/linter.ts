@@ -248,8 +248,9 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 			}
 		} catch (e) {
 			// If error, send notification to client
-			console.error('VsCode Groovy Lint error: ' + e.message + '\n' + e.stack);
-			debug(`Error processing ${textDocument.uri}` + e.message + '\n' + e.stack);
+			const ex = e as any ;
+			console.error('VsCode Groovy Lint error: ' + ex.message + '\n' + ex.stack);
+			debug(`Error processing ${textDocument.uri}` + ex.message + '\n' + ex.stack);
 			docManager.connection.sendNotification(StatusNotification.type, {
 				id: linterTaskId,
 				state: 'lint.error',
@@ -371,7 +372,8 @@ async function manageFixSourceBeforeCallingLinter(source: string, textDocument: 
 				req = await docManager.connection.sendRequest('window/showMessageRequest', msg);
 				msgResponseReceived = true;
 			} catch (e) {
-				debug('No response from showMessageRequest: ' + e.message);
+				const ex = e as any ;
+				debug('No response from showMessageRequest: ' + ex.message);
 				req = null;
 			}
 			if (req == null) {

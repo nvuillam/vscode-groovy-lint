@@ -8,7 +8,7 @@
   "icon": "icon.png",
   "engines": {
     "vscode": "^1.62.0",
-    "node": ">=12.0.0"
+    "node": ">=14.0.0"
   },
   "scripts": {
     "precompile": "rimraf ./client/out/* && rimraf ./client/coverage/* && rimraf ./client/.nyc_output/* && rimraf ./server/out/* && rimraf ./server/coverage/* && rimraf ./server/.nyc_output/*",
