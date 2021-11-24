@@ -12,9 +12,9 @@ jobs:
         with:
           python-version: 3.x
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: 12
+          node-version: 14
       - run: pip install mkdocs-material mdx_truly_sane_lists
       - run: npm ci
       - run: npm run compile
