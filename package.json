@@ -107,6 +107,7 @@
   "dependencies": {},
   "activationEvents": [
     "onLanguage:groovy",
+    "onLanguage:jenkinsfile",
     "workspaceContains:**/Jenkins*",
     "workspaceContains:**/*.nf",
     "workspaceContains:**/*.gradle",
@@ -131,22 +132,22 @@
     "menus": {
       "commandPalette": [
         {
-          "when": "resourceLangId == groovy",
+          "when": "resourceLangId == groovy || resourceLangId == jenkinsfile",
           "command": "groovyLint.lint"
         },
         {
-          "when": "resourceLangId == groovy",
+          "when": "resourceLangId == groovy || resourceLangId == jenkinsfile",
           "command": "groovyLint.lintFix"
         }
       ],
       "editor/context": [
         {
-          "when": "resourceLangId == groovy",
+          "when": "resourceLangId == groovy || resourceLangId == jenkinsfile",
           "command": "groovyLint.lint",
           "group": "navigation"
         },
         {
-          "when": "resourceLangId == groovy",
+          "when": "resourceLangId == groovy || resourceLangId == jenkinsfile",
           "command": "groovyLint.lintFix",
           "group": "navigation"
         }
@@ -163,13 +164,13 @@
         "command": "groovyLint.lint",
         "key": "ctrl+shift+F9",
         "mac": "cmd+shift+F9",
-        "when": "editorFocus && resourceLangId == groovy"
+        "when": "editorFocus && (resourceLangId == groovy || resourceLangId == jenkinsfile)"
       },
       {
         "command": "groovyLint.lintFix",
         "key": "ctrl+shift+F10",
         "mac": "cmd+shift+F10",
-        "when": "editorFocus && resourceLangId == groovy"
+        "when": "editorFocus && (resourceLangId == groovy || resourceLangId == jenkinsfile)"
       },
       {
         "command": "groovyLint.lintFolder",

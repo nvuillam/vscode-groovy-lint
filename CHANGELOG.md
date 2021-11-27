@@ -4,6 +4,10 @@
 
 - Write your updates here !
 
+## [1.6.0] 2021-11-27
+
+- Detect Jenkinsfile
+
 ## [1.5.2] 2021-11-24
 
 - Fix TS error & package-lock.json version
