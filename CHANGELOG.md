@@ -4,6 +4,11 @@
 
 - Write your updates here !
 
+## [1.7.0] 2021-12-14
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.1.0
+  - Upgrade log4j to avoid security flaw
+
 ## [1.6.0] 2021-11-27
 
 - Detect Jenkinsfile
