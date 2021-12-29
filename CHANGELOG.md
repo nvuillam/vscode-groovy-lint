@@ -4,6 +4,11 @@
 
 - Write your updates here !
 
+## [1.7.2] 2021-12-29
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.3.0
+  - Upgrade again log4j to avoid security flaw
+
 ## [1.7.1] 2021-12-24
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.2.0
