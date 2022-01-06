@@ -4,6 +4,11 @@
 
 - Write your updates here !
 
+## [1.7.3] 2022-01-06
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.3.1
+  - Fix issue when used as module and with file containing spaces ([#137](https://github.com/nvuillam/vscode-groovy-lint/issues/137))
+
 ## [1.7.2] 2021-12-29
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.3.0

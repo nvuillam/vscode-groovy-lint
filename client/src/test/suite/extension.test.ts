@@ -27,6 +27,10 @@ const testDocs: any = {
 	'parseErrorGroovy': {
 		path: 'parseErrorGroovy.groovy',
 		doc: null
+	},
+	'fileWithSpaces': {
+		path: 'file with spaces.groovy',
+		doc: null
 	}
 };
 
@@ -36,7 +40,7 @@ const numberOfGroovyLintCommands = 9;
 //const numberOfDiagnosticsForBigGroovyLint = 4361;
 //const numberOfDiagnosticsForBigGroovyLintFix = 683;
 
-const numberOfDiagnosticsForTinyGroovyLint = 33;
+const numberOfDiagnosticsForTinyGroovyLint = 31;
 const numberOfDiagnosticsForTinyGroovyLintFix = 19;
 
 const numberOfDiagnosticsForJenkinsfileLint = 369;
@@ -52,7 +56,6 @@ suite('VsCode GroovyLint Test Suite', () => {
 		console.log(JSON.stringify(testDocs, null, 2));
 		const availableExtensions = vscode.extensions.all.map(ext => ext.id);
 		debug('Available extensions: ' + JSON.stringify(availableExtensions));
-
 		assert(availableExtensions.includes(extensionId), "GroovyLint extension found");
 	}).timeout(10000);
 
@@ -106,7 +109,7 @@ suite('VsCode GroovyLint Test Suite', () => {
 	// Lint tiny document
 	test("3.0.0 Lint tiny document", async () => {
 		console.log("Start 3.0.0 Lint tiny document");
-		//testDocs['tinyGroovy'].doc = await openDocument('tinyGroovy');
+		// testDocs['tinyGroovy'].doc = await openDocument('tinyGroovy');
 		await waitUntil(() => diagnosticsChanged(testDocs['tinyGroovy'].doc.uri, []), 60000);
 		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['tinyGroovy'].doc.uri);
 
@@ -293,6 +296,15 @@ suite('VsCode GroovyLint Test Suite', () => {
 		const diagWithParseError = docDiagnostics.filter(diag => (diag.code as string).startsWith('NglParseError'));
 		assert(diagWithParseError.length > 0, 'Parse error has been found');
 
+	}).timeout(60000);
+
+	test("7.0.0 File with spaces", async () => {
+		console.log("Start 7.0.0 File with spaces");
+		testDocs['fileWithSpaces'].doc = await openDocument('fileWithSpaces');
+		await waitUntil(() => diagnosticsChanged(testDocs['fileWithSpaces'].doc.uri, []), 60000);
+		const docDiagnostics = vscode.languages.getDiagnostics(testDocs['fileWithSpaces'].doc.uri);
+
+		assert(docDiagnostics.length >= numberOfDiagnosticsForTinyGroovyLint, `${numberOfDiagnosticsForTinyGroovyLint} GroovyLint diagnostics found after lint (${docDiagnostics.length} returned)`);
 	}).timeout(60000);
 
 	/*
