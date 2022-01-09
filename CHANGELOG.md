@@ -4,6 +4,11 @@
 
 - Write your updates here !
 
+## [1.7.4] 2022-01-09
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.3.2
+  - Upgrade cli-progress to avoid [colors lib boring but harmless hack](https://github.com/Marak/colors.js/issues/285)
+
 ## [1.7.3] 2022-01-06
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.3.1
