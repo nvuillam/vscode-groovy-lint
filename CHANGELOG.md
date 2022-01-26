@@ -4,6 +4,10 @@
 
 - Write your updates here !
 
+## [1.7.5] 2022-01-26
+
+- Fix crash when npm-groovy-lint does not return results ([#141](https://github.com/nvuillam/vscode-groovy-lint/issues/141))
+
 ## [1.7.4] 2022-01-09
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.3.2

@@ -14,8 +14,8 @@ export function parseLinterResults(lintResults: any, source: string, textDocumen
 	let diagnostics: Diagnostic[] = [];
 	const fixFailures: any[] = [];
 	const docQuickFixes: any = {};
-	debug(`Parsing results of ${textDocument.uri} (${Object.keys(lintResults.files).length} in lintResults)`);
-	if (lintResults.files && lintResults.files[0] && lintResults.files[0].errors) {
+	if (lintResults?.files && lintResults.files[0] && lintResults.files[0].errors) {
+		debug(`Parsing results of ${textDocument.uri} (${Object.keys(lintResults.files).length} in lintResults)`);
 		// Get each error for the file
 		let pos = 0;
 		for (const err of lintResults.files[0].errors) {
