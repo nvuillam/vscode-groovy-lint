@@ -4,6 +4,10 @@
 
 - Write your updates here !
 
+## [1.8.0] 2022-02-25
+
+- Disable telemetry by default ([#93](https://github.com/nvuillam/vscode-groovy-lint/issues/93))
+
 ## [1.7.5] 2022-01-26
 
 - Fix crash when npm-groovy-lint does not return results ([#141](https://github.com/nvuillam/vscode-groovy-lint/issues/141))
