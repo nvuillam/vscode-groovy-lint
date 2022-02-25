@@ -20,40 +20,40 @@
 
 ## Features
 
-| Command                                | Description                                                                                      | Access                                                                                                   |
-|----------------------------------------|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
-| **Analyze code**                       | Lint the code of the current file                                                                 | Ctrl+Shit+F9<br/>Contextual</br>Status bar<br/>Commands                                                  |
-| **Format**                             | Format the code of the current file                                                               | Shift+Alt+F<br/>Contextual</br>Commands                                                                  |
-| **Fix all auto-fixable problems**      | Fix the code of the current file                                                                | Contextual</br>Commands                                                                                  |
-| **Lint folder**                        | Lint all applicable files of a folder                                                            | Contextual                                                                                               |
-| Fix single error                       | Apply quick fix for a single problem                                                               | Quick Fix<br/>Diagnostic                                                                                 |
-| Fix _rule_ in entire file              | Apply quick fix for all problems related to the same rule in the current file                              | Quick Fix<br/>Diagnostic                                                                                 |
-| Disable _rule_ for this line           | Disable rule only for current line                                                               | Quick Fix<br/>Diagnostic                                                                                 |
-| Disable _rule_ for this entire file    | Disable rule in the entire file                                                                  | Quick Fix<br/>Diagnostic                                                                                 |
-| Disable _rule_ for this entire project | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to disable this rule) | Quick Fix<br/>Diagnostic                                                                                 |
+| Command                                | Description                                                                                      | Access                                                  |
+|----------------------------------------|--------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| **Analyze code**                       | Lint the code of the current file                                                                | Ctrl+Shit+F9<br/>Contextual</br>Status bar<br/>Commands |
+| **Format**                             | Format the code of the current file                                                              | Shift+Alt+F<br/>Contextual</br>Commands                 |
+| **Fix all auto-fixable problems**      | Fix the code of the current file                                                                 | Contextual</br>Commands                                 |
+| **Lint folder**                        | Lint all applicable files of a folder                                                            | Contextual                                              |
+| Fix single error                       | Apply quick fix for a single problem                                                             | Quick Fix<br/>Diagnostic                                |
+| Fix _rule_ in entire file              | Apply quick fix for all problems related to the same rule in the current file                    | Quick Fix<br/>Diagnostic                                |
+| Disable _rule_ for this line           | Disable rule only for current line                                                               | Quick Fix<br/>Diagnostic                                |
+| Disable _rule_ for this entire file    | Disable rule in the entire file                                                                  | Quick Fix<br/>Diagnostic                                |
+| Disable _rule_ for this entire project | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to disable this rule) | Quick Fix<br/>Diagnostic                                |
 
-- ***Contextual***: *right click in source code or on folder*
-- ***Commands***: *Ctrl+Shift+P then type command name*
-- ***Status bar***: *GroovyLint status item at the bottom right*
-- ***Quick Fix***: *Hover an underlined part of the code after a lint, click Quick Fix then select action to perform*
-- ***Diagnostic***: *Right click on a diagnostic in Problems section*
+- ***Contextual***: _right click in source code or on folder_
+- ***Commands***: _Ctrl+Shift+P then type command name_
+- ***Status bar***: _GroovyLint status item at the bottom right_
+- ***Quick Fix***: _Hover an underlined part of the code after a lint, click Quick Fix then select action to perform_
+- ***Diagnostic***: _Right click on a diagnostic in Problems section_
 
 ## Extension Settings
 
-| Parameter                        | Description                                                                                     | Default          |
-|----------------------------------|-------------------------------------------------------------------------------------------------|------------------|
-| `groovyLint.enable`              | Controls whether GroovyLint is enabled or not                                                   | true             |
-| `groovyLint.lint.trigger`        | Run the linter on save (onSave), on type (onType) , or on user request                          | onSave           |
-| `groovyLint.format.enable`       | Controls whether the groovy formatter is enabled or not                                         | true             |
-| `groovyLint.fix.enable`          | Run the auto-fixer on save (onSave), on type (onType) , or on user request                      | true             |
-| `groovyLint.fix.trigger`         | Run the fixer on save (onSave), or on user request                                              | user             |
-| `groovyLint.basic.loglevel`      | Linting error level (error, warning,info)                                                       | info             |
-| `groovyLint.basic.verbose`       | Turn on to have verbose logs                                                                    | false            |
-| `groovyLint.basic.config`        | [NPM groovy lint configuration file](https://github.com/nvuillam/npm-groovy-lint#configuration) | .groovylintrc.json |
-| `groovyLint.debug.enable`        | Display more logs in VsCode Output panel (select "GroovyLint") for issue investigation          | false            |
-| `groovyLint.java.executable`     | Override java executable to use <br/>Example: C:\\Program Files\\Java\\jdk1.8.0_144\\bin\\java.exe          | java            |
-| `groovyLint.java.options`        | Override java options to use                                                                    | "-Xms256m,-Xmx2048m"            |
-| `groovyLint.insight.enable`      | Allow to send anonymous usage statistics used only to improve the tool (we will of course never send your code)   | true            |
+| Parameter                    | Description                                                                                                     | Default              |
+|------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `groovyLint.enable`          | Controls whether GroovyLint is enabled or not                                                                   | true                 |
+| `groovyLint.lint.trigger`    | Run the linter on save (onSave), on type (onType) , or on user request                                          | onSave               |
+| `groovyLint.format.enable`   | Controls whether the groovy formatter is enabled or not                                                         | true                 |
+| `groovyLint.fix.enable`      | Run the auto-fixer on save (onSave), on type (onType) , or on user request                                      | true                 |
+| `groovyLint.fix.trigger`     | Run the fixer on save (onSave), or on user request                                                              | user                 |
+| `groovyLint.basic.loglevel`  | Linting error level (error, warning,info)                                                                       | info                 |
+| `groovyLint.basic.verbose`   | Turn on to have verbose logs                                                                                    | false                |
+| `groovyLint.basic.config`    | [NPM groovy lint configuration file](https://github.com/nvuillam/npm-groovy-lint#configuration)                 | .groovylintrc.json   |
+| `groovyLint.debug.enable`    | Display more logs in VsCode Output panel (select "GroovyLint") for issue investigation                          | false                |
+| `groovyLint.java.executable` | Override java executable to use <br/>Example: C:\\Program Files\\Java\\jdk1.8.0_144\\bin\\java.exe              | java                 |
+| `groovyLint.java.options`    | Override java options to use                                                                                    | "-Xms256m,-Xmx2048m" |
+| `groovyLint.insight.enable`  | Allow to send anonymous usage statistics used only to improve the tool (we will of course never send your code) | false                |
 
 ## Troubleshooting
 
