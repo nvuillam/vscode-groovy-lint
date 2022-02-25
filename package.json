@@ -274,7 +274,7 @@
         "groovyLint.insight.enable": {
           "scope": "resource",
           "type": "boolean",
-          "default": true,
+          "default": false,
           "description": "Allow to send anonymous statistics used only to improve the tool (we will of course never receive your code)"
         }
       }
