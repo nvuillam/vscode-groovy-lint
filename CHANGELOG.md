@@ -4,10 +4,15 @@
 
 - Write your updates here !
 
+## [1.9.1] 2022-08-08
+
+- Fix bug when file diagnostics is stuck with message `GroovyLint is analyzing code...` ([#157](https://github.com/nvuillam/vscode-groovy-lint/issues/157))
+- CI: Upgrade to [MegaLinter v6](https://oxsecurity.github.io/megalinter/latest/)
+
 ## [1.9.0] 2022-04-12
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.5.0
-  - Disable telemetry by default 
+  - Disable telemetry by default
 
 ## [1.8.0] 2022-02-25
 

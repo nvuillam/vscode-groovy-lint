@@ -74,7 +74,7 @@ export function parseLinterResults(lintResults: any, source: string, textDocumen
 						DiagnosticSeverity.Information,
 				code: diagCode,
 				range: range,
-				message: err.msg,
+				message: err.msg || err.rule || "Missing error message :(",
 				source: 'GroovyLint'
 			};
 			// Add quick fix if error is fixable. This will be reused in CodeActionProvider
