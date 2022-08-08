@@ -4,6 +4,10 @@
 
 - Write your updates here !
 
+## [1.9.1] 2022-08-08
+
+- Fix bug when message is stucked with message `GroovyLint is analyzing code...`
+
 ## [1.9.0] 2022-04-12
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.5.0
