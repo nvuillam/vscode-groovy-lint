@@ -12,7 +12,7 @@
 ## [1.9.0] 2022-04-12
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.5.0
-  - Disable telemetry by default 
+  - Disable telemetry by default
 
 ## [1.8.0] 2022-02-25
 
