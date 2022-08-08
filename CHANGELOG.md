@@ -6,7 +6,8 @@
 
 ## [1.9.1] 2022-08-08
 
-- Fix bug when message is stucked with message `GroovyLint is analyzing code...`
+- Fix bug when file diagnostics is stucked with message `GroovyLint is analyzing code...` ([#157](https://github.com/nvuillam/vscode-groovy-lint/issues/157))
+- CI: Upgrade to [MegaLinter v6](https://oxsecurity.github.io/megalinter/latest/)
 
 ## [1.9.0] 2022-04-12
 
