@@ -136,7 +136,7 @@ docManager.documents.onDidOpen(async (event) => {
 // when the text document first opened or when its content has changed.
 let lastCall: string;
 docManager.documents.onDidChangeContent(async (change: TextDocumentChangeEvent<TextDocument>) => {
-    if (change.document.languageId !== 'groovy') {
+     if (change.document.languageId !== 'groovy') {
         return;
     }
     docManager.setCurrentDocumentUri(change.document.uri);

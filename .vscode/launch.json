@@ -55,6 +55,9 @@
 			"name": "Attach to Server",
 			"port": 6009,
 			"restart": true,
+			"env": {
+				"DEBUG": "vscode-groovy-lint"
+			},
 			"outFiles": [
 				"${workspaceRoot}/server/out/**/*.js"
 			],

@@ -22,7 +22,7 @@
 
 | Command                                | Description                                                                                      | Access                                                  |
 |----------------------------------------|--------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| **Analyze code**                       | Lint the code of the current file                                                                | Ctrl+Shit+F9<br/>Contextual</br>Status bar<br/>Commands |
+| **Analyze code**                       | Lint the code of the current file                                                                | Ctrl+Shift+F9<br/>Contextual</br>Status bar<br/>Commands |
 | **Format**                             | Format the code of the current file                                                              | Shift+Alt+F<br/>Contextual</br>Commands                 |
 | **Fix all auto-fixable problems**      | Fix the code of the current file                                                                 | Contextual</br>Commands                                 |
 | **Lint folder**                        | Lint all applicable files of a folder                                                            | Contextual                                              |

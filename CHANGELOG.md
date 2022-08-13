@@ -4,6 +4,21 @@
 
 - Write your updates here !
 
+## [2.0.0] 2022-08-13
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v10.0.0
+  - Upgrade to [CodeNarc 3.1.0](https://github.com/CodeNarc/CodeNarc/blob/master/CHANGELOG.md)
+  - Many fixes and enhancements (see npm-groovy-lint release note)
+
+- UI
+  - Better display for issues contextual menu
+
+- Fixes
+  - Wrong lines highlighted when spaces are replaced by tabs
+  - Document should not be reopened if closed without saving
+  - Some errors were displayed at the beginning of the file instead of the good line
+  - Wrong diagnostics lines are format or fix
+
 ## [1.9.1] 2022-08-08
 
 - Fix bug when file diagnostics is stuck with message `GroovyLint is analyzing code...` ([#157](https://github.com/nvuillam/vscode-groovy-lint/issues/157))

@@ -4,7 +4,8 @@ import { DocumentsManager } from './DocumentsManager';
 const debug = require("debug")("vscode-groovy-lint");
 
 // Parse results into VsCode diagnostic
-export function parseLinterResults(lintResults: any, source: string, textDocument: TextDocument, docManager: DocumentsManager) {
+export function parseLinterResults(lintResultsIn: any, source: string, textDocument: TextDocument, docManager: DocumentsManager) {
+	const lintResults = JSON.parse(JSON.stringify(lintResultsIn));
 	const allText = source;
 	const diffLine = -1; // Difference between CodeNarc line number and VSCode line number
 
@@ -40,7 +41,7 @@ export function parseLinterResults(lintResults: any, source: string, textDocumen
 			}
 			// Build default range (whole line) if not returned by npm-groovy-lint
 			// eslint-disable-next-line eqeqeq
-			else if (err.line && err.line != null && err.line > 0 && allTextLines[err.line + diffLine]) {
+			else if (err.line && err.line != null && err.line > 0 && allTextLines[err.line + diffLine] !== null) {
 				const line = allTextLines[err.line + diffLine];
 				const indent = line.search(/\S/);
 				range = {
