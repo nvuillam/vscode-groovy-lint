@@ -211,7 +211,13 @@ export class DocumentsManager {
 	}
 
 	// Validate a text document by calling linter
-	async validateTextDocument(textDocument: TextDocument, opts: any = {}): Promise<TextEdit[]> {
+	async validateTextDocument(textDocument: TextDocument, opts: any = {
+		displayErrorsEvenIfDocumentClosed: false
+	}): Promise<TextEdit[]> {
+		// Do not validate document if it is not open
+		if (opts.displayErrorsEvenIfDocumentClosed !== true && !this.isDocumentOpenInClient(textDocument.uri)) {
+			return Promise.resolve([]);
+		}
 		// Find if document is already being formatted or fixed
 		const currentLintsOnDoc = this.currentlyLinted.filter((currLinted) =>
 			currLinted.uri === textDocument.uri
@@ -467,11 +473,11 @@ export class DocumentsManager {
 		// Enable debug logs if setting is set
 		const debugLib = require("debug");
 		if (settings.debug && settings.debug.enable === true) {
-			debugLib.enable('vscode-groovy-lint,npm-groovy-lint,java-caller');
+			debugLib.enable('vscode-groovy-lint');
 		}
 		// Disable if not set
 		else {
-			debugLib.disable('vscode-groovy-lint,npm-groovy-lint,java-caller');
+			debugLib.disable('vscode-groovy-lint');
 		}
 	}
 }

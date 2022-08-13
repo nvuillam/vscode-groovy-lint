@@ -104,6 +104,7 @@
     "multiline",
     "nashorn",
     "njre",
+    "nonblock",
     "npmignore",
     "nuxt",
     "nvuillam",

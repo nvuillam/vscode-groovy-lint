@@ -20,17 +20,17 @@
 
 ## Features
 
-| Command                                | Description                                                                                      | Access                                                  |
-|----------------------------------------|--------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| Command                                | Description                                                                                      | Access                                                   |
+|----------------------------------------|--------------------------------------------------------------------------------------------------|----------------------------------------------------------|
 | **Analyze code**                       | Lint the code of the current file                                                                | Ctrl+Shift+F9<br/>Contextual</br>Status bar<br/>Commands |
-| **Format**                             | Format the code of the current file                                                              | Shift+Alt+F<br/>Contextual</br>Commands                 |
-| **Fix all auto-fixable problems**      | Fix the code of the current file                                                                 | Contextual</br>Commands                                 |
-| **Lint folder**                        | Lint all applicable files of a folder                                                            | Contextual                                              |
-| Fix single error                       | Apply quick fix for a single problem                                                             | Quick Fix<br/>Diagnostic                                |
-| Fix _rule_ in entire file              | Apply quick fix for all problems related to the same rule in the current file                    | Quick Fix<br/>Diagnostic                                |
-| Disable _rule_ for this line           | Disable rule only for current line                                                               | Quick Fix<br/>Diagnostic                                |
-| Disable _rule_ for this entire file    | Disable rule in the entire file                                                                  | Quick Fix<br/>Diagnostic                                |
-| Disable _rule_ for this entire project | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to disable this rule) | Quick Fix<br/>Diagnostic                                |
+| **Format**                             | Format the code of the current file                                                              | Shift+Alt+F<br/>Contextual</br>Commands                  |
+| **Fix all auto-fixable problems**      | Fix the code of the current file                                                                 | Contextual</br>Commands                                  |
+| **Lint folder**                        | Lint all applicable files of a folder                                                            | Contextual                                               |
+| Fix single error                       | Apply quick fix for a single problem                                                             | Quick Fix<br/>Diagnostic                                 |
+| Fix _rule_ in entire file              | Apply quick fix for all problems related to the same rule in the current file                    | Quick Fix<br/>Diagnostic                                 |
+| Disable _rule_ for this line           | Disable rule only for current line                                                               | Quick Fix<br/>Diagnostic                                 |
+| Disable _rule_ for this entire file    | Disable rule in the entire file                                                                  | Quick Fix<br/>Diagnostic                                 |
+| Disable _rule_ for this entire project | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to disable this rule) | Quick Fix<br/>Diagnostic                                 |
 
 - ***Contextual***: _right click in source code or on folder_
 - ***Commands***: _Ctrl+Shift+P then type command name_
@@ -78,6 +78,85 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 - [yuvmel](https://github.com/yuvmel), for his great support on [#18](https://github.com/nvuillam/vscode-groovy-lint/issues/18) that allowed VsCode Groovy Lint to work much better on Mac, Linux, and with other diagnostic extensions
 
 ## Release Notes
+
+### [2.0.0] 2022-08-13
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v10.0.0
+  - Upgrade to [CodeNarc 3.1.0](https://github.com/CodeNarc/CodeNarc/blob/master/CHANGELOG.md)
+  - Many fixes and enhancements (see [npm-groovy-lint release note](https://github.com/nvuillam/npm-groovy-lint/releases/tag/v10.0.0))
+
+- UI
+  - Better display for issues contextual menu
+
+- Fixes
+  - Wrong lines highlighted when spaces are replaced by tabs
+  - Document should not be reopened if closed without saving
+  - Some errors were displayed at the beginning of the file instead of the good line
+  - Wrong diagnostics lines are format or fix
+
+### [1.9.1] 2022-08-08
+
+- Fix bug when file diagnostics is stuck with message `GroovyLint is analyzing code...` ([#157](https://github.com/nvuillam/vscode-groovy-lint/issues/157))
+- CI: Upgrade to [MegaLinter v6](https://oxsecurity.github.io/megalinter/latest/)
+
+### [1.9.0] 2022-04-12
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.5.0
+  - Disable telemetry by default
+
+### [1.8.0] 2022-02-25
+
+- Disable telemetry by default ([#93](https://github.com/nvuillam/vscode-groovy-lint/issues/93))
+
+### [1.7.5] 2022-01-26
+
+- Fix crash when npm-groovy-lint does not return results ([#141](https://github.com/nvuillam/vscode-groovy-lint/issues/141))
+
+### [1.7.4] 2022-01-09
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.3.2
+  - Upgrade cli-progress to avoid [colors lib boring but harmless hack](https://github.com/Marak/colors.js/issues/285)
+
+### [1.7.3] 2022-01-06
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.3.1
+  - Fix issue when used as module and with file containing spaces ([#137](https://github.com/nvuillam/vscode-groovy-lint/issues/137))
+
+### [1.7.2] 2021-12-29
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.3.0
+  - Upgrade again log4j to avoid security flaw
+
+### [1.7.1] 2021-12-24
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.2.0
+  - Upgrade again log4j to avoid security flaw
+
+### [1.7.0] 2021-12-14
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.1.0
+  - Upgrade log4j to avoid security flaw
+
+### [1.6.0] 2021-11-27
+
+- Detect Jenkinsfile
+
+### [1.5.2] 2021-11-24
+
+- Fix TS error & package-lock.json version
+
+### [1.5.1] 2021-11-23
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v9.0.0
+  - Upgrade to [CodeNarc 2.2](https://github.com/CodeNarc/CodeNarc/blob/master/CHANGELOG.md)
+  - Adds [Groovy 3.0.9](http://groovy-lang.org/changelogs/changelog-3.0.9.html) support.
+- Fix use of VsCode setting groovyLint.basic.config to use a generic npm-groovy-lint configuration file
+- Upgrade to MegaLinter v5 and move config in .mega-linter.yml file
+
+### [1.4.0] 2020-12-15
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v8.1.0
+  - Exclude `UnnecessaryGetter`, `FactoryMethodName`, `MethodReturnTypeRequired`, and `GStringExpressionWithinString` in `recommended-jenkinsfile` ([#140](https://github.com/nvuillam/npm-groovy-lint/pull/140)) ([Felipe Santos](https://github.com/felipecrs))
 
 ### [1.3.0] 2020-11-15
 

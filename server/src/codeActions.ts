@@ -117,12 +117,13 @@ function createDisableActions(diagnostic: Diagnostic, textDocumentUri: string): 
 		diagnostic.severity === DiagnosticSeverity.Information) {
 
 		// Ignore only this error
+		const titleDisableLine = `${errorLabel}: disable for this line`;
 		const disableErrorAction: CodeAction = {
-			title: `Disable ${errorLabel} for this line`,
+			title:titleDisableLine,
 			kind: CodeActionKind.QuickFix,
 			command: {
 				command: COMMAND_DISABLE_ERROR_FOR_LINE.command,
-				title: `Disable ${errorLabel} for this line`,
+				title: titleDisableLine,
 				arguments: [textDocumentUri, diagnostic]
 			},
 			diagnostics: [diagnostic],
@@ -131,12 +132,13 @@ function createDisableActions(diagnostic: Diagnostic, textDocumentUri: string): 
 		disableActions.push(disableErrorAction);
 
 		// disable this error type in all file
+		const titleDisableAllFile = `${errorLabel}: disable for the entire file`;
 		const disableErrorInFileAction: CodeAction = {
-			title: `Disable ${errorLabel} for this entire file`,
+			title: titleDisableAllFile,
 			kind: CodeActionKind.QuickFix,
 			command: {
 				command: COMMAND_DISABLE_ERROR_FOR_FILE.command,
-				title: `Disable ${errorLabel} for this entire file`,
+				title: titleDisableAllFile,
 				arguments: [textDocumentUri, diagnostic]
 			},
 			diagnostics: [diagnostic],
@@ -145,12 +147,13 @@ function createDisableActions(diagnostic: Diagnostic, textDocumentUri: string): 
 		disableActions.push(disableErrorInFileAction);
 
 		// disable this error type in all project (will update .groovylintrc.json)
+		const titleDisableProject = `${errorLabel}: disable for entire project`;
 		const disableInProjectAction: CodeAction = {
-			title: `Disable ${errorLabel} for the entire project`,
+			title: titleDisableProject,
 			kind: CodeActionKind.QuickFix,
 			command: {
 				command: COMMAND_DISABLE_ERROR_FOR_PROJECT.command,
-				title: `Disable ${errorLabel} for the entire project`,
+				title: titleDisableProject,
 				arguments: [textDocumentUri, diagnostic]
 			},
 			diagnostics: [diagnostic],
@@ -170,12 +173,13 @@ function createViewDocAction(diagnostic: Diagnostic, textDocumentUri: string): C
 	}
 	const ruleCode = (diagnostic.code as string).split('-')[0];
 	let errorLabel = ruleCode.replace(/([A-Z])/g, ' $1').trim();
+	const titleShowDoc = `${errorLabel}: show documentation`;
 	const viewCodeAction: CodeAction = {
-		title: `Show documentation for ${errorLabel}`,
+		title: titleShowDoc,
 		kind: CodeActionKind.QuickFix,
 		command: {
 			command: COMMAND_SHOW_RULE_DOCUMENTATION.command,
-			title: `Show documentation for ${errorLabel}`,
+			title: titleShowDoc,
 			arguments: [ruleCode]
 		},
 		diagnostics: [diagnostic],
@@ -411,6 +415,6 @@ export async function disableErrorForProject(diagnostic: Diagnostic, textDocumen
 			await docManager.connection.sendNotification(OpenNotification.type, { file: configFilePath });
 		}
 	} catch (e) {
-		debug(`Error with window/showMessageRequest or Opening config file: ${e.message}`);
+		debug(`Error with window/showMessageRequest or Opening config file: ${(e as any).message}`);
 	}
 }

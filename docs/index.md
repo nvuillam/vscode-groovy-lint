@@ -20,17 +20,17 @@
 
 ## Features
 
-| Command                                | Description                                                                                      | Access                                                  |
-|----------------------------------------|--------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| **Analyze code**                       | Lint the code of the current file                                                                | Ctrl+Shit+F9<br/>Contextual</br>Status bar<br/>Commands |
-| **Format**                             | Format the code of the current file                                                              | Shift+Alt+F<br/>Contextual</br>Commands                 |
-| **Fix all auto-fixable problems**      | Fix the code of the current file                                                                 | Contextual</br>Commands                                 |
-| **Lint folder**                        | Lint all applicable files of a folder                                                            | Contextual                                              |
-| Fix single error                       | Apply quick fix for a single problem                                                             | Quick Fix<br/>Diagnostic                                |
-| Fix _rule_ in entire file              | Apply quick fix for all problems related to the same rule in the current file                    | Quick Fix<br/>Diagnostic                                |
-| Disable _rule_ for this line           | Disable rule only for current line                                                               | Quick Fix<br/>Diagnostic                                |
-| Disable _rule_ for this entire file    | Disable rule in the entire file                                                                  | Quick Fix<br/>Diagnostic                                |
-| Disable _rule_ for this entire project | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to disable this rule) | Quick Fix<br/>Diagnostic                                |
+| Command                                | Description                                                                                      | Access                                                   |
+|----------------------------------------|--------------------------------------------------------------------------------------------------|----------------------------------------------------------|
+| **Analyze code**                       | Lint the code of the current file                                                                | Ctrl+Shift+F9<br/>Contextual</br>Status bar<br/>Commands |
+| **Format**                             | Format the code of the current file                                                              | Shift+Alt+F<br/>Contextual</br>Commands                  |
+| **Fix all auto-fixable problems**      | Fix the code of the current file                                                                 | Contextual</br>Commands                                  |
+| **Lint folder**                        | Lint all applicable files of a folder                                                            | Contextual                                               |
+| Fix single error                       | Apply quick fix for a single problem                                                             | Quick Fix<br/>Diagnostic                                 |
+| Fix _rule_ in entire file              | Apply quick fix for all problems related to the same rule in the current file                    | Quick Fix<br/>Diagnostic                                 |
+| Disable _rule_ for this line           | Disable rule only for current line                                                               | Quick Fix<br/>Diagnostic                                 |
+| Disable _rule_ for this entire file    | Disable rule in the entire file                                                                  | Quick Fix<br/>Diagnostic                                 |
+| Disable _rule_ for this entire project | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to disable this rule) | Quick Fix<br/>Diagnostic                                 |
 
 - ***Contextual***: _right click in source code or on folder_
 - ***Commands***: _Ctrl+Shift+P then type command name_

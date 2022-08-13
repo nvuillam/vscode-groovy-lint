@@ -56,6 +56,11 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		debug(`Empty file: no sources to lint`);
 		return Promise.resolve([]);
 	}
+	// Tabs has been replaced by spaces
+	else if (source === 'updated') {
+		debug(`Sources has been updated to replace tabs by spaces`);
+		return Promise.resolve([]);		
+	}
 
 	// Check if there is an existing NpmGroovyLint instance with same source (except if format, fix or force)
 	let isSimpleLintIdenticalSource = false;
@@ -80,7 +85,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	}
 
 	// Remove already existing diagnostics except if format
-	await docManager.resetDiagnostics(textDocument.uri, { verb: verb, deleteLinter: !isSimpleLintIdenticalSource });
+	await docManager.resetDiagnostics(textDocument.uri, { verb: verb, deleteDocLinter: !isSimpleLintIdenticalSource });
 
 	// Get a new task id
 	const linterTaskId = docManager.getNewTaskId();
@@ -403,9 +408,12 @@ async function manageFixSourceBeforeCallingLinter(source: string, textDocument: 
 				}
 			}
 			const replaceChars = " ".repeat(indentLength);
-			source = source.replace(/\t/g, replaceChars);
-			await applyTextDocumentEditOnWorkspace(docManager, textDocument, source);
-			debug(`Replaces tabs by spaces in ${textDocument.uri}`);
+			const newSources = source.replace(/\t/g, replaceChars);
+			if (newSources !== source) {
+			    await applyTextDocumentEditOnWorkspace(docManager, textDocument, newSources);
+			    debug(`Replaces tabs by spaces in ${textDocument.uri}`);
+				return 'updated';
+			}
 		}
 	}
 	return source;
