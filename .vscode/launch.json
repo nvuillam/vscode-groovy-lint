@@ -1,119 +1,95 @@
 {
-	"version": "0.2.0",
-	"configurations": [
-		{
-			"type": "extensionHost",
-			"request": "launch",
-			"name": "Launch Client",
-			"runtimeExecutable": "${execPath}",
-			"args": [
-				"--extensionDevelopmentPath=${workspaceRoot}",
-				"--disable-extensions"
-			],
-			"env": {
-				"DEBUG": "vscode-groovy-lint"
-			},
-			"outFiles": [
-				"${workspaceRoot}/client/out/**/*.js"
-			],
-			"preLaunchTask": {
-				"type": "npm",
-				"script": "watch"
-			},
-			"smartStep": true,
-			"skipFiles": [
-				"<node_internals>/**"
-			]
-		},
-		{
-			"type": "extensionHost",
-			"request": "launch",
-			"name": "Launch Client (FINE)",
-			"runtimeExecutable": "${execPath}",
-			"args": [
-				"--extensionDevelopmentPath=${workspaceRoot}",
-				"--disable-extensions"
-			],
-			"env": {
-				"DEBUG": "vscode-groovy-lint,npm-groovy-lint"
-			},
-			"outFiles": [
-				"${workspaceRoot}/client/out/**/*.js"
-			],
-			"preLaunchTask": {
-				"type": "npm",
-				"script": "watch"
-			},
-			"smartStep": true,
-			"skipFiles": [
-				"<node_internals>/**"
-			]
-		},
-		{
-			"type": "node",
-			"request": "attach",
-			"name": "Attach to Server",
-			"port": 6009,
-			"restart": true,
-			"env": {
-				"DEBUG": "vscode-groovy-lint"
-			},
-			"outFiles": [
-				"${workspaceRoot}/server/out/**/*.js"
-			],
-			"smartStep": true,
-			"skipFiles": [
-				"<node_internals>/**"
-			],
-			"timeout": 60000
-		},
-		{
-			"name": "Language Server E2E Test",
-			"type": "extensionHost",
-			"request": "launch",
-			"runtimeExecutable": "${execPath}",
-			"args": [
-				"--extensionDevelopmentPath=${workspaceRoot}",
-				"--extensionTestsPath=${workspaceRoot}/client/out/test",
-				"${workspaceRoot}/client/testFixture"
-			],
-			"env": {
-				"DEBUG": "vscode-groovy-lint,npm-groovy-lint"
-			},
-			"outFiles": [
-				"${workspaceRoot}/client/out/test/**/*.js"
-			],
-			"smartStep": true,
-			"skipFiles": [
-				"<node_internals>/**"
-			]
-		},
-		{
-			"type": "node",
-			"request": "attach",
-			"name": "Attach to Remote",
-			"address": "127.0.0.1",
-			"port": 9229,
-			"smartStep": true,
-			"skipFiles": [
-				"<node_internals>/**"
-			]
-		}
-	],
-	"compounds": [
-		{
-			"name": "Groovy Lint debug",
-			"configurations": [
-				"Launch Client",
-				"Attach to Server"
-			]
-		},
-		{
-			"name": "Groovy Lint debug (FINE)",
-			"configurations": [
-				"Launch Client (FINE)",
-				"Attach to Server"
-			]
-		}
-	]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "extensionHost",
+      "request": "launch",
+      "name": "Launch Client",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceRoot}",
+        "--disable-extensions"
+      ],
+      "env": {
+        "DEBUG": "vscode-groovy-lint"
+      },
+      "outFiles": ["${workspaceRoot}/client/out/**/*.js"],
+      "preLaunchTask": {
+        "type": "npm",
+        "script": "watch"
+      },
+      "smartStep": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "type": "extensionHost",
+      "request": "launch",
+      "name": "Launch Client (FINE)",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceRoot}",
+        "--disable-extensions"
+      ],
+      "env": {
+        "DEBUG": "vscode-groovy-lint,npm-groovy-lint"
+      },
+      "outFiles": ["${workspaceRoot}/client/out/**/*.js"],
+      "preLaunchTask": {
+        "type": "npm",
+        "script": "watch"
+      },
+      "smartStep": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Server",
+      "port": 6009,
+      "restart": true,
+      "env": {
+        "DEBUG": "vscode-groovy-lint"
+      },
+      "outFiles": ["${workspaceRoot}/server/out/**/*.js"],
+      "smartStep": true,
+      "skipFiles": ["<node_internals>/**"],
+      "timeout": 60000
+    },
+    {
+      "name": "Language Server E2E Test",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceRoot}",
+        "--extensionTestsPath=${workspaceRoot}/client/out/test",
+        "${workspaceRoot}/client/testFixture"
+      ],
+      "env": {
+        "DEBUG": "vscode-groovy-lint,npm-groovy-lint"
+      },
+      "outFiles": ["${workspaceRoot}/client/out/test/**/*.js"],
+      "smartStep": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Remote",
+      "address": "127.0.0.1",
+      "port": 9229,
+      "smartStep": true,
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Groovy Lint debug",
+      "configurations": ["Launch Client", "Attach to Server"]
+    },
+    {
+      "name": "Groovy Lint debug (FINE)",
+      "configurations": ["Launch Client (FINE)", "Attach to Server"]
+    }
+  ]
 }
