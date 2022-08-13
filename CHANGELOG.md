@@ -8,7 +8,7 @@
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v10.0.0
   - Upgrade to [CodeNarc 3.1.0](https://github.com/CodeNarc/CodeNarc/blob/master/CHANGELOG.md)
-  - Many fixes and enhancements (see npm-groovy-lint release note)
+  - Many fixes and enhancements (see [npm-groovy-lint release note](https://github.com/nvuillam/npm-groovy-lint/releases/tag/v10.0.0))
 
 - UI
   - Better display for issues contextual menu
