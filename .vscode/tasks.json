@@ -7,7 +7,7 @@
       "group": "build",
       "presentation": {
         "panel": "dedicated",
-        "reveal": "never"
+        "reveal": "true"
       },
       "problemMatcher": ["$tsc"]
     },
