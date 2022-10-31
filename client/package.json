@@ -29,7 +29,7 @@
   },
   "engines": {
     "vscode": "^1.42.0",
-    "node": ">=14.0.0"
+    "node": ">=16.0.0"
   },
   "author": "Nicolas Vuillamy",
   "license": "GPL-3.0-only",
