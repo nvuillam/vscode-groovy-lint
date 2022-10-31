@@ -4,6 +4,17 @@
 
 - Write your updates here !
 
+## [2.1.0] 2022-10-31
+
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v11.1.1
+  - Fix npm dependency minimatch
+  - Provide default range when only information available is a line number ([#248](https://github.com/nvuillam/npm-groovy-lint/issues/248))
+  - New CodeNarc issues definition to calculate range in file
+    - GStringExpressionWithinString
+    - VariableName
+  - Improve performances by calculating the longest command directory to send as base path to CodeNarc
+- Upgrade dependencies
+
 ## [2.0.0] 2022-08-13
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v10.0.0
