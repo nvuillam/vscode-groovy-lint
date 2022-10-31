@@ -23,10 +23,6 @@
     "url": "https://github.com/nvuillam/vscode-groovy-lint/issues"
   },
   "homepage": "https://github.com/nvuillam/vscode-groovy-lint#readme",
-  "scripts": {
-    "update-vscode": "vscode-install",
-    "postinstall": "vscode-install"
-  },
   "engines": {
     "vscode": "^1.42.0",
     "node": ">=16.0.0"

@@ -6,6 +6,7 @@
 
 ## [2.1.0] 2022-10-31
 
+- Node.js >= 16.0 is now mandatory
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v11.1.1
   - Fix npm dependency minimatch
   - Provide default range when only information available is a line number ([#248](https://github.com/nvuillam/npm-groovy-lint/issues/248))
