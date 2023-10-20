@@ -17,7 +17,7 @@ export async function lintFolder(folders: Array<any>, docManager: DocumentsManag
 
 	// Function to lint all applicable files of a folder
 	async function processLintFolder() {
-		const folderList = folders.map(fldr => fldr.fsPath);
+		const folderList = folders.map(fldr => fldr.path);
 		debug(`Start analyzing folder(s): ${folderList.join(',')}`);
 		// Browse each folder
 		for (const folder of folderList) {
@@ -63,7 +63,7 @@ export async function lintFolder(folders: Array<any>, docManager: DocumentsManag
 				]
 			};
 			const req = await docManager.connection.sendRequest('window/showMessageRequest', msg);
-			if (req.title === "Cancel lint of folders") {
+			if (req?.title === "Cancel lint of folders") {
 				continueLinting = false;
 			}
 		}
