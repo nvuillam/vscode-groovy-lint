@@ -128,7 +128,8 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		returnrules: docManager.getRuleDescriptions().size > 0 ? false : true,
 		insight: ((settings?.insight?.enable) ? true : false),
 		output: 'none',
-		verbose: settings.basic.verbose
+		verbose: settings.basic.verbose,
+		failon: 'none'
 	};
 
 	const npmGroovyLintExecParam: any = {};
@@ -397,7 +398,8 @@ async function manageFixSourceBeforeCallingLinter(source: string, textDocument: 
 			const textDocumentFilePath: string = URI.parse(textDocument.uri).fsPath;
 			const tmpLinter = new NpmGroovyLint({
 				sourcefilepath: textDocumentFilePath,
-				output: 'none'
+				output: 'none',
+				failon: 'none'
 			}, {});
 			const tmpStartPath = path.dirname(textDocumentFilePath);
 			let tmpConfigFilePath: string = await tmpLinter.getConfigFilePath(tmpStartPath);
