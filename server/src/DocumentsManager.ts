@@ -65,7 +65,7 @@ export class DocumentsManager {
 
 	// Commands execution
 	async executeCommand(params: any) {
-		debug(`Request execute command ${JSON.stringify(params)}`);
+		debug(`Request execute command ${JSON.stringify(params, null, 2)}`);
 		// Set current document URI if sent as parameter
 		if (params.arguments && params.arguments[0] && URI.isUri(params.arguments[0])) {
 			this.setCurrentDocumentUri(params.arguments[0].toString());
@@ -196,7 +196,7 @@ export class DocumentsManager {
 
 	// Lint again all open documents (after change of config)
 	async lintAgainAllOpenDocuments() {
-		await this.refreshDebugMode();
+		await this.refreshDebugMode(false);
 		// Reset all cached document settings
 		this.removeDocumentSettings('all');
 		// Revalidate all open text documents
@@ -466,18 +466,26 @@ export class DocumentsManager {
 	}
 
 	// Enable/Disable debug mode depending on VsCode GroovyLint setting groovyLint.debug.enable
-	async refreshDebugMode() {
+	async refreshDebugMode(onInitialized: boolean) {
+		if (onInitialized && process.env.DEBUG) {
+			// Use DEBUG env var if configured on initialization, so Run and Debug -> Play works as expected.
+			return;
+		}
+
 		const settings = await this.connection.workspace.getConfiguration({
 			section: 'groovyLint'
 		});
+
 		// Enable debug logs if setting is set
 		const debugLib = require("debug");
 		if (settings.debug && settings.debug.enable === true) {
 			debugLib.enable('vscode-groovy-lint');
+			debugLib.enable('npm-groovy-lint');
 		}
 		// Disable if not set
 		else {
 			debugLib.disable('vscode-groovy-lint');
+			debugLib.disable('npm-groovy-lint');
 		}
 	}
 }

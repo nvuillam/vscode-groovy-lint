@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 - Write your updates here !
+- Debug sessions correctly enable debugging by default including npm-groovy-lint.
 
 ## [2.0.0] 2022-08-13
 

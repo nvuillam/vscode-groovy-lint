@@ -189,10 +189,15 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		console.info(`Start ${verb} ${textDocument.uri}`);
 		linter = new NpmGroovyLint(npmGroovyLintConfig, npmGroovyLintExecParam);
 		try {
+			debug(`Run npm-groovy-lint ${verb} for ${textDocument.uri}`);
+			debug(`Config: ${JSON.stringify(npmGroovyLintConfig, null, 2)} ExecParam: ${JSON.stringify(npmGroovyLintExecParam, null, 2)}`);
 			await linter.run();
+			debug(`Done npm-groovy-lint ${verb} for ${textDocument.uri}`);
 			if (!format) {
 				docManager.setDocLinter(textDocument.uri, linter);
 			}
+
+			debug(`Lint result: ${JSON.stringify(linter.lintResult)}`);
 			// Managed cancelled lint case
 			if (linter.status === 9) {
 				docManager.connection.sendNotification(StatusNotification.type, {
@@ -264,7 +269,8 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 			});
 			return Promise.resolve([]);
 		}
-		console.info(`Completed ${verb} ${textDocument.uri} in ${(performance.now() - perfStart).toFixed(0)} ms`);
+
+		console.info(`Completed ${verb} ${textDocument.uri} in ${(performance.now() - perfStart).toFixed(0)} ms found ${linter?.lintResult?.summary?.totalFoundNumber || 0} results`);
 	}
 
 	// Parse results
