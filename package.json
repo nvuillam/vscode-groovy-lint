@@ -138,6 +138,10 @@
         {
           "when": "resourceLangId == groovy || resourceLangId == jenkinsfile",
           "command": "groovyLint.lintFix"
+        },
+        {
+          "when": "filesExplorerFocus && explorerResourceIsFolder",
+          "command": "groovyLint.lintFolder"
         }
       ],
       "editor/context": [
@@ -155,7 +159,8 @@
       "explorer/context": [
         {
           "command": "groovyLint.lintFolder",
-          "group": "groovylint"
+          "group": "groovylint",
+          "when": "filesExplorerFocus && explorerResourceIsFolder"
         }
       ]
     },
@@ -176,7 +181,7 @@
         "command": "groovyLint.lintFolder",
         "key": "ctrl+shift+F11",
         "mac": "cmd+shift+F11",
-        "when": "explorerResourceIsFolder"
+        "when": "filesExplorerFocus && explorerResourceIsFolder"
       }
     ],
     "configuration": {

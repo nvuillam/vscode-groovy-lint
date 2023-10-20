@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 - Write your updates here !
+- Fix Analyze Groovy files in folder ([#177](https://github.com/nvuillam/vscode-groovy-lint/issues/177))
 
 ## [2.0.0] 2022-08-13
 
