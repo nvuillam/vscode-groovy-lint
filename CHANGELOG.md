@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 - Write your updates here !
+- Fix partial fixes never applying due to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v10.0.0 breaking change.
 
 ## [2.0.0] 2022-08-13
 
