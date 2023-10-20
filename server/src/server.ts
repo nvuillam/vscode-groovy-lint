@@ -61,7 +61,7 @@ connection.onInitialized(async () => {
     connection.client.register(DidSaveTextDocumentNotification.type);
     //connection.client.register(ActiveDocumentNotification.type);
     debug('GroovyLint: initialized server');
-    await docManager.refreshDebugMode();
+    await docManager.refreshDebugMode(true);
 });
 
 // Kill CodeNarcServer when closing VsCode or deactivate extension
@@ -109,7 +109,8 @@ connection.onCodeAction(async (codeActionParams: CodeActionParams): Promise<Code
     if (!codeActionParams.context.diagnostics.length) {
         return [];
     }
-    debug(`Code action request received from client for ${codeActionParams.textDocument.uri} with params: ${JSON.stringify(codeActionParams)}`);
+    debug(`Code action request received from client for ${codeActionParams.textDocument.uri}`);
+    debug(`codeActionParams: ${JSON.stringify(codeActionParams, null, 2)}`);
     const document = docManager.getDocumentFromUri(codeActionParams.textDocument.uri);
     if (document == null) {
         return [];
@@ -157,14 +158,18 @@ docManager.documents.onDidChangeContent(async (change: TextDocumentChangeEvent<T
 
 // Lint on save if it has been configured
 docManager.documents.onDidSave(async event => {
-    debug(`Save event received for ${event.document.uri}`);
+    debug(`Save event received for: ${event.document.uri}`);
     const textDocument: TextDocument = docManager.getDocumentFromUri(event.document.uri, true);
     const settings = await docManager.getDocumentSettings(textDocument.uri);
     if (settings.fix.trigger === 'onSave') {
+        debug(`Save trigger fix for: ${textDocument.uri}`);
         await docManager.validateTextDocument(textDocument, { fix: true });
     }
     else if (settings.lint.trigger === 'onSave') {
+        debug(`Save trigger lint for: ${textDocument.uri}`);
         await docManager.validateTextDocument(textDocument);
+    } else {
+        debug(`Save no action for: ${textDocument.uri}`);
     }
 });
 

@@ -41,9 +41,12 @@ export function provideQuickFixCodeActions(textDocument: TextDocument, codeActio
 	if (isNullOrUndefined(diagnostics) || diagnostics.length === 0) {
 		return quickFixCodeActions;
 	}
+
+	debug(`docQuickFixes: ${JSON.stringify(docQuickFixes, null, 2)}`);
 	// Browse diagnostics to get related CodeActions
 	for (const diagnostic of codeActionParams.context.diagnostics) {
 		// Skip Diagnostics not from VsCodeGroovyLint
+		debug(`Diagnostic is ${JSON.stringify(diagnostic, null, 2)}`);
 		if (diagnostic.source !== 'GroovyLint') {
 			continue;
 		}
@@ -52,6 +55,7 @@ export function provideQuickFixCodeActions(textDocument: TextDocument, codeActio
 		if (docQuickFixes && docQuickFixes[diagCode]) {
 			for (const quickFix of docQuickFixes[diagCode]) {
 				const codeActions = createQuickFixCodeActions(diagnostic, quickFix, textDocument.uri);
+				debug(`codeActions is ${JSON.stringify(codeActions, null, 2)}`);
 				quickFixCodeActions.push(...codeActions);
 			}
 		}
@@ -225,7 +229,9 @@ export async function applyQuickFixes(diagnostics: Diagnostic[], textDocumentUri
 		lastFileName: textDocument.uri
 	});
 	// Apply updates to textDocument
-	if (docLinter.status === 0) {
+	if (docLinter.status !== 0) {
+		debug(`Error while fixing ${textDocument.uri} status: ${docLinter.status} error: ${docLinter.error ? docLinter.error.msg : 'unknown'}}`);
+	} else if (docLinter.lintResult.summary.totalFixedNumber > 0) {
 		await applyTextDocumentEditOnWorkspace(docManager, textDocument, getUpdatedSource(docLinter, textDocument.getText()));
 		setTimeout(() => { // Wait 500ms so we are more sure that the textDocument is already updated
 			const newDoc = docManager.getUpToDateTextDocument(textDocument);

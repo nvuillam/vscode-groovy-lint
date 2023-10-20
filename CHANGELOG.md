@@ -5,6 +5,7 @@
 - Write your updates here !
 - Fix partial fixes never applying due to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v10.0.0 breaking change.
 - Fix Analyze Groovy files in folder ([#177](https://github.com/nvuillam/vscode-groovy-lint/issues/177))
+- Debug sessions correctly enable debugging by default including npm-groovy-lint.
 
 ## [2.0.0] 2022-08-13
 

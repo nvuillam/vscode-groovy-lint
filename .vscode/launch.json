@@ -11,7 +11,7 @@
         "--disable-extensions"
       ],
       "env": {
-        "DEBUG": "vscode-groovy-lint"
+        "DEBUG": "vscode-groovy-lint,npm-groovy-lint"
       },
       "outFiles": ["${workspaceRoot}/client/out/**/*.js"],
       "preLaunchTask": {
@@ -48,7 +48,7 @@
       "port": 6009,
       "restart": true,
       "env": {
-        "DEBUG": "vscode-groovy-lint"
+        "DEBUG": "vscode-groovy-lint,npm-groovy-lint"
       },
       "outFiles": ["${workspaceRoot}/server/out/**/*.js"],
       "smartStep": true,

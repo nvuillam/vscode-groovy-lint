@@ -85,7 +85,9 @@ export function parseLinterResults(lintResultsIn: any, source: string, textDocum
 					label: err.fixLabel || `Fix ${err.rule}`,
 					errId: err.id
 				});
+				debug(`Quick Fix: ${err.fixLabel || `Fix ${err.rule}`} ${err.id}`);
 			}
+			debug(`Diagnostic: ${diagnostic}`);
 			diagnostics.push(diagnostic);
 			pos++;
 		}
