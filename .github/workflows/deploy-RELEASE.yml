@@ -13,13 +13,15 @@ on:
     # Want to run the automation when a release is created
     types: ["created"]
 
+permissions: read-all
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - run: npm ci
-      - uses: lannonbr/vsce-action@master
+      - uses: lannonbr/vsce-action@08c559e5b8d51bf7c1e4ae83744a561b8c5870c8
         with:
           args: "publish -p $VSCE_TOKEN"
         env:
@@ -28,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: 16
       - run: npm ci

@@ -1,8 +1,8 @@
 <!-- markdownlint-disable MD033 -->
 # VsCode Groovy Lint, Format and Fix
 
-[![Version](https://vsmarketplacebadge.apphb.com/version/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
-[![Installs](https://vsmarketplacebadge.apphb.com/installs/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
+[![Version](https://vsmarketplacebadges.dev/version/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
+[![Installs](https://vsmarketplacebadges.dev/installs/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
 [![Test](https://github.com/nvuillam/vscode-groovy-lint/workflows/Test/badge.svg?branch=master)](https://github.com/nvuillam/vscode-groovy-lint/actions?query=workflow%3ATest+branch%3Amaster)
 [![Mega-Linter](https://github.com/nvuillam/vscode-groovy-lint/workflows/Mega-Linter/badge.svg?branch=master)](https://github.com/nvuillam/mega-linter#readme)
 [![License](https://img.shields.io/github/license/nvuillam/vscode-groovy-lint.png)](https://github.com/nvuillam/vscode-groovy-lint/blob/master/LICENSE)
@@ -30,13 +30,13 @@
 | Fix _rule_ in entire file              | Apply quick fix for all problems related to the same rule in the current file                    | Quick Fix<br/>Diagnostic                                 |
 | Disable _rule_ for this line           | Disable rule only for current line                                                               | Quick Fix<br/>Diagnostic                                 |
 | Disable _rule_ for this entire file    | Disable rule in the entire file                                                                  | Quick Fix<br/>Diagnostic                                 |
-| Disable _rule_ for this entire project | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to disable this rule) | Quick Fix<br/>Diagnostic                                 |
+| Disable _rule_ for this entire project | Updates configuration file<br/>(usually `.groovylintrc.js` in root folder) to disable this rule | Quick Fix<br/>Diagnostic                                 |
 
-- ***Contextual***: _right click in source code or on folder_
-- ***Commands***: _Ctrl+Shift+P then type command name_
-- ***Status bar***: _GroovyLint status item at the bottom right_
-- ***Quick Fix***: _Hover an underlined part of the code after a lint, click Quick Fix then select action to perform_
-- ***Diagnostic***: _Right click on a diagnostic in Problems section_
+- _**Contextual**_: *right click in source code or on folder_
+- _**Commands**_: *Ctrl+Shift+P then type command name_
+- _**Status bar**_: _GroovyLint status item at the bottom right_
+- _**Quick Fix**_: _Hover an underlined part of the code after a lint, click Quick Fix then select action to perform_
+- _**Diagnostic**_: _Right click on a diagnostic in Problems section_
 
 ## Extension Settings
 
