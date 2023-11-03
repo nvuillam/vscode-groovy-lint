@@ -13,7 +13,7 @@ export interface StatusParams {
 	lastLintTimeMs?: number
 }
 export namespace StatusNotification {
-	export const type = new NotificationType<StatusParams, void>('groovylintlsp/status');
+	export const type = new NotificationType<StatusParams>('groovylintlsp/status');
 }
 
 // Active Document notifications to language server
@@ -21,7 +21,7 @@ export interface ActiveDocumentNotificationParams {
 	uri: string
 }
 export namespace ActiveDocumentNotification {
-	export const type = new NotificationType<ActiveDocumentNotificationParams, void>('groovylintlsp/activedocument');
+	export const type = new NotificationType<ActiveDocumentNotificationParams>('groovylintlsp/activedocument');
 }
 
 // Open textDocument or Url notification
@@ -32,5 +32,5 @@ export interface OpenNotificationParams {
 	preview?: boolean
 }
 export namespace OpenNotification {
-	export const type = new NotificationType<OpenNotificationParams, void>("groovylintlsp/open");
+	export const type = new NotificationType<OpenNotificationParams>("groovylintlsp/open");
 }

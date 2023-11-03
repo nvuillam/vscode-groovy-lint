@@ -17,7 +17,7 @@ export async function lintFolder(folders: Array<any>, docManager: DocumentsManag
 
 	// Function to lint all applicable files of a folder
 	async function processLintFolder() {
-		const folderList = folders.map(fldr => fldr.path);
+		const folderList = folders.map(folder => folder.path);
 		debug(`Start analyzing folder(s): ${folderList.join(',')}`);
 		// Browse each folder
 		for (const folder of folderList) {

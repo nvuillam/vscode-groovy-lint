@@ -12,7 +12,7 @@ import {
     ExecuteCommandParams,
     DocumentFormattingParams,
     TextDocumentChangeEvent
-} from 'vscode-languageserver';
+} from 'vscode-languageserver/node';
 import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument';
 const { performance } = require('perf_hooks');
 
@@ -72,7 +72,7 @@ connection.onExit(async () => {
     await new NpmGroovyLint({ killserver: true }, {}).run();
 });
 
-// Lint again all opened documents in configuration changed 
+// Lint again all opened documents in configuration changed
 // wait N seconds in case a new config change arrive, run just after the last one
 connection.onDidChangeConfiguration(async (change) => {
     debug(`change configuration event received: restart server and lint again all open documents`);

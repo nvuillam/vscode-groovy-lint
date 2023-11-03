@@ -6,7 +6,7 @@ import {
 	LanguageClientOptions,
 	ServerOptions,
 	TransportKind
-} from 'vscode-languageclient';
+} from 'vscode-languageclient/node';
 import { StatusParams, StatusNotification, ActiveDocumentNotification, OpenNotification } from './types';
 
 const DIAGNOSTICS_COLLECTION_NAME = 'GroovyLint';
@@ -19,7 +19,6 @@ let statusList: StatusParams[] = [];
 let outputChannelShowedOnce = false;
 
 export function activate(context: ExtensionContext) {
-
 	// Create diagnostics collection
 	diagnosticsCollection = vscode.languages.createDiagnosticCollection(DIAGNOSTICS_COLLECTION_NAME);
 
@@ -70,13 +69,7 @@ export function activate(context: ExtensionContext) {
 	client.registerProposedFeatures();
 
 	// Start the client. This will also launch the server
-	context.subscriptions.push(
-		client.start()
-	);
-
-	// Actions after client is ready
-	client.onReady().then(() => {
-
+	client.start().then(() => {
 		// Show status bar item to display & run groovy lint
 		refreshStatusBar();
 
@@ -123,7 +116,11 @@ export function activate(context: ExtensionContext) {
 }
 
 // Stop client when extension is deactivated
-export function deactivate(): Thenable<void> {
+export function deactivate(): Thenable<void> | undefined {
+	if (!client) {
+		return undefined;
+	}
+
 	// Remove status bar
 	if (statusBarItem) {
 		statusBarItem.dispose();

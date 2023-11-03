@@ -34,9 +34,7 @@
   "author": "Nicolas Vuillamy",
   "license": "GPL-3.0-only",
   "dependencies": {
-    "vscode-languageclient": "^6.1.1"
-  },
-  "devDependencies": {
-    "vscode": "^1.1.37"
+    "@types/vscode": "^1.84.0",
+    "vscode-languageclient": "^9.0.1"
   }
 }
