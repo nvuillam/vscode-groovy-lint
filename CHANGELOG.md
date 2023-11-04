@@ -4,6 +4,11 @@
 
 - Write your updates here !
 
+## [3.0.0] 2023-11-04
+
+- Upgrade to [npm-groovy-lint 12.0.0](https://github.com/nvuillam/npm-groovy-lint/releases/tag/v12.0.0)
+  - Breaking change: Minimum java version is now 17
+
 ## [2.0.0] 2022-08-13
 
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v10.0.0
