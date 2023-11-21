@@ -191,6 +191,12 @@
           "default": true,
           "description": "Controls whether GroovyLint is enabled or not."
         },
+        "groovyLint.showProblemsView": {
+          "scope": "resource",
+          "type": "boolean",
+          "default": true,
+          "description": "Show Problems View once after start."
+        },
         "groovyLint.lint.trigger": {
           "scope": "resource",
           "type": "string",
