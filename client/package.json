@@ -23,13 +23,9 @@
     "url": "https://github.com/nvuillam/vscode-groovy-lint/issues"
   },
   "homepage": "https://github.com/nvuillam/vscode-groovy-lint#readme",
-  "scripts": {
-    "update-vscode": "vscode-install",
-    "postinstall": "vscode-install"
-  },
   "engines": {
-    "vscode": "^1.42.0",
-    "node": ">=14.0.0"
+    "vscode": "^1.84.0",
+    "node": ">=18.0.0"
   },
   "author": "Nicolas Vuillamy",
   "license": "GPL-3.0-only",
@@ -37,6 +33,7 @@
     "vscode-languageclient": "^6.1.1"
   },
   "devDependencies": {
-    "vscode": "^1.1.37"
+    "@types/node": "^20.9.4",
+    "@types/vscode": "^1.84.2"
   }
 }
