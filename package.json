@@ -102,7 +102,7 @@
     "glob": "^7.1.6",
     "mocha": "^7.1.2",
     "nyc": "^15.0.0",
-    "typescript": "^3.7.5"
+    "typescript": "^5.3.2"
   },
   "activationEvents": [
     "onLanguage:groovy",
