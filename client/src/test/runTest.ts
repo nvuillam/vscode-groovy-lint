@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { runTests } from 'vscode-test';
+import { runTests } from '@vscode/test-electron';
 const NYC = require('nyc');
 
 const codeCoverage = process.argv && process.argv.includes('--codecoverage');
@@ -47,10 +47,10 @@ async function main() {
 		}
 		// Download VS Code, unzip it and run the integration test
 		await runTests({
-			extensionPath: extensionDevelopmentPath,
-			testRunnerPath: extensionTestsPath,
-			additionalLaunchArgs: ['--disable-extensions'],
-			testRunnerEnv: (process.env["DEBUG"]) ? { "DEBUG": "vscode-groovy-lint,npm-groovy-lint" } : {}
+			extensionDevelopmentPath: extensionDevelopmentPath,
+			extensionTestsPath: extensionTestsPath,
+			launchArgs: ['--disable-extensions'],
+			extensionTestsEnv: (process.env["DEBUG"]) ? { "DEBUG": "vscode-groovy-lint,npm-groovy-lint" } : {}
 		});
 
 		if (codeCoverage) {
