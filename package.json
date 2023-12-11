@@ -7,24 +7,25 @@
   "license": "GPL-3.0-only",
   "icon": "icon.png",
   "engines": {
-    "vscode": "^1.62.0",
+    "vscode": "^1.75.0",
     "node": ">=14.0.0"
   },
   "scripts": {
-    "precompile": "rimraf ./client/out/* && rimraf ./client/coverage/* && rimraf ./client/.nyc_output/* && rimraf ./server/out/* && rimraf ./server/coverage/* && rimraf ./server/.nyc_output/*",
     "compile": "tsc -b",
-    "postcompile": "cp -f README.md docs/index.md",
     "watch": "tsc -b -w",
-    "lint": "eslint client/src --ext ts && eslint server/src --ext ts",
-    "lint:fix": "eslint client/src --ext ts --fix && eslint server/src --ext ts --fix",
-    "pretest": "npm run compile && npm run lint",
-    "pretest:verbose": "npm run compile && npm run lint",
-    "test": "node ./client/out/test/runTest.js",
+    "lint": "eslint --ext ts client/src server/src",
+    "lint:fix": "eslint --ext ts --fix client/src server/src",
+    "pretest": "run-s compile lint",
+    "pretest:verbose": "run-s compile lint",
+    "test": "node ./client/out/test/runTest.js 2>&1 |grep -v :ERROR:",
     "test:coverage": "env AUTO_ACCEPT_REPLACE_TABS=activated node ./client/out/test/runTest.js --codecoverage",
-    "test:debug": "env AUTO_ACCEPT_REPLACE_TABS=activated node --inspect-brk ./client/out/test/runTest.js",
-    "test:verbose": "env AUTO_ACCEPT_REPLACE_TABS=activated DEBUG=npm-groovy-lint node ./client/out/test/runTest.js",
+    "test:debug": "env AUTO_ACCEPT_REPLACE_TABS=activated DEBUG=npm-groovy-lint,vscode-groovy-lint NPM_DEBUG=npm-groovy-lint,vscode-groovy-lint node --inspect-brk ./client/out/test/runTest.js",
+    "test:verbose": "env AUTO_ACCEPT_REPLACE_TABS=activated DEBUG=vscode-groovy-lint NPM_DEBUG=vscode-groovy-lint node ./client/out/test/runTest.js",
     "postinstall": "cd client && npm install --unsafe-perm && cd ../server && npm install --unsafe-perm && cd ..",
-    "vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile"
+    "vscode:prepublish": "run-s dev:pre-commit",
+    "dev:pre-commit": "run-s lint:fix compile && cp -f README.md docs/index.md",
+    "mocha": "mocha --require ts-node/register --require source-map-support/register --timeout 10000 --recursive ./client/src/test",
+    "vstest": "vscode-test"
   },
   "categories": [
     "Programming Languages",
@@ -92,24 +93,22 @@
     }
   ],
   "devDependencies": {
-    "@types/glob": "^8.1.0",
-    "@types/mocha": "^10.0.3",
-    "@types/node": "^20.8.10",
-    "@typescript-eslint/eslint-plugin": "^6.9.1",
-    "@typescript-eslint/parser": "^6.9.1",
-    "eslint": "^8.52.0",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.10.4",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "eslint": "^8.56.0",
     "mocha": "^10.2.0",
-    "nyc": "^15.0.0",
-    "typescript": "^5.2.2",
-    "vscode-test": "^1.3.0"
+    "npm-run-all": "^4.1.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   },
   "activationEvents": [
     "onLanguage:groovy",
     "onLanguage:jenkinsfile",
     "workspaceContains:**/Jenkins*",
     "workspaceContains:**/*.nf",
-    "workspaceContains:**/*.gradle",
-    "onCommand:groovyLint.lint"
+    "workspaceContains:**/*.gradle"
   ],
   "main": "./client/out/extension",
   "contributes": {

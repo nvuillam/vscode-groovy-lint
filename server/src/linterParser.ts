@@ -2,6 +2,7 @@ import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DocumentsManager } from './DocumentsManager';
 const debug = require("debug")("vscode-groovy-lint");
+const trace = require("debug")("vscode-groovy-lint-trace");
 
 // Parse results into VsCode diagnostic
 export function parseLinterResults(lintResultsIn: any, source: string, textDocument: TextDocument, docManager: DocumentsManager) {
@@ -87,7 +88,7 @@ export function parseLinterResults(lintResultsIn: any, source: string, textDocum
 				});
 				debug(`Quick Fix: ${err.fixLabel || `Fix ${err.rule}`} ${err.id}`);
 			}
-			debug(`Diagnostic: ${diagnostic}`);
+			trace(`Diagnostic: ${JSON.stringify(diagnostic, null, 2)}`);
 			diagnostics.push(diagnostic);
 			pos++;
 		}

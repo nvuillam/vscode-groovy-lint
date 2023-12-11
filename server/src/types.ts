@@ -5,7 +5,7 @@ import { NotificationType } from 'vscode-languageserver';
 // Status notifications
 export interface StatusParams {
 	id: number,
-	state: string, // lint.start, lint.start.format, lint.start.fix ,lint.end, lint.end.format, lint.end.fix, lint.error, lint.cancel
+	state: string, // lint.start, lint.start.format, lint.start.fix, lint.end, lint.end.format, lint.end.fix, lint.error, lint.cancel
 	documents: [
 		{
 			documentUri: string,

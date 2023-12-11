@@ -57,9 +57,9 @@
 
 ## Troubleshooting
 
-- [**Node.js**](https://nodejs.org) version **12 or higher** is required to run this extension. If you can't upgrade, you can use [nvm](https://github.com/nvm-sh/nvm) to have [different node versions on your computer](https://www.sitepoint.com/quick-tip-multiple-versions-node-nvm/)
+- [**Node.js**](https://nodejs.org) version **18 or higher** is required to run this extension. If you can't upgrade, you can use [nvm](https://github.com/nvm-sh/nvm) to have [different node versions on your computer](https://www.sitepoint.com/quick-tip-multiple-versions-node-nvm/)
 
-- [**Java**](https://www.java.com/download) version **8 or higher** is required to run this extension
+- [**Java**](https://www.java.com/download) version **17 or higher** is required to run this extension
 
 - As CodeNarc is run in background with java/groovy, performances could be improved on large files (do not hesitate to provide advices !)
 But do not worry, as the groovy linting is provided by a background local server, your VsCode won't be slowed.

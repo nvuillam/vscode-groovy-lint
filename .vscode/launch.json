@@ -22,26 +22,6 @@
       "skipFiles": ["<node_internals>/**"]
     },
     {
-      "type": "extensionHost",
-      "request": "launch",
-      "name": "Launch Client (FINE)",
-      "runtimeExecutable": "${execPath}",
-      "args": [
-        "--extensionDevelopmentPath=${workspaceRoot}",
-        "--disable-extensions"
-      ],
-      "env": {
-        "DEBUG": "vscode-groovy-lint,npm-groovy-lint"
-      },
-      "outFiles": ["${workspaceRoot}/client/out/**/*.js"],
-      "preLaunchTask": {
-        "type": "npm",
-        "script": "watch"
-      },
-      "smartStep": true,
-      "skipFiles": ["<node_internals>/**"]
-    },
-    {
       "type": "node",
       "request": "attach",
       "name": "Attach to Server",
@@ -56,19 +36,36 @@
       "timeout": 60000
     },
     {
-      "name": "Language Server E2E Test",
+      "name": "Run Extension Tests",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
-        "--extensionDevelopmentPath=${workspaceRoot}",
-        "--extensionTestsPath=${workspaceRoot}/client/out/test",
-        "${workspaceRoot}/client/testFixture"
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/client/out/test/suite/index",
+      ],
+      "outFiles": ["${workspaceFolder}/client/out/test/**/*.js"],
+      "preLaunchTask": "npm: watch",
+      "smartStep": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Run Extension Tests (Debug)",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/client/out/test/suite/index",
       ],
       "env": {
-        "DEBUG": "vscode-groovy-lint,npm-groovy-lint"
+        "NPM_DEBUG": "vscode-groovy-lint,npm-groovy-lint",
+        "DEBUG": "vscode-groovy-lint"
       },
-      "outFiles": ["${workspaceRoot}/client/out/test/**/*.js"],
+      "outFiles": ["${workspaceFolder}/client/out/test/**/*.js"],
+      "preLaunchTask": "npm: watch",
       "smartStep": true,
       "skipFiles": ["<node_internals>/**"]
     },
@@ -84,12 +81,12 @@
   ],
   "compounds": [
     {
-      "name": "Groovy Lint debug",
+      "name": "Launch Client + Server",
       "configurations": ["Launch Client", "Attach to Server"]
     },
     {
-      "name": "Groovy Lint debug (FINE)",
-      "configurations": ["Launch Client (FINE)", "Attach to Server"]
-    }
+      "name": "Run Extension Tests + Server",
+      "configurations": ["Run Extension Tests", "Attach to Server"]
+    },
   ]
 }

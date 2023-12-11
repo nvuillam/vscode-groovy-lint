@@ -16,13 +16,13 @@ import static groovyx.gpars.GParsPool.withPool
 
 def script = new GroovyScriptEngine( '.' ).with {
   loadScriptByName( 'Utils.groovy' )
-} 
-this.metaClass.mixin script 
+}
+this.metaClass.mixin script
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////// INIT ///////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-def returnCode = 0 ; 
+def returnCode = 0 ;
 Exception eThrow = null ;
 try {
     initialize(args);
@@ -64,7 +64,7 @@ class SfdxManagementExecutor {
 
     // params
     String devHubName = 'DevHub';
-    String sourceEnvName = 'sourceEnvName_MUST_BE_SENT_AS_PARAM'; 
+    String sourceEnvName = 'sourceEnvName_MUST_BE_SENT_AS_PARAM';
     String projectDir = 'Projects'; // Always the same, no need to send it as a BAT argument
     String usernameSuffix = 'dxc-scratch.com' ;
     String sfdxSourcesFolder = 'force-app/main/default' ;
@@ -78,7 +78,7 @@ class SfdxManagementExecutor {
     String scratchOrgUserEmail ;
     String projectScratchDefName ;
     String packagingOrgAlias ; // Alias of the packaging org to manipulate
-    String packageXmlFile ; 
+    String packageXmlFile ;
     Boolean doNotReuseScratchOrg = false ;
     def additionalPackageXmlFiles = [];
     def packageList = [];
@@ -98,16 +98,16 @@ class SfdxManagementExecutor {
 
     String metadatasDeployFolder = 'mdapi_output_dir'
     String metadatasDeployFolderOutput = 'mdapi_output_dir_filtered'
-    Boolean promptForReloadMetadatas = true 
+    Boolean promptForReloadMetadatas = true
 
     Boolean loadMetadatas = false;
-    
+
     String globalKeyPrefix ;
 
     // Player vars
     String playerScriptsFolder = './PlayerScripts';
     String playerJarLocation = 'DxcOmnichannelPlayer.jar';
-    String playerConfigFile = 'config_Player_jenkins_generic.ini' ; 
+    String playerConfigFile = 'config_Player_jenkins_generic.ini' ;
 
     // PMD / CPD params
     String pmdpath = ''
@@ -120,7 +120,7 @@ class SfdxManagementExecutor {
     def scssProcessList = [] ;
 
     String ownConfigFile = 'myConfig.json'
-    Boolean ignoreOwnConfigFile = false 
+    Boolean ignoreOwnConfigFile = false
     String sharedConfigFile = 'sharedConfig.json'
     Integer scratchOrgExpiryWarningDaysNb = 5
 
@@ -226,39 +226,39 @@ class SfdxManagementExecutor {
                 runRetrieveSourceOrgMetadata longOpt : 'runRetrieveSourceOrgMetadata', 'Retrieve metadatas from a source org'
 
                 runWaitCommunityActive longOpt : 'runWaitCommunityActive', 'Wait for a community to be active ( url , timeoutInSeconds )'
-                url longOpt: 'url', args: 1, argName: 'url', 'URL' 
+                url longOpt: 'url', args: 1, argName: 'url', 'URL'
                 timeoutInSeconds longOpt: 'timeoutInSeconds', args: 1, argName: 'timeoutInSeconds', 'Timeout in seconds'
 
                 jsonLog longOpt : 'jsonLog', 'Print log as JSON'
 
             }
-             
+
             def options = Utils.parseArgs(cli,args2,this);
 
             // Initialize class properties with arguments
             if (options.'projectDir' && options.'projectDir' != 'false')
-                this.projectDir = options.'projectDir' ; 
+                this.projectDir = options.'projectDir' ;
 
             if (options.'sfdxSourcesFolder' && options.'sfdxSourcesFolder' != 'false')
-                this.sfdxSourcesFolder = options.'sfdxSourcesFolder' ; 
+                this.sfdxSourcesFolder = options.'sfdxSourcesFolder' ;
 
             if (options.'scratchOrgAlias' && options.'scratchOrgAlias' != 'false')
-                this.scratchOrgAlias = options.'scratchOrgAlias' ; 
+                this.scratchOrgAlias = options.'scratchOrgAlias' ;
             if (options.'scratchOrgNameKey' && options.'scratchOrgNameKey' != 'false')
-                this.scratchOrgNameKey = options.'scratchOrgNameKey' ; 
+                this.scratchOrgNameKey = options.'scratchOrgNameKey' ;
                 if (scratchOrgNameKey != null && scratchOrgNameKey.length() > 20) {
                     this.scratchOrgNameKey = this.scratchOrgNameKey.substring(this.scratchOrgNameKey.length() - 20);
                 }
 
             if (options.'scratchOrgUserEmail' && options.'scratchOrgUserEmail' != 'false')
-                this.scratchOrgUserEmail = options.'scratchOrgUserEmail' ; 
+                this.scratchOrgUserEmail = options.'scratchOrgUserEmail' ;
             if (options.'scratchOrgDuration' && options.'scratchOrgDuration' != 'false')
-                this.scratchOrgDuration = Integer.valueOf(options.'scratchOrgDuration') ; 
+                this.scratchOrgDuration = Integer.valueOf(options.'scratchOrgDuration') ;
 
             if (options.'packagingOrgAlias' && options.'packagingOrgAlias' != 'false')
-                this.packagingOrgAlias = options.'packagingOrgAlias' ; 
+                this.packagingOrgAlias = options.'packagingOrgAlias' ;
             if (options.'projectName' && options.'projectName' != 'false') {
-                this.projectName = options.'projectName' ; 
+                this.projectName = options.'projectName' ;
             }
 
             if (options.'jsonLog')
@@ -271,23 +271,23 @@ class SfdxManagementExecutor {
                 this.globalKeyPrefix = options.'globalKeyPrefix' ;
 
             if (options.'sourceEnvName' && options.'sourceEnvName' != 'false')
-                this.sourceEnvName = options.'sourceEnvName' ; 
+                this.sourceEnvName = options.'sourceEnvName' ;
             if (options.'devHubName' && options.'devHubName' != 'false')
-                this.devHubName = options.'devHubName' ; 
+                this.devHubName = options.'devHubName' ;
             if (options.'workingDir' && options.'workingDir' != 'false')
-                this.workingDir = options.'workingDir' ; 
+                this.workingDir = options.'workingDir' ;
             if (options.'packageXmlFile' && options.'packageXmlFile' != 'false')
-                this.packageXmlFile = options.'packageXmlFile' ; 
+                this.packageXmlFile = options.'packageXmlFile' ;
             if (options.'additionalPackageXmlFiles' && options.'additionalPackageXmlFiles' != 'false') {
-                this.additionalPackageXmlFiles = options.'additionalPackageXmlFiles'.tokenize(',') ;  
+                this.additionalPackageXmlFiles = options.'additionalPackageXmlFiles'.tokenize(',') ;
             }
 
             if (options.'packagesToInstall' && options.'packagesToInstall' != 'false' &&
              options.'packagesToInstall' != 'null' && options.'packagesToInstall' != null) {
-                this.packageList = options.'packagesToInstall'.tokenize(',') ;  
+                this.packageList = options.'packagesToInstall'.tokenize(',') ;
             }
             if (options.'themeToProcess' && options.'themeToProcess' != 'false') {
-                this.themeToProcess = options.'themeToProcess' ;  
+                this.themeToProcess = options.'themeToProcess' ;
             }
 
             if (options.'apexCodeFile' && options.'apexCodeFile' != 'false')
@@ -295,15 +295,15 @@ class SfdxManagementExecutor {
             if (options.'exportQuery' && options.'exportQuery' != 'false')
                 this.exportQuery = options.'exportQuery'.replace('_PERCENT_','%') ;
             if (options.'exportFolder' && options.'exportFolder' != 'false')
-                this.exportFolder = options.'exportFolder' ;                
+                this.exportFolder = options.'exportFolder' ;
             if (options.'metadatasDeployFolder' && options.'metadatasDeployFolder' != 'false')
-                this.metadatasDeployFolder = options.'metadatasDeployFolder' ;   
+                this.metadatasDeployFolder = options.'metadatasDeployFolder' ;
             if (options.'metadatasDeployFolderOutput' && options.'metadatasDeployFolderOutput' != 'false')
-                this.metadatasDeployFolderOutput = options.'metadatasDeployFolderOutput' ;   
+                this.metadatasDeployFolderOutput = options.'metadatasDeployFolderOutput' ;
             if (options.'apexCodeFile' && options.'apexCodeFile' != 'false')
-                this.apexCodeFile = options.'apexCodeFile' ;                
+                this.apexCodeFile = options.'apexCodeFile' ;
             if (options.'permSetsToAssign' && options.'permSetsToAssign' != 'false') {
-                this.permissionSetList = options.'permSetsToAssign'.tokenize(',') ;  
+                this.permissionSetList = options.'permSetsToAssign'.tokenize(',') ;
             }
             if (options.'userUsername' && options.'userUsername' != 'false')
                 this.userUsername = options.'userUsername' ;
@@ -324,15 +324,15 @@ class SfdxManagementExecutor {
                 this.url = options.'url' ;
 
              if (options.'timeoutInSeconds' && options.'timeoutInSeconds' != 'false')
-                this.timeoutInSeconds = Integer.valueOf(options.'timeoutInSeconds') 
+                this.timeoutInSeconds = Integer.valueOf(options.'timeoutInSeconds')
 
             if (options.'doNotReuseScratchOrg')
                 this.doNotReuseScratchOrg = true ;
 
             // Kill previous sfdx process if wrongly closed
-            if (options.'runFullOrgCreation' && 
-                !Utils.systemIsLinux() && 
-                Utils.killProcessIfRunning('sfdx.exe')) 
+            if (options.'runFullOrgCreation' &&
+                !Utils.systemIsLinux() &&
+                Utils.killProcessIfRunning('sfdx.exe'))
             {
                 Utils.killProcessIfRunning('node.exe');
                 Utils.printlnLog 'Killed process of wrongly closed previous SFDX executions'
@@ -423,7 +423,7 @@ class SfdxManagementExecutor {
             else if (options.'runRetrieveSourceOrgMetadata') {
                 this.promptForReloadMetadatas = false
                 this.retrieveSourceOrgMetadata();
-            }            
+            }
             else if (options.'runGenerateManagedPackage') {
                 this.generateManagedPackage();
             }
@@ -441,7 +441,7 @@ class SfdxManagementExecutor {
                 Utils.printlnLog(Utils.toJsonStringFlat(this.jsonLogContent)) ;
             }
 
-        } 
+        }
 
         /////////////////////// RUN CREATE ORG ////////////////////////
         public createAndInitScratchOrg() {
@@ -462,7 +462,7 @@ class SfdxManagementExecutor {
             this.installAdditionalPackages()
 
             def runCreateOrgResult = true ;
-            assert runCreateOrgResult == true,  "[ERROR] RUN CREATE ORG failed" 
+            assert runCreateOrgResult == true,  "[ERROR] RUN CREATE ORG failed"
             return true ;
         }
 
@@ -480,21 +480,21 @@ class SfdxManagementExecutor {
                 // User selected a SFDX Project
                 if (userSlctdDir != null)
                     this.projectName = userSlctdDir.getName();
-                else 
+                else
                 {
                     // User wants to create a SFDX Project
-                    this.projectName = Utils.userInputText('Please enter the name of the Salesforce DX Project to create (without spaces or special characters): ', 5) 
+                    this.projectName = Utils.userInputText('Please enter the name of the Salesforce DX Project to create (without spaces or special characters): ', 5)
                     this.manageConnectOrg(this.devHubName);
                     Utils.checkCreateDir(this.projectDir);
                     def projCreationCommand ='sfdx force:project:create -n '+this.projectName;
                     def projCreationCommandResult = Utils.executeCommand(projCreationCommand, 'Create new SFDX Project',this.projectDir);
-                    assert projCreationCommandResult == true,  "[ERROR] Unable to create SFDX Project" 
+                    assert projCreationCommandResult == true,  "[ERROR] Unable to create SFDX Project"
                 }
 
                 this.currentProjectPath = './'+this.projectDir+'/'+this.projectName ;
 
                 Utils.stopElapse(elpse);
-                assert ok == true,  "[ERROR] Project Selection or Creation failed" 
+                assert ok == true,  "[ERROR] Project Selection or Creation failed"
                 return ok ;
             }
             // Project name is sent from INI but has not been generated
@@ -504,7 +504,7 @@ class SfdxManagementExecutor {
                 def projCreationCommand ='sfdx force:project:create -n '+this.projectName;
                 def projCreationCommandResult = Utils.executeCommand(projCreationCommand, 'Create new SFDX Project',this.projectDir);
                 this.currentProjectPath = './'+this.projectDir+'/'+this.projectName ;
-                assert projCreationCommandResult == true,  "[ERROR] Unable to create SFDX Project" 
+                assert projCreationCommandResult == true,  "[ERROR] Unable to create SFDX Project"
             }
             else {
                 this.currentProjectPath = './'+this.projectDir+'/'+this.projectName ;
@@ -522,7 +522,7 @@ class SfdxManagementExecutor {
 
             // List connected orgs
             def forceOrgListResult = this.forceOrgList();
-            Boolean isConnected = false 
+            Boolean isConnected = false
 
             if ( forceOrgListResult != null && forceOrgListResult.status == 0 && forceOrgListResult.result.nonScratchOrgs != null) {
                 // Append classic orgs and scratch orgs
@@ -531,7 +531,7 @@ class SfdxManagementExecutor {
                 if (forceOrgListResult.result.scratchOrgs != null)
                     orgsToIterate.addAll(forceOrgListResult.result.scratchOrgs)
                 // Check if the org alias is connected
-                for (org in orgsToIterate) { 
+                for (org in orgsToIterate) {
                         // Alias org is connected
                         if ( org.alias == alias && (org.connectedStatus == 'Connected' || org.connectedStatus == 'Unknown')) {
                             isConnected = true ;
@@ -558,7 +558,7 @@ class SfdxManagementExecutor {
                 // ssl folder must contain ORGALIAS.json, ORGALIAS.crt and ORGALIAS.key
                 // https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_auth_jwt_flow.htm
                 def projectPath = './'+this.projectDir+'/'+this.projectName ;
-                def sslDefFilePath = projectPath+'/ssl/'+alias+'.json' ; 
+                def sslDefFilePath = projectPath+'/ssl/'+alias+'.json' ;
                 def sslDefFile = new File(sslDefFilePath);
                 def forceAuthPath = projectPath ;
                 // If SSL stuff is not in Projects/ProjectName/SSL, use root /ssl folder
@@ -616,8 +616,8 @@ class SfdxManagementExecutor {
                 Utils.printlnLog(scratchOrgList);
                 Boolean existingScratchOrg = false ;
                 if (scratchOrgList != null && this.doNotReuseScratchOrg == false) {
-                    for (def org in scratchOrgList) { 
-                        if (org.alias  == this.scratchOrgAlias) 
+                    for (def org in scratchOrgList) {
+                        if (org.alias  == this.scratchOrgAlias)
                             existingScratchOrg = true ;
                     }
                 }
@@ -631,9 +631,9 @@ class SfdxManagementExecutor {
                     this.jsonLogContent['scratchOrgCreated'] = orgCreationCommandLog ;
                     this.jsonLogContent['scratchOrgAliasCreated'] = this.scratchOrgAlias ;
 
-                    assert orgCreationCommandResult == true,  "[ERROR]  Unable to create scratch org. Probably a SFDC platform issue, please try again" 
+                    assert orgCreationCommandResult == true,  "[ERROR]  Unable to create scratch org. Probably a SFDC platform issue, please try again"
                     // Example of correct scratch org creation log:  {"status":0,"result":{"orgId":"00D9E0000008jzXUAQ","username":"nvuillam@jenkins_nvuillam_822837048-dxc-scratch.com"}}
-                    assert orgCreationCommandLog.status == 0, "[ERROR]  Unable to create scratch org. Probably a SFDC platform issue, please try again" 
+                    assert orgCreationCommandLog.status == 0, "[ERROR]  Unable to create scratch org. Probably a SFDC platform issue, please try again"
                     this.scratchHasJustBeenCreated = true;
                     this.sourceEnvName = this.scratchOrgAlias ;
                     this.forceOrgListCache = null // reset force:org:list cache
@@ -655,7 +655,7 @@ class SfdxManagementExecutor {
                 if (!Utils.systemIsLinux()) {
                     def orgOpenCommand = 'sfdx force:org:open -u '+this.scratchOrgAlias;
                     def orgOpenCommandResult = Utils.executeCommand(orgOpenCommand,'Open new scratch org');
-                    assert orgOpenCommandResult == true,  "[ERROR]  Unable to open scratch org" 
+                    assert orgOpenCommandResult == true,  "[ERROR]  Unable to open scratch org"
                 }
 
             } catch (Exception e) {
@@ -664,7 +664,7 @@ class SfdxManagementExecutor {
             }
 
             Utils.stopElapse(elpse);
-            assert ok == true,  "[ERROR]  create & open scratch org failed" 
+            assert ok == true,  "[ERROR]  create & open scratch org failed"
             return ok ;
         }
 
@@ -673,7 +673,7 @@ class SfdxManagementExecutor {
             this.manageSelectSFDXProject();
             this.manageSelectScratchOrg(false);
 
-            Boolean pwdOk = false 
+            Boolean pwdOk = false
             while (pwdOk == false) {
                 def orgPwdCommand = 'sfdx force:user:password:generate -u '+this.scratchOrgAlias +' --json';
                 def orgPwdCommandResult = Utils.executeCommand(orgPwdCommand,'Generate password for main scratch org user');
@@ -683,7 +683,7 @@ class SfdxManagementExecutor {
                 this.jsonLogContent['scratchOrgPassword'] = pwd ;
                 def boringCharsForCommandLine = ['$','&','@'] //['%','^','"','\\','|','\'','-','$','@'] //NV: now we use strong quotes to call Dxc Player, it should be ok
                 if (!Utils.stringContainsOneOf(pwd,boringCharsForCommandLine)) {
-                    pwdOk = true  
+                    pwdOk = true
                     Utils.printlnLog("New password for scratch org ${this.scratchOrgAlias} main user : ${pwd}")
                     Utils.setPropInJsonFile(this.ownConfigFile,"${this.scratchOrgAlias}_pwd",pwd)
                 }
@@ -707,9 +707,9 @@ class SfdxManagementExecutor {
 
             def usrDisplayCommand = 'sfdx force:user:display -u '+this.userUsername;
             Utils.executeCommand(usrDisplayCommand, 'Display user info');
- 
-            Utils.stopElapse(elpse);        
-            assert usrCreationCommandResult == true,  "[ERROR]  Unable to create scratch org"    
+
+            Utils.stopElapse(elpse);
+            assert usrCreationCommandResult == true,  "[ERROR]  Unable to create scratch org"
         }
 
         ///////////////////////// JSON Definition file creation/////////
@@ -785,7 +785,7 @@ class SfdxManagementExecutor {
             // Read & parse project-user-def.json
             def userConfigFileName = 'project-user-def.json';
             def userConfigFile = new File("./"+this.projectDir+"/"+this.projectName+"/config/"+userConfigFileName);
-            def jsonUserConfigMap = Utils.fromJsonString(userConfigFileName.text)            
+            def jsonUserConfigMap = Utils.fromJsonString(userConfigFileName.text)
 
             // Add user input parameters in config file
             jsonUserConfigMap['permsets'] = permissionSetList
@@ -803,7 +803,7 @@ class SfdxManagementExecutor {
             return true ;
         }
 
-        /////////////////////// Install external packages ////////////////////////////////  
+        /////////////////////// Install external packages ////////////////////////////////
         public installAdditionalPackages() {
             if (this.packageList == null || this.packageList.size() == 0)
                 return ;
@@ -829,13 +829,13 @@ VALIDATE ONLY WHEN ALL ACTIONS ARE DONE to allow the script to continue
             // In case this is a brand new scratch, some options must be checked
             if (this.scratchHasJustBeenCreated) {
                 String checkAndSetupText = '''
- _____                           _              _     _ 
+ _____                           _              _     _
 |_   _|                         | |            | |   | |
   | | _ __ ___  _ __   ___  _ __| |_ __ _ _ __ | |_  | |
   | || '_ ` _ \\| '_ \\ / _ \\| '__| __/ _` | '_ \\| __| | |
  _| || | | | | | |_) | (_) | |  | || (_| | | | | |_  |_|
  \\___/_| |_| |_| .__/ \\___/|_|   \\__\\__,_|_| |_|\\__| (_)
-               | |                                                                            
+               | |
 -=-=-=-=-=-=-=-|_|-=-= To do during package installation =-=-=-=-=-=-=-=-=-=-=-
 (Only DXC OmniChannel for Salesforce related)
 Please CHECK & eventualy SETUP the following options :
@@ -843,7 +843,7 @@ Please CHECK & eventualy SETUP the following options :
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ''';
                 Utils.printlnLog(checkAndSetupText); // nonblocking message. We have time to check the options during package installation
-            }            
+            }
             // List already installed packages
             def alreadyInstalledPackageList = this.listOrgInstalledPackages(this.scratchOrgAlias);
             Utils.printlnLog('The following package list is already installed :\n'+Utils.toJsonString(alreadyInstalledPackageList))
@@ -854,7 +854,7 @@ Please CHECK & eventualy SETUP the following options :
 
             for (String packageIdLabel: this.packageList) {
                 def packageId = null
-                def packageLabel = null 
+                def packageLabel = null
                 def packageConfigDef = null
 
                 if (packageIdLabel.contains('#')) {
@@ -874,7 +874,7 @@ Please CHECK & eventualy SETUP the following options :
                     packageId = packageConfigDef.id ;
                 }
 
-                def installPckgFlag = true 
+                def installPckgFlag = true
 
                 // If package is already installed, try to mach with config and if not found, ask user if he wants to reinstall it
                 if (alreadyInstalledPackageList != null && alreadyInstalledPackageList.size() > 0) {
@@ -886,7 +886,7 @@ Please CHECK & eventualy SETUP the following options :
                             askUserForPckgInstall = false
                             Utils.printlnLog ('Skip installation of '+packageLabel+' as it is already installed');
                         }
-                    }   
+                    }
 
                     if (askUserForPckgInstall == true && packageConfigDef == null)
                         installPckgFlag = Utils.userPromptOkCancel('Do you want to install package '+packageLabel+' ('+packageId+') ?');
@@ -898,7 +898,7 @@ Please CHECK & eventualy SETUP the following options :
                 else if (installPckgFlag == true) {
                     def installPackgCommand = 'sfdx force:package:install --package '+packageId+' -u '+this.scratchOrgAlias+' --noprompt --securitytype AllUsers -w 30' ;
                     pckgInstallRes = Utils.executeCommand(installPackgCommand,
-                                              'Installing package '+packageLabel+' ('+packageId+')', sfdxWorkingDir); 
+                                              'Installing package '+packageLabel+' ('+packageId+')', sfdxWorkingDir);
                     assert pckgInstallRes == true , 'Package installation failure: '+packageLabel+' ('+packageId+')'
                     justInstalledPackageIds << packageId
                 }
@@ -938,10 +938,10 @@ Please CHECK & eventualy SETUP the following options :
 
                 /* NV: not working def retrieveDataForSFDXreport = Utils.executeCommand('sfdx force:mdapi:retrieve:report',
                                                                 'Request retrieve report', sfdxWorkingDir); */
-                
+
                 if (retrieveDataForSFDX == true /*&& retrieveDataForSFDXreport == true */)
                     Utils.killFile(sfdxWorkingDir+'/package.xml');
-                
+
                 // Unzip retrieve metadata file
                 Utils.checkCreateDir(sfdxWorkingDir+'/'+mdApiFldr);
                 Utils.printlnLog ('Unzipping MDAPI metadatas from' +sfdxWorkingDir+'/'+mdApiZipFldr+'/unpackaged.zip to '+sfdxWorkingDir+'/'+mdApiFldr);
@@ -957,14 +957,14 @@ Please CHECK & eventualy SETUP the following options :
 
             Utils.stopElapse(elpse);
             if (doRetrieve == true)
-                assert retrieveDataForSFDX == true ,  "[ERROR] retrieveSourceOrgMetadata failed" 
+                assert retrieveDataForSFDX == true ,  "[ERROR] retrieveSourceOrgMetadata failed"
             return true ;
         }
 
 
 
         public convertMetadataToSfdxProject() {
-                def elpse = Utils.startElapse('Convert Metadatas into SFDX format') 
+                def elpse = Utils.startElapse('Convert Metadatas into SFDX format')
 
                 if (this.scratchOrgAlias)
                    this.refactorUnpackagedMetadatas()
@@ -975,9 +975,9 @@ Please CHECK & eventualy SETUP the following options :
                 // Convert metadata in SFDX format
                 def dataConvertCommand = 'sfdx force:mdapi:convert -r '+mdApiFldr+' --loglevel=warn ' ;
                 def dataConvertCommandResult = Utils.executeCommand(dataConvertCommand,
-                                                  'Convert MDAPI metadatas to SFDX Project', 
+                                                  'Convert MDAPI metadatas to SFDX Project',
                                                    sfdxWorkingDir);
-                assert dataConvertCommandResult == true,  "[ERROR] Convert Metadatas into SFDX format failed" 
+                assert dataConvertCommandResult == true,  "[ERROR] Convert Metadatas into SFDX format failed"
 
                 this.fixSfdxProject()
 
@@ -990,28 +990,28 @@ Please CHECK & eventualy SETUP the following options :
 
             this.manageSelectSFDXProject();
             this.manageSelectScratchOrg(false);
-            
+
             // Check if test not already succeded ( in the case do not run again)
             if (Utils.getExternalValue(this.globalKeyPrefix,'scratchPush_'+this.scratchOrgAlias) == 'success' && this.globalKeyPrefix != null) {
                 Utils.printlnLog('Skip push in '+this.scratchOrgAlias+' already performed for global key '+this.globalKeyPrefix);
                 Utils.stopElapse(elpse);
                 return true;
-            } 
+            }
 
             // Fix metadatas only at the scratch org creation, not at intermediary pushes
             if (this.createScratchOrgMode == true) {
                  fixMetadataBeforePushToScratchOrg();
              }
-            
+
             def dataPushCommand = 'sfdx force:source:push -g -w 60 --forceoverwrite -u '+this.scratchOrgAlias;
             def dataPushCommandResult = Utils.executeCommand(dataPushCommand,
                                               'Push SFDX Project in '+this.scratchOrgAlias, './'+this.projectDir+'/'+this.projectName);
             if (dataPushCommandResult == true && this.globalKeyPrefix != null) {
                 Utils.setExternalValue(this.globalKeyPrefix,'scratchPush_'+this.scratchOrgAlias, 'success');
             }
-            Utils.printlnLog('dataPushCommandResult: '+dataPushCommandResult) 
+            Utils.printlnLog('dataPushCommandResult: '+dataPushCommandResult)
             Utils.stopElapse(elpse);
-            //assert dataPushCommandResult == true,  "[ERROR] SFDX Project push failed" 
+            //assert dataPushCommandResult == true,  "[ERROR] SFDX Project push failed"
             return true ;
         }
 
@@ -1026,14 +1026,14 @@ Please CHECK & eventualy SETUP the following options :
                 // Check if deploy not already succeded ( in the case do not run again)
                 if (Utils.getExternalValue(this.globalKeyPrefix,'scratchDeploy_'+this.scratchOrgAlias+'-'+this.packageXmlFile) == 'success' && this.globalKeyPrefix != null) {
                     Utils.printlnLog('Skip deploy in '+this.scratchOrgAlias+' already performed for global key '+this.globalKeyPrefix);
-                } 
+                }
                 else {
                     this.sourceEnvName = this.scratchOrgAlias ;
-                    this.convertSfdxProjectToMetadata(); 
+                    this.convertSfdxProjectToMetadata();
                     this.fixMetadatasBeforeDeploy();
                     this.filterMetadatasBeforeDeploy();
                     this.metadatasDeployFolder = this.metadatasDeployFolderOutput ;
-                    this.deploySfdxProjectToSourceEnv(); 
+                    this.deploySfdxProjectToSourceEnv();
                 }
             }
 
@@ -1062,7 +1062,7 @@ Please CHECK & eventualy SETUP the following options :
                 this.packageXmlFile = initialPackageXmlFile
             }
             this.metadatasDeployFolder = prevMetadatasDeployFolder
-            this.metadatasDeployFolderOutput = prevMetadatasDeployFolderOutput            
+            this.metadatasDeployFolderOutput = prevMetadatasDeployFolderOutput
 
 
         }
@@ -1071,7 +1071,7 @@ Please CHECK & eventualy SETUP the following options :
         public refactorUnpackagedMetadatas(){
 
             this.manageSelectScratchOrg(false);
-            // Get package number with SOQL query, then update metadatas to match dependencies with this version number 
+            // Get package number with SOQL query, then update metadatas to match dependencies with this version number
             def installedPackageList = this.listOrgInstalledPackages(this.scratchOrgAlias);
 
             String target = './'+this.projectDir+'/'+this.projectName+'/mdapi/unpackaged'
@@ -1086,7 +1086,7 @@ Please CHECK & eventualy SETUP the following options :
                     def linesPos = 0 ;
                     lines.each { String line ->
 
-                        installedPackageList.each { packageDescription -> 
+                        installedPackageList.each { packageDescription ->
                             def nsPrefix = packageDescription['NamespacePrefix'];
                             if (line.contains('<majorNumber>') && nsPrefix != null ) {
                                 def linePosPlus2 = linesPos+2 ;
@@ -1122,7 +1122,7 @@ Please CHECK & eventualy SETUP the following options :
         // Fix SFDX project until SFDX install a debug patch
         public fixSfdxProject() {
 
-            def elpse = Utils.startElapse('Fix SFDX Project (SFDX bug workaround)') 
+            def elpse = Utils.startElapse('Fix SFDX Project (SFDX bug workaround)')
 
             this.manageSelectSFDXProject();
 
@@ -1144,7 +1144,7 @@ Please CHECK & eventualy SETUP the following options :
             // Update sourcePathInfos
             new AntBuilder().fileScanner {
                 fileset(dir: './'+this.projectDir+'/'+this.projectName, includes: '**/sourcePathInfos.json')
-            }.each { File f -> 
+            }.each { File f ->
 
                     def removedList = [] ;
                     def fileText = f.text ;
@@ -1173,7 +1173,7 @@ Please CHECK & eventualy SETUP the following options :
             }
             def labelCorrection = true ;
             Utils.stopElapse(elpse);
-            assert labelCorrection == true,  "[ERROR] label Correction failed" 
+            assert labelCorrection == true,  "[ERROR] label Correction failed"
             return true ;
         }
 
@@ -1189,7 +1189,7 @@ Please CHECK & eventualy SETUP the following options :
 
                 def usrInfo = this.getUserInfo(usernm);
 
-                this.permissionSetList.each { permSetName -> 
+                this.permissionSetList.each { permSetName ->
                     def permSetAssgnCommand = 'sfdx force:user:permset:assign -n '+permSetName+' -u '+usernm;
                     def permSetAssgnCommandResult = Utils.executeCommand(permSetAssgnCommand, 'Assign permset '+permSetName+' to '+usernm+' in org '+this.scratchOrgAlias);
                 }
@@ -1198,7 +1198,7 @@ Please CHECK & eventualy SETUP the following options :
         }
 
         public executeSingleApexCodeFile(def singleFile) {
-            def prevApexCodeFile = this.apexCodeFile 
+            def prevApexCodeFile = this.apexCodeFile
             this.apexCodeFile = singleFile ;
             this.executeApexCode();
             this.apexCodeFile = prevApexCodeFile ;
@@ -1219,7 +1219,7 @@ Please CHECK & eventualy SETUP the following options :
                 if (file.isDirectory()) {
                      new AntBuilder().fileScanner {
                             fileset(dir: this.apexCodeFile, includes: '**/**.apex')
-                       }.each { File f -> 
+                       }.each { File f ->
                         fileList << f.getAbsolutePath() ;
                     }
                     fileList.sort();
@@ -1244,7 +1244,7 @@ Please CHECK & eventualy SETUP the following options :
                 println results
 
                 Utils.printlnLog('Results of apex code execution (it can be ok if there are errors, but it may need to be looked at)')
-                results.each { apexFile , execRes -> 
+                results.each { apexFile , execRes ->
                     def status = 'OK' ;
                     if (execRes == false)
                         status = 'Error' ;
@@ -1259,7 +1259,7 @@ Please CHECK & eventualy SETUP the following options :
             def apexExecCommand = 'sfdx force:apex:execute -f "'+codeFile+'" -u '+orgAlias;
             def apexExecCommandResult = Utils.executeCommand(apexExecCommand, 'Execute apex code '+codeFile+' in org '+orgAlias);
             def apexExecCommandLogs = Utils.getCommandLog(apexExecCommand);
-            def res = [ 
+            def res = [
                 'result' : apexExecCommandResult,
                 'logLines' : apexExecCommandLogs
             ]
@@ -1276,7 +1276,7 @@ Please CHECK & eventualy SETUP the following options :
             if (this.orgInfoListCache[alias] != null) {
                 return this.orgInfoListCache[alias]
             }
-            else {                
+            else {
                  // If not in cache, use sfdx command
                 this.manageConnectOrg(alias) // Connect to org if necessary
                 // Call org info with SFDX
@@ -1292,7 +1292,7 @@ Please CHECK & eventualy SETUP the following options :
             }
         }
 
-        // Get user info 
+        // Get user info
         public getUserInfo(String usr) {
             // Try to get org info in cache
             if (this.usrInfoListCache[usr] != null) {
@@ -1354,10 +1354,10 @@ Please CHECK & eventualy SETUP the following options :
                             }
 
                         }
-                        else 
+                        else
                             Utils.printlnLog('Scratch org not reused because inactive or expired '+scratchOrg) ;
                     }
-                }                
+                }
             }
 
             // If no projectName specified, list orgs and ask user
@@ -1368,7 +1368,7 @@ Please CHECK & eventualy SETUP the following options :
                  def orgsChoiceMap = [:];
                 Boolean isConnected = false ;
                 if (scratchOrgs != null) {
-                    for (org in scratchOrgs) { 
+                    for (org in scratchOrgs) {
                         String orgChoice =org.alias +' '+org.orgName+' - '+org.instanceUrl ;
                         orgsChoiceList << orgChoice
                         orgsChoiceMap[orgChoice] = org ;
@@ -1376,7 +1376,7 @@ Please CHECK & eventualy SETUP the following options :
                 }
                 if (allowCreation==true) {
                     String scratchOrgSlctn ;
-                    if (this.scratchOrgUserEmail == null) 
+                    if (this.scratchOrgUserEmail == null)
                         scratchOrgSlctn = Utils.userInputSelect('User input','Please select a scratch org number , or 0 to create a new scratch org : ',orgsChoiceList, 5);
                     if (scratchOrgSlctn != null && scratchOrgSlctn != '' &&
                      orgsChoiceMap[scratchOrgSlctn] != null && orgsChoiceMap[scratchOrgSlctn].alias != null &&
@@ -1386,8 +1386,8 @@ Please CHECK & eventualy SETUP the following options :
                     } else {
                             // Create new scratch org
                             if (this.scratchOrgUserEmail == null) {
-                                this.scratchOrgAlias = Utils.userInputText('Please enter the name of the new scratch org (without spaces or special characters, AND WITH YOUR NAME IN IT FOR GOD SAKE :) ', 5) 
-                                // Store choice if request in config file 
+                                this.scratchOrgAlias = Utils.userInputText('Please enter the name of the new scratch org (without spaces or special characters, AND WITH YOUR NAME IN IT FOR GOD SAKE :) ', 5)
+                                // Store choice if request in config file
                                 if (Utils.userPromptOkCancel('Do you want this new scratch org to be your default one ? (in '+this.ownConfigFile+')', 5)) {
                                     Utils.setPropInJsonFile(this.ownConfigFile,"scratchOrgAlias",this.scratchOrgAlias)
                                 }
@@ -1401,7 +1401,7 @@ Please CHECK & eventualy SETUP the following options :
                     String scratchOrgSlctn = Utils.userInputSelect('User input','Please select a scratch org number',orgsChoiceList, 5);
                     if (scratchOrgSlctn != null && scratchOrgSlctn != '') {
                         this.scratchOrgAlias = orgsChoiceMap[scratchOrgSlctn].alias ;
-                        // Store choice if request in config file 
+                        // Store choice if request in config file
                         if (this.ignoreOwnConfigFile == false &&  Utils.userPromptOkCancel('Do you want to remember your scratch org choice ?', 5)) {
                               Utils.setPropInJsonFile(this.ownConfigFile,"scratchOrgAlias",this.scratchOrgAlias)
                         }
@@ -1452,7 +1452,7 @@ Please CHECK & eventualy SETUP the following options :
                 if (Utils.getExternalValue(this.globalKeyPrefix,'scratchTest_'+this.scratchOrgAlias+'-'+this.packageXmlFile) == 'success' && this.globalKeyPrefix != null) {
                     Utils.printlnLog('Skip tests in '+this.scratchOrgAlias+' already performed for global key '+this.globalKeyPrefix);
                     return true;
-                } 
+                }
 
                 // Collect list of test classes if packageXmlFile is provided
                 String testClassListStr = null ;
@@ -1475,7 +1475,7 @@ Please CHECK & eventualy SETUP the following options :
                 def runTestsCommand = 'sfdx force:apex:test:run '+((testClassListStr != null)?'--classnames "'+testClassListStr+'"':'--testlevel RunAllTestsInOrg ')+' --codecoverage --resultformat "json" --wait 20 -u '+this.scratchOrgAlias+' --json';
                 def runTestsCommandResult = Utils.executeCommand(runTestsCommand,'Run test classes '+testClassListStr,this.currentProjectPath);
 
-                // Parse results 
+                // Parse results
                 def runTestsCommandLogObj = Utils.getCommandLogAsObj(runTestsCommand)
 
                 // Check testClasses passed
@@ -1484,15 +1484,15 @@ Please CHECK & eventualy SETUP the following options :
                 if(runTestsCommandLogObj.result != null){
                     if (runTestsCommandLogObj.result.summary.failing > 0) {
                         Utils.printlnLog('FAILED TEST CLASSES:');
-                        runTestsCommandLogObj.result.tests.each { testX -> 
+                        runTestsCommandLogObj.result.tests.each { testX ->
                             if (testX.Outcome == 'Fail') {
                                 Utils.printlnLog('- '+testX.ApexClass.Name+' ; '+testX.StackTrace + ' ; ' + testX.Message);
                             }
                         }
                     }
                     Utils.printlnLog();
-                    
-                    assert (runTestsCommandResult == true && runTestsCommandLogObj.result.summary.failing == 0),  "[ERROR] Apex test classes execution failed" 
+
+                    assert (runTestsCommandResult == true && runTestsCommandLogObj.result.summary.failing == 0),  "[ERROR] Apex test classes execution failed"
                     Utils.printlnLog('Test coverage line coverage');
                     float testRunCoverage;
                     float orgWideCoverage;
@@ -1510,7 +1510,7 @@ Please CHECK & eventualy SETUP the following options :
                         String totalLinesString = runTestsCommandLogObj.result.coverage.summary.totalLines;
                         String coveredLinesString = runTestsCommandLogObj.result.coverage.summary.coveredLines;
                         float totalLines =Float.parseFloat(totalLinesString.replace("%",""));
-                        float coveredLines = Float.parseFloat(coveredLinesString.replace("%",""));                
+                        float coveredLines = Float.parseFloat(coveredLinesString.replace("%",""));
                         coveredLinesPercentage = Math.round( coveredLines / totalLines) * 100;
                         Utils.printlnLog('coveredLinesPercentage : '+coveredLinesPercentage);
                     }
@@ -1519,7 +1519,7 @@ Please CHECK & eventualy SETUP the following options :
                         def totalCover = 0
                         def totalCoverNb = 0
                         def coverageClassResultLs = runTestsCommandLogObj.result.coverage.coverage ;
-                        coverageClassResultLs.each { coverageClsRes -> 
+                        coverageClassResultLs.each { coverageClsRes ->
                             if (devClassList.contains(coverageClsRes.name)) {
                                 totalCover = totalCover + coverageClsRes.coveredPercent
                                 totalCoverNb++
@@ -1545,17 +1545,17 @@ Please CHECK & eventualy SETUP the following options :
 
             }
         }
-        
+
         // Run test case after user choice
         public runTestCase() {
             this.manageSelectSFDXProject();
             this.manageSelectScratchOrg(false);
 
-            // List test campaign files 
+            // List test campaign files
             String dir = this.playerScriptsFolder ;
             def fileLs = Utils.listDirectoryFiles(dir) ;
             def fileChoicels = [];
-            fileLs.each {file -> 
+            fileLs.each {file ->
                 if (file.endsWith('.txt'))
                     fileChoicels.add(file);
             }
@@ -1602,8 +1602,8 @@ Please CHECK & eventualy SETUP the following options :
             playerCmdSuffix+=' -JSON '
             def testCommand = 'lelamanul-player -COMMANDLINE -CONFIG_FILE '+this.playerConfigFile+' -COMMANDS_FILE '+System.properties.'user.dir'+this.playerScriptsFolder+'/'+testCaseSlctn+' -NEVER_RECORD_VIDEOS -DO_NOT_STORE_CONFIG'+playerCmdSuffix ;
             def testCommandResult = Utils.executeCommand(testCommand,'DXCPLAYER: Run test case :'+testCaseSlctn,System.properties.'user.dir'+'./PlayerScripts',false);
-            def testCommandLog = Utils.getCommandLog(testCommand) 
-            Utils.printlnLog(testCommandLog)        
+            def testCommandLog = Utils.getCommandLog(testCommand)
+            Utils.printlnLog(testCommandLog)
 
         }
 
@@ -1611,7 +1611,7 @@ Please CHECK & eventualy SETUP the following options :
             this.manageSelectSFDXProject();
             this.manageSelectScratchOrg(false);
 
-               if (this.scratchOrgAlias)    { 
+               if (this.scratchOrgAlias)    {
                    // Get org info in JSON format
                 def orgInfoCommand = 'sfdx force:org:display -u '+this.scratchOrgAlias+' --json';
                 def orgInfoCommandResult = Utils.executeCommand(orgInfoCommand, 'Get org info for '+this.scratchOrgAlias,this.currentProjectPath);
@@ -1669,9 +1669,9 @@ Please CHECK & eventualy SETUP the following options :
                         if (dateLastUsed.before(dateToCompare)) {
                             this.scratchOrgAlias = scratchOrg.username
                             def orgDeleteCommand = 'sfdx force:org:delete -p -u '+ this.scratchOrgAlias
-                            def orgDeleteCommandResult = Utils.executeCommand(orgDeleteCommand,'Delete scratch org '+this.scratchOrgAlias,this.currentProjectPath)    
+                            def orgDeleteCommandResult = Utils.executeCommand(orgDeleteCommand,'Delete scratch org '+this.scratchOrgAlias,this.currentProjectPath)
                             deletedScratchorgls << scratchOrg.username
-                        }                
+                        }
                     }
                 }
 
@@ -1686,7 +1686,7 @@ Please CHECK & eventualy SETUP the following options :
                 this.manageSelectScratchOrg(false);
 
                 if (this.scratchOrgAlias)    {
-                    def orgOpenCommand = 'sfdx force:org:delete -p -u '+ this.scratchOrgAlias; 
+                    def orgOpenCommand = 'sfdx force:org:delete -p -u '+ this.scratchOrgAlias;
                     def orgOpenCommandResult = Utils.executeCommand(orgOpenCommand,'Delete scratch org '+this.scratchOrgAlias,this.currentProjectPath);
                 }
 
@@ -1708,7 +1708,7 @@ Please CHECK & eventualy SETUP the following options :
 
             def orgListCommand = 'sfdx force:org:list';
             def orgListCommandResult = Utils.executeCommand(orgListCommand,
-                                                      'List all orgs',null);            
+                                                      'List all orgs',null);
         }
 
         // List all scratch org attached to the dev hub (JSON response)
@@ -1731,11 +1731,11 @@ Please CHECK & eventualy SETUP the following options :
                     orgListCommand+= ' --all'
                 def orgListCommandResult = Utils.executeCommand(orgListCommand,
                                                     'List all orgs for scratch org list',null,false);
-            
+
                 def parseRes = Utils.getCommandLogAsObj(orgListCommand)
                 assert parseRes != null , 'Unable to parse json from '+Utils.getCommandLog(orgListCommand)
                 this.forceOrgListCache = parseRes
-                return parseRes        
+                return parseRes
             }
         }
 
@@ -1754,7 +1754,7 @@ Please CHECK & eventualy SETUP the following options :
         }
 
         // Pulls scratch org metadatas into local project folder
-        public pullScratchOrg() { 
+        public pullScratchOrg() {
             this.manageSelectSFDXProject();
             this.manageSelectScratchOrg(false);
 
@@ -1765,7 +1765,7 @@ Please CHECK & eventualy SETUP the following options :
             def pullCommandResult = Utils.executeCommand(pullCommand,'Pull scratch org',sfdxWorkingDir);
 
             Utils.stopElapse(elpse);
-            assert pullCommandResult == true,  "[ERROR] Pull scratch org failed" 
+            assert pullCommandResult == true,  "[ERROR] Pull scratch org failed"
         }
 
         // Push SFDX Projecct metadatas to source org
@@ -1779,7 +1779,7 @@ Please CHECK & eventualy SETUP the following options :
             def convertCommandRes = Utils.executeCommand(convertCommand,'Convert '+this.projectName+' into Metadatas to '+this.metadatasDeployFolder+'/',sfdxWorkingDir);
 
             Utils.stopElapse(elpse);
-            assert convertCommandRes == true,  "[ERROR] Convert SFDX Project to metadatas failed" 
+            assert convertCommandRes == true,  "[ERROR] Convert SFDX Project to metadatas failed"
         }
 
         public fixMetadatasBeforeDeploy() {
@@ -1803,15 +1803,15 @@ Please CHECK & eventualy SETUP the following options :
         public fixMetadataBeforePushToScratchOrg() {
             def elpse = Utils.startElapse('Fix metadatas before push to '+this.scratchOrgAlias);
             updateFilesWithOrgContext('sfdx')
-            Utils.stopElapse(elpse);        
+            Utils.stopElapse(elpse);
         }
 
         public updateFilesWithOrgContext (mode) {
             def updatesWithOrgContextList = Utils.getPropInJsonFile(this.sharedConfigFile,"updatesWithOrgContextList")
             if (updatesWithOrgContextList == null)
                 return ;
-            
-            updatesWithOrgContextList.each { updateDef -> 
+
+            updatesWithOrgContextList.each { updateDef ->
                 // Replace text in a file
                 if (updateDef.type == 'replaceText') {
                     def file = this.getLocalFilePath(mode,updateDef)
@@ -1826,7 +1826,7 @@ Please CHECK & eventualy SETUP the following options :
                     if (replaceVal != null) {
                         Utils.printlnLog("> browsing $dir for replace $replaceVal using pattern ${updateDef.regexp}");
                         def fileLs = Utils.listDirectoryFiles(dir)
-                        fileLs.each {file -> 
+                        fileLs.each {file ->
                             this.doReplaceInFile(file, ~updateDef.regexp, replaceVal)
                         }
                     }
@@ -1841,7 +1841,7 @@ Please CHECK & eventualy SETUP the following options :
                             fileOpened.text = fileContent ;
                             Utils.printlnLog('- updated file content of '+file)
                         }
-                        else 
+                        else
                             Utils.printlnLog('- no update of file content of '+file+' (identical or not found)')
                     }
                 }
@@ -1881,7 +1881,7 @@ Please CHECK & eventualy SETUP the following options :
                 else
                     value = null
             }
-            return value 
+            return value
         }
 
         /**
@@ -1901,7 +1901,7 @@ Please CHECK & eventualy SETUP the following options :
                 else
                     Utils.printlnLog("- identical $fileName with $replacementValue using pattern $searchRegex");
             }
-            else 
+            else
                 Utils.printlnLog("- file not found for update: $fileName with $replacementValue using pattern $searchRegex");
          }
 
@@ -1931,13 +1931,13 @@ Please CHECK & eventualy SETUP the following options :
             this.manageConnectOrg(this.sourceEnvName);
 
             def elpse = Utils.startElapse('Deploy SFDX Project '+this.projectName+' into '+this.sourceEnvName) ;
-            
+
             // Check if test not already succeded ( in the case do not run again)
             if (Utils.getExternalValue(this.globalKeyPrefix,'scratchDeploy_'+this.sourceEnvName+'-'+this.packageXmlFile) == 'success') {
                 Utils.printlnLog('Skip deploy in '+this.sourceEnvName+' already performed for global key '+this.globalKeyPrefix);
                 Utils.stopElapse(elpse);
                 return true;
-            } 
+            }
 
 
             this.fixMetadataBeforeDeployToDestinationOrg()
@@ -1950,18 +1950,18 @@ Please CHECK & eventualy SETUP the following options :
                 Utils.copyDirContent(unpackagedFolderName,sfdxWorkingDir+'/'+this.metadatasDeployFolder)
                 Utils.killDir(unpackagedFolderName)
             }
-            
-             def deployCommand = 'sfdx force:mdapi:deploy -d '+this.metadatasDeployFolder+'/ -w 90 -u '+this.sourceEnvName;
-            def deployCommandRes = Utils.executeCommand(deployCommand,'Deploy '+this.metadatasDeployFolder+' to '+this.sourceEnvName,sfdxWorkingDir); 
 
-            Utils.killDir(sfdxWorkingDir+'/'+this.metadatasDeployFolder) ; 
+             def deployCommand = 'sfdx force:mdapi:deploy -d '+this.metadatasDeployFolder+'/ -w 90 -u '+this.sourceEnvName;
+            def deployCommandRes = Utils.executeCommand(deployCommand,'Deploy '+this.metadatasDeployFolder+' to '+this.sourceEnvName,sfdxWorkingDir);
+
+            Utils.killDir(sfdxWorkingDir+'/'+this.metadatasDeployFolder) ;
 
             Utils.stopElapse(elpse);
-            assert deployCommandRes == true,  "[ERROR] Deploy Metadatas failed" 
+            assert deployCommandRes == true,  "[ERROR] Deploy Metadatas failed"
 
             if (deployCommandRes == true) {
                 Utils.setExternalValue(this.globalKeyPrefix,'scratchDeploy_'+this.sourceEnvName+'-'+this.packageXmlFile, 'success');
-            }            
+            }
         }
 
         public exportData() {
@@ -1974,7 +1974,7 @@ Please CHECK & eventualy SETUP the following options :
             def exportCommandRes = Utils.executeCommand(exportCommand,'Export '+this.exportFolder+' from '+this.sourceEnvName,sfdxWorkingDirData);
 
             Utils.stopElapse(elpse);
-            assert exportCommandRes == true,  "[ERROR] Export data failed"             
+            assert exportCommandRes == true,  "[ERROR] Export data failed"
         }
 
         public importData() {
@@ -1987,10 +1987,10 @@ Please CHECK & eventualy SETUP the following options :
              // Update sourcePathInfos
             new AntBuilder().fileScanner {
                 fileset(dir: sfdxWorkingDirData, includes: '**/**-plan.json')
-            }.each { File f -> 
+            }.each { File f ->
                 def planFilePath = f.getAbsolutePath();
                 def importCommand = 'sfdx force:data:tree:import -p '+planFilePath+' -u '+this.scratchOrgAlias;
-                def importCommandRes = Utils.executeCommand(importCommand,'Import '+planFilePath+' in '+this.scratchOrgAlias,sfdxWorkingDirData); 
+                def importCommandRes = Utils.executeCommand(importCommand,'Import '+planFilePath+' in '+this.scratchOrgAlias,sfdxWorkingDirData);
 
             }
 
@@ -2000,7 +2000,7 @@ Please CHECK & eventualy SETUP the following options :
         ///// Build CSS from SCSS ////
         public sassProcessing() {
             def elpseSass = Utils.startElapse('SASS processing')
-            Utils.testAvailableCommands(['sass']); 
+            Utils.testAvailableCommands(['sass']);
 
             // Read config file in PROJECT/config/themes-config.json
             this.manageSelectSFDXProject();
@@ -2017,7 +2017,7 @@ Please CHECK & eventualy SETUP the following options :
                 this.themeToProcess = Utils.userInputSelect('User input','Please select a theme to generate SCSS: ',selectableThemes, 2);
                 Utils.printlnLog('To avoid selection every time, create a BAT file with argument -themeToProcess "YOUR_THEME_NAME"')
             }
-            
+
             // Browse defined static resources
             def sassCommandResultList = [] ;
             def mainStaticResource = null ;
@@ -2088,7 +2088,7 @@ Please CHECK & eventualy SETUP the following options :
             }
 
             Utils.stopElapse(elpseSass);
-            assert !sassCommandResultList.contains(false),  "SASS compilation ERROR" 
+            assert !sassCommandResultList.contains(false),  "SASS compilation ERROR"
         }
 
         // When base theme resource is updated, it has to be propagated to custom resources
@@ -2098,11 +2098,11 @@ Please CHECK & eventualy SETUP the following options :
             def baseDir = new File(baseResourceFolder);
             def customDir = new File(customResourceFolder);
 
-            def ant = new AntBuilder()  
-            // Copy up to date CSS, SCSS & fonts from base ( overwrite, as they must not be updated at custom level) 
+            def ant = new AntBuilder()
+            // Copy up to date CSS, SCSS & fonts from base ( overwrite, as they must not be updated at custom level)
             // Do not touch anything containing custom
             println ('>> Copying base resource files into custom resource files (with overwrite)')
-            def dirCopyResult = ant.copy( todir: customDir, overwrite: true) { 
+            def dirCopyResult = ant.copy( todir: customDir, overwrite: true) {
                 fileset(dir: baseDir) {
                     exclude ( name: '**/custom.scss' )
                     exclude ( name: '**/img/**')
@@ -2131,7 +2131,7 @@ Please CHECK & eventualy SETUP the following options :
                 }
             }
 
-            // Copy initial custom.scss in case it is not defined yet 
+            // Copy initial custom.scss in case it is not defined yet
             def customCustomScss = new File(customResourceFolder+'/resource/css/scss/custom/custom.scss');
             if (!customCustomScss.exists()) {
                 println ('>> Copying base custom.scss into custom resource folder')
@@ -2160,7 +2160,7 @@ Please CHECK & eventualy SETUP the following options :
             assert new File(packageDefFileName).exists() , packageDefFileName +' missing'
             def pckgDef = Utils.fromJsonString(new File(packageDefFileName).text);
 
-            // List version before 
+            // List version before
             def vrsnCommand = 'sfdx force:package1:version:list --packageid '+pckgDef['packageId']+' -u '+this.packagingOrgAlias
             Utils.executeCommand(vrsnCommand,'Get package version list',sfdxWorkingDir);
 
@@ -2170,7 +2170,7 @@ Please CHECK & eventualy SETUP the following options :
             def packageResult = Utils.getCommandLogAsObj(gnrtCommand)
             this.jsonLogContent['packageResult'] = packageResult
 
-            // Actions if package generation is successful 
+            // Actions if package generation is successful
             if (packageResult.status == 0 && packageResult.result['Status'] == 'SUCCESS' ) {
 
                 // List versions after generation
@@ -2196,17 +2196,17 @@ Please CHECK & eventualy SETUP the following options :
                 configPackages[pkgInternalKey] = configPackage
                 Utils.printlnLog('sharedConfig packages after update:'+configPackages)
                 Utils.setPropInJsonFile(this.sharedConfigFile,"packages",configPackages)
-            } 
+            }
 
             Utils.stopElapse(elpseSass);
-            assert gnrtCommandResult == true,  "Package generation ERROR"             
+            assert gnrtCommandResult == true,  "Package generation ERROR"
 
         }
 
         // List active scratch orgs
         public listDevHubActiveScratchOrgs() {
             this.manageSelectSFDXProject()
-            this.manageConnectOrg(this.devHubName);    
+            this.manageConnectOrg(this.devHubName);
 
             def listScratchOrgsCmd = 'sfdx force:data:soql:query -q "SELECT Name,OrgName,SignupUsername,SignupEmail,LastLoginDate,ExpirationDate FROM ActiveScratchOrg ORDER BY ExpirationDate ASC" -u '+this.devHubName+' --json' ;
             Utils.executeCommand(listScratchOrgsCmd, 'Query list of DevHub active scratch orgs');
@@ -2227,24 +2227,24 @@ Please CHECK & eventualy SETUP the following options :
         public checkCodeConsistency() {
             this.manageSelectSFDXProject()
 
-            def elpse = Utils.startElapse('Check code consistency using PMD & CPD') 
+            def elpse = Utils.startElapse('Check code consistency using PMD & CPD')
 
             // Avoid to run again apex checks if already performed
-            Boolean doThePmdChecks = true 
+            Boolean doThePmdChecks = true
             if (this.jsonLog == true && Utils.getExternalValue(this.globalKeyPrefix,'checkApex') == 'success') {
                 Utils.printlnLog('Skip check apex: already performed for global key '+this.globalKeyPrefix);
                 Utils.stopElapse(elpse);
                 this.jsonLogContent['pmdResults'] = [skipped: true, message: 'Already performed on a previous PR'] ;
                 doThePmdChecks = false ;
-            } 
+            }
 
             //////////////////////////
             //// Code quality ////////
             //////////////////////////
 
-            def pmdConfigDir = './Config/pmd' 
-            def sfdxWorkingDir = './'+this.projectDir+'/'+this.projectName+'/'+this.sfdxSourcesFolder 
-            def tmpDir = './'+this.projectDir+'/'+this.projectName+'/tmp' 
+            def pmdConfigDir = './Config/pmd'
+            def sfdxWorkingDir = './'+this.projectDir+'/'+this.projectName+'/'+this.sfdxSourcesFolder
+            def tmpDir = './'+this.projectDir+'/'+this.projectName+'/tmp'
             if (Utils.systemIsLinux())
                 tmpDir = '/tmp' ;
             Utils.checkCreateDir(tmpDir)
@@ -2258,7 +2258,7 @@ Please CHECK & eventualy SETUP the following options :
 
                 // Browse all pmd config files of config folder ( Config/pmd )
             if (doThePmdChecks) {
-                def configfileList = [] 
+                def configfileList = []
                 new AntBuilder().fileScanner {
                     fileset(dir: pmdConfigDir, includes: '**/**.xml')
                 }.each { File f ->
@@ -2266,8 +2266,8 @@ Please CHECK & eventualy SETUP the following options :
                 }
 
                 groovyx.gpars.GParsPool.withPool(1) {
-                    configfileList.eachParallel { File f -> 
-                        // Perform the pmd analysis for the config file 
+                    configfileList.eachParallel { File f ->
+                        // Perform the pmd analysis for the config file
                         def configFilePath = f.getAbsolutePath()
                         def configFileNm = f.getName()
                         def pmdCommand = ''
@@ -2276,7 +2276,7 @@ Please CHECK & eventualy SETUP the following options :
                         if (configFileNm.contains('apex'))
                             pmdCommand = basePmdCommand+' -dir '+sfdxWorkingDir+'/classes -language apex -rulesets '+configFilePath+' -cache '+pmdCacheDir+'/'+configFileNm+'.cache';
 
-                        // If JSON requested, output is in XML in console, else generate human-reaadable HTML report files 
+                        // If JSON requested, output is in XML in console, else generate human-reaadable HTML report files
                         if (this.jsonLog == true) {
                             pmdCommand+= ' -format xml'
                         }
@@ -2286,7 +2286,7 @@ Please CHECK & eventualy SETUP the following options :
 
                         // Run analysis
                         def pmdCommandRes = Utils.executeCommand(pmdCommand,'PMD code check with config '+configFileNm,null,(this.jsonLog == true)?false:true)
-                        def pmdCommandResLog = Utils.getCommandLog(pmdCommand) 
+                        def pmdCommandResLog = Utils.getCommandLog(pmdCommand)
 
                         // Manage logging
                         if (this.jsonLog == true) {
@@ -2325,7 +2325,7 @@ Please CHECK & eventualy SETUP the following options :
                                     }
                                     def dtl = [:]
                                     dtl['file'] = String.valueOf(errFileNm)
-                                    dtl['violations'] = errors 
+                                    dtl['violations'] = errors
                                     allFileErrors.add(dtl)
                                     Utils.printlnLog();
                                 }
@@ -2365,7 +2365,7 @@ Please CHECK & eventualy SETUP the following options :
             // Run copy paste checks in parallel processes for perfs
             groovyx.gpars.GParsPool.withPool(10) {
                 languageLs.eachParallel {lang ->
-                    // Language management 
+                    // Language management
                     def langBrowsingFolder = ''
                     if (lang == 'apex')
                         langBrowsingFolder = sfdxWorkingDir+'/classes/'
@@ -2374,7 +2374,7 @@ Please CHECK & eventualy SETUP the following options :
 
                     def cpdCommand = baseCpdCommand+' --files "'+langBrowsingFolder+'" --language '+lang+' --minimum-tokens '+this.cpdMinimumTokens;
 
-                    // If JSON requested, output is in XML in console, else generate human-reaadable HTML report files 
+                    // If JSON requested, output is in XML in console, else generate human-reaadable HTML report files
                     def logFileExt = ''
                     if (this.jsonLog == true) {
                         cpdCommand+= ' --format xml'
@@ -2391,7 +2391,7 @@ Please CHECK & eventualy SETUP the following options :
                             Utils.printlnLog('Copy-Paste detector Exclude files :')
                             def excludeFileNameLs = []
                             languageCpdDef['excludeFileList'].each{ excludeFileDef ->
-                                excludeFileNameLs << langBrowsingFolder+excludeFileDef.name 
+                                excludeFileNameLs << langBrowsingFolder+excludeFileDef.name
                                 Utils.printlnLog('  -'+excludeFileDef.name+' :'+excludeFileDef.reason)
                             }
                             cpdCommand+= ' --exclude "'+excludeFileNameLs.join(',')+'"'
@@ -2400,12 +2400,12 @@ Please CHECK & eventualy SETUP the following options :
 
                     // Run analysis
                     def cpdCommandRes = Utils.executeCommand(cpdCommand,'Copy-paste detector in '+lang,null,(this.jsonLog == true)?false:true)
-                    def cpdCommandLog = Utils.getCommandLog(cpdCommand) 
+                    def cpdCommandLog = Utils.getCommandLog(cpdCommand)
 
                     // Manage logging (visual)
                     def cpdOutputFile = new File(reportsDir+'/report-copy-paste-'+lang+logFileExt)
                     cpdOutputFile.text = cpdCommandLog.join('\n')
-                    Utils.printlnLog('Wrote '+lang+' copy-paste results in '+cpdOutputFile.getAbsolutePath())            
+                    Utils.printlnLog('Wrote '+lang+' copy-paste results in '+cpdOutputFile.getAbsolutePath())
 
                     // Manage logging (json)
                     if (this.jsonLog == true) {
@@ -2442,7 +2442,7 @@ Please CHECK & eventualy SETUP the following options :
                                 dtl['language'] = lang
                                 dtl['lines'] = String.valueOf(lines)
                                 dtl['tokens'] = String.valueOf(tokens)
-                                dtl['files'] = files 
+                                dtl['files'] = files
 
                                 dtl['codefragment'] = codefragment
                                 summaryByLang[lang]['duplicationNb']++
@@ -2466,7 +2466,7 @@ Please CHECK & eventualy SETUP the following options :
         // Check package consistency using https://github.com/forcedotcom/isvte-sfdx-plugin
         public checkPackageConsistency() {
             this.manageSelectSFDXProject()
-            def elpse = Utils.startElapse('Check package consistency using https://github.com/forcedotcom/isvte-sfdx-plugin') 
+            def elpse = Utils.startElapse('Check package consistency using https://github.com/forcedotcom/isvte-sfdx-plugin')
 
             // Convert sfdx project into metadatas
             this.metadatasDeployFolder = './tmp/'+String.valueOf((int)(Math.random()*1000000000))
@@ -2481,15 +2481,15 @@ Please CHECK & eventualy SETUP the following options :
             def isvTeCommandRes = Utils.executeCommand(isvTeCommand,
                                                         'Check managed package metadatas consistency using isvte plugin',
                                                          './'+this.projectDir+'/'+this.projectName+'/'+this.metadatasDeployFolderOutput)
-            def isvTeCommandLog = Utils.getCommandLog(isvTeCommand) 
-            assert isvTeCommandRes == true,  "[ERROR] isvte plugin failed" 
+            def isvTeCommandLog = Utils.getCommandLog(isvTeCommand)
+            assert isvTeCommandRes == true,  "[ERROR] isvte plugin failed"
             Utils.killDir('./'+this.projectDir+'/'+this.projectName+'/'+this.metadatasDeployFolderOutput);
             Utils.stopElapse(elpse);
         }
 
         public waitCommunityActive () {
             def res = UtilsSFDC.waitCommunityActive(this.url,this.timeoutInSeconds);
-            assert res == true,  "[ERROR] URL "+this.url+" was not active when timeout was reached ("+this.timeoutInSeconds+")" ;             
+            assert res == true,  "[ERROR] URL "+this.url+" was not active when timeout was reached ("+this.timeoutInSeconds+")" ;
         }
 
         public runAutomatedTestingToolOnScratch() {
@@ -2515,7 +2515,7 @@ Please CHECK & eventualy SETUP the following options :
                 Utils.setPropInJsonFile(this.ownConfigFile,"${this.scratchOrgAlias}_communities_base_url",communitiesBaseUrl);
             }
             def playerCmd = "lelamanul-player -CONFIG_FILE config_Player_jenkins_generic.ini -SFDC_USERNAME \"${username}\" -SFDC_PASSWORD \"${password}\" -TEST_BASE_URL ${communitiesBaseUrl} -COMMANDS_FILE_FOLDER ./PlayerScripts";
-            Utils.executeCommand(playerCmd,'Run automated testing tool with scratch org info','./PlayerScripts')            
+            Utils.executeCommand(playerCmd,'Run automated testing tool with scratch org info','./PlayerScripts')
         }
 
 }

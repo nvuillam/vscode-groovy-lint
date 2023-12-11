@@ -6,6 +6,7 @@ coverage/**
 **/out/test/**
 **/.github/**
 src/**
+**/*.js.map
 
 client/node_modules/**/*.md
 client/node_modules/**/AUTHORS

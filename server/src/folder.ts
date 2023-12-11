@@ -24,9 +24,9 @@ export async function lintFolder(folders: Array<any>, docManager: DocumentsManag
 			// List applicable files of folder
 			const pathFilesPatternGroovy = path.join(folder, '/**/*.groovy');
 			const pathFilesPatternJenkins = path.join(folder, '/**/Jenkins*');
-			const files = [];
+			const files: string[] = [];
 			for (const pathFilesPattern of [pathFilesPatternGroovy, pathFilesPatternJenkins]) {
-				const pathFiles = await glob(pathFilesPattern);
+				const pathFiles: string[] = await glob(pathFilesPattern);
 				files.push(...pathFiles);
 			}
 			// Trigger a lint for each of the found documents
