@@ -16,7 +16,7 @@
 - You can [configure the rules](https://github.com/nvuillam/npm-groovy-lint#configuration) by defining a `.groovylintrc.json` file
 - If you use **CI**, you can integrate [Mega-Linter](https://github.com/nvuillam/mega-linter#readme) in your workflow, to **make sure all your sources (groovy and other) are clean**
 
-![image](https://github.com/nvuillam/vscode-groovy-lint/raw/master/images/vscode-anim.gif)
+![image](https://github.com/nvuillam/vscode-groovy-lint/raw/main/images/vscode-anim.gif)
 
 ## Features
 
