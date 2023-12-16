@@ -39,7 +39,7 @@ jobs:
 
       # Mega-Linter
       - name: Mega-Linter
-        uses: oxsecurity/megalinter@v7
+        uses: oxsecurity/megalinter/flavors/cupcake@v7
         env:
           # All available variables are described in documentation
           # https://github.com/oxsecurity/megalinter#configuration
