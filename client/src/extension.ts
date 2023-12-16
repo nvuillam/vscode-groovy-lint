@@ -1,12 +1,11 @@
 import * as path from 'path';
-import { workspace, ExtensionContext } from 'vscode';
 import * as vscode from 'vscode';
 import {
 	LanguageClient,
 	LanguageClientOptions,
 	ServerOptions,
 	TransportKind
-} from 'vscode-languageclient';
+} from 'vscode-languageclient/node';
 import { StatusParams, StatusNotification, ActiveDocumentNotification, OpenNotification } from './types';
 
 const DIAGNOSTICS_COLLECTION_NAME = 'GroovyLint';
@@ -18,8 +17,7 @@ let statusList: StatusParams[] = [];
 
 let outputChannelShowedOnce = false;
 
-export function activate(context: ExtensionContext) {
-
+export function activate(context: vscode.ExtensionContext) {
 	// Create diagnostics collection
 	diagnosticsCollection = vscode.languages.createDiagnosticCollection(DIAGNOSTICS_COLLECTION_NAME);
 
@@ -30,9 +28,12 @@ export function activate(context: ExtensionContext) {
 	// The server is implemented in node
 	let serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'));
 	// If the extension is launched in debug mode then the debug server options are used
-	// Otherwise the run options are used
+	// Otherwise the run options are used.
 	let serverOptions: ServerOptions = {
-		run: { module: serverModule, transport: TransportKind.ipc },
+		run: {
+			module: serverModule,
+			transport: TransportKind.ipc,
+		},
 		debug: {
 			module: serverModule,
 			transport: TransportKind.ipc,
@@ -50,7 +51,7 @@ export function activate(context: ExtensionContext) {
 		progressOnInitialization: true,
 		synchronize: {
 			// Notify the server about file changes to '.clientrc files contained in the workspace
-			fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
+			fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc')
 		}
 	};
 	// Create the language client and start the client.
@@ -70,13 +71,7 @@ export function activate(context: ExtensionContext) {
 	client.registerProposedFeatures();
 
 	// Start the client. This will also launch the server
-	context.subscriptions.push(
-		client.start()
-	);
-
-	// Actions after client is ready
-	client.onReady().then(() => {
-
+	client.start().then(() => {
 		// Show status bar item to display & run groovy lint
 		refreshStatusBar();
 
@@ -123,7 +118,11 @@ export function activate(context: ExtensionContext) {
 }
 
 // Stop client when extension is deactivated
-export function deactivate(): Thenable<void> {
+export function deactivate(): Thenable<void> | undefined {
+	if (!client) {
+		return undefined;
+	}
+
 	// Remove status bar
 	if (statusBarItem) {
 		statusBarItem.dispose();
@@ -190,7 +189,6 @@ async function notifyDocumentToServer(): Promise<any> {
 
 // Update text editor & status bar
 async function refreshStatusBar(): Promise<any> {
-
 	// Fix running
 	if (statusList.filter(status => status.state === 'lint.start.fix').length > 0) {
 		statusBarItem.text = `GroovyLint $(gear~spin)`;

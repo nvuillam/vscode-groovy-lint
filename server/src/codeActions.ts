@@ -24,15 +24,16 @@ import {
 	COMMAND_DISABLE_ERROR_FOR_PROJECT,
 	COMMAND_SHOW_RULE_DOCUMENTATION
 } from './commands';
-import path = require('path');
+import { dirname } from 'path';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 const debug = require("debug")("vscode-groovy-lint");
+const trace = require("debug")("vscode-groovy-lint-trace");
 
 /**
  * Provide quick-fixes for a piece of code  *
  * @export
  * @param {TextDocument} textDocument
- * @param {CodeActionParams} parms
+ * @param {CodeActionParams} codeActionParams
  * @returns {CodeAction[]}
  */
 export function provideQuickFixCodeActions(textDocument: TextDocument, codeActionParams: CodeActionParams, docQuickFixes: any): CodeAction[] {
@@ -41,9 +42,12 @@ export function provideQuickFixCodeActions(textDocument: TextDocument, codeActio
 	if (isNullOrUndefined(diagnostics) || diagnostics.length === 0) {
 		return quickFixCodeActions;
 	}
+
+	trace(`docQuickFixes: ${JSON.stringify(docQuickFixes, null, 2)}`);
 	// Browse diagnostics to get related CodeActions
 	for (const diagnostic of codeActionParams.context.diagnostics) {
 		// Skip Diagnostics not from VsCodeGroovyLint
+		trace(`Diagnostic is ${JSON.stringify(diagnostic, null, 2)}`);
 		if (diagnostic.source !== 'GroovyLint') {
 			continue;
 		}
@@ -52,6 +56,7 @@ export function provideQuickFixCodeActions(textDocument: TextDocument, codeActio
 		if (docQuickFixes && docQuickFixes[diagCode]) {
 			for (const quickFix of docQuickFixes[diagCode]) {
 				const codeActions = createQuickFixCodeActions(diagnostic, quickFix, textDocument.uri);
+				debug(`codeActions is ${JSON.stringify(codeActions, null, 2)}`);
 				quickFixCodeActions.push(...codeActions);
 			}
 		}
@@ -216,7 +221,7 @@ export async function applyQuickFixes(diagnostics: Diagnostic[], textDocumentUri
 	const { fixFailures } = parseLinterResults(docLinter.lintResult, textDocument.getText(), textDocument, docManager);
 	// Notify user of failures if existing
 	await notifyFixFailures(fixFailures, docManager);
-	// Just Notify client of end of fixing 
+	// Just Notify client of end of fixing
 	await docManager.connection.sendNotification(StatusNotification.type, {
 		state: 'lint.end',
 		documents: [{
@@ -225,7 +230,9 @@ export async function applyQuickFixes(diagnostics: Diagnostic[], textDocumentUri
 		lastFileName: textDocument.uri
 	});
 	// Apply updates to textDocument
-	if (docLinter.status === 0) {
+	if (docLinter.status !== 0) {
+		debug(`Error while fixing ${textDocument.uri} status: ${docLinter.status} error: ${docLinter.error ? docLinter.error.msg : 'unknown'}}`);
+	} else if (docLinter.lintResult.summary.totalFixedNumber > 0) {
 		await applyTextDocumentEditOnWorkspace(docManager, textDocument, getUpdatedSource(docLinter, textDocument.getText()));
 		setTimeout(() => { // Wait 500ms so we are more sure that the textDocument is already updated
 			const newDoc = docManager.getUpToDateTextDocument(textDocument);
@@ -286,43 +293,38 @@ export async function disableErrorWithComment(diagnostic: Diagnostic, textDocume
 	const prevLine: string = allLines[prevLinePos] || '';
 	const indent = " ".repeat(line.search(/\S/));
 	const errorCode = (diagnostic.code as string).split('-')[0];
-	// Avoid new lint to be triggered, as diagnostics will be up to date thanks to removeDiagnostics()
-	docManager.recordSkipNextOnDidChangeContent(textDocument.uri);
-	// Update existing /* groovylint-disable */ or /* groovylint-disable-next-line */
 	const commentRules = parseGroovyLintComment(disableKey, prevLine);
 	if (commentRules) {
+		// Update existing /* groovylint-disable */ or /* groovylint-disable-next-line */
 		commentRules.push(errorCode);
 		commentRules.sort();
 		const disableLine = indent + `/* ${disableKey} ${[...new Set(commentRules)].join(", ")} */`;
 		await applyTextDocumentEditOnWorkspace(docManager, textDocument, disableLine, { replaceLinePos: prevLinePos });
-		// Removed as validateTextDocument is called after. Worse performances but safer. 
-		// docManager.removeDiagnostics([diagnostic], textDocument.uri, disableKey === 'groovylint-disable');
 	}
 	else {
 		// Add new /* groovylint-disable */ or /* groovylint-disable-next-line */
 		const disableLine = indent + `/* ${disableKey} ${errorCode} */`;
 		await applyTextDocumentEditOnWorkspace(docManager, textDocument, disableLine, { insertLinePos: linePos });
-		// Removed as validateTextDocument is called after. Worse performances but safer. 
-		// docManager.removeDiagnostics([diagnostic], textDocument.uri, disableKey === 'groovylint-disable', linePos);
 	}
-	docManager.validateTextDocument(textDocument, { force: true });
+
+	// The content of textDocument.getText() will be out of date, so request
+	// a lint when we get the new document content via onDidChangeContent.
+	docManager.updateDocumentSettings(textDocument.uri, {lint: {next: true}});
 }
 
-/* Depending of context, diagnostic.range can be 
+/* Depending of context, diagnostic.range can be
 { start : {line: 1, character:1}, end : {line: 2, character:2} }
-or 
+or
 [ {line: 1, character:1}, {line: 2, character:2] ]
 */
 function getDiagnosticRangeInfo(range: any, startOrEnd: string): any {
 	if (Array.isArray(range)) {
 		return (startOrEnd === 'start') ? range[0] : range[1];
 	}
-	else {
-		return range[startOrEnd];
-	}
+	return range[startOrEnd];
 }
 
-// Parse groovylint comment 
+// Parse groovylint comment
 function parseGroovyLintComment(type: string, line: string) {
 	if (line.includes(type) &&
 		!(type === 'groovylint-disable' && line.includes('groovylint-disable-next-line'))) {
@@ -357,7 +359,7 @@ export async function disableErrorForProject(diagnostic: Diagnostic, textDocumen
 	// Get or create configuration file path using NpmGroovyLint instance associated to this document
 	const docLinter = docManager.getDocLinter(textDocument.uri);
 	const textDocumentFilePath: string = URI.parse(textDocument.uri).fsPath;
-	const startPath = path.dirname(textDocumentFilePath);
+	const startPath = dirname(textDocumentFilePath);
 	let configFilePath: string = await docLinter.getConfigFilePath(startPath);
 	let configFileContent = JSON.parse(fse.readFileSync(configFilePath, "utf8").toString());
 	if (configFilePath.endsWith(".groovylintrc-recommended.json")) {

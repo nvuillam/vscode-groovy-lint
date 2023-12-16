@@ -3,7 +3,7 @@ import { TextDocumentEdit, WorkspaceEdit, ShowMessageRequestParams, MessageType,
 import { DocumentsManager } from './DocumentsManager';
 import { OpenNotification } from './types';
 const debug = require("debug")("vscode-groovy-lint");
-import os = require("os");
+import { EOL } from 'os';
 
 const defaultDocUrl = "https://codenarc.github.io/CodeNarc/codenarc-rule-index.html";
 
@@ -38,7 +38,7 @@ export function createTextEdit(docManager: DocumentsManager, textDocument: TextD
 				start: { line: 0, character: 0 },
 				end: { line: allLines.length - 1, character: allLines[allLines.length - 1].length }
 			},
-			newText: allLines.join(os.EOL)
+			newText: allLines.join(EOL)
 		};
 	}
 	// Replace line at position

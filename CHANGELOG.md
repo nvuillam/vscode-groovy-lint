@@ -3,6 +3,11 @@
 ## [Unreleased]
 
 - Write your updates here !
+- Update all packages, to address security issues and bring in the latest version of npm-groovy-lint and related fixes.
+- Refactor of tests to more reliable, including being independent of each other so if one test fails others are not effected.
+- Fix partial fixes never applying due to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v10.0.0 breaking change.
+- Fix Analyze Groovy files in folder ([#177](https://github.com/nvuillam/vscode-groovy-lint/issues/177))
+- Debug sessions correctly enable debugging by default including npm-groovy-lint.
 
 ## [2.0.0] 2022-08-13
 
@@ -157,7 +162,7 @@
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v5.5.0
   - Allow to override java executable and options [(#54)](https://github.com/nvuillam/vscode-groovy-lint/issues/54)
   - Use os.EOL [(#65)](https://github.com/nvuillam/npm-groovy-lint/pull/65) solving  [(#63)](https://github.com/nvuillam/npm-groovy-lint/issues/63) --fix for indentation adds CRLF line-endings to all files it touches
-  
+
 ## [0.17.1] 2020-07-05
 
 Fixes:

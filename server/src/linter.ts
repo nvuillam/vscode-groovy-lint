@@ -11,6 +11,7 @@ import { ShowMessageRequestParams, MessageType, ShowMessageRequest } from 'vscod
 import { COMMAND_LINT_FIX } from './commands';
 const NpmGroovyLint = require("npm-groovy-lint/lib/groovy-lint.js");
 const debug = require("debug")("vscode-groovy-lint");
+const trace = require("debug")("vscode-groovy-lint-trace");
 const { performance } = require('perf_hooks');
 
 const issuesUrl = "https://github.com/nvuillam/vscode-groovy-lint/issues";
@@ -59,7 +60,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	// Tabs has been replaced by spaces
 	else if (source === 'updated') {
 		debug(`Sources has been updated to replace tabs by spaces`);
-		return Promise.resolve([]);		
+		return Promise.resolve([]);
 	}
 
 	// Check if there is an existing NpmGroovyLint instance with same source (except if format, fix or force)
@@ -83,9 +84,6 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		fix = true;
 		verb = 'auto-fixing';
 	}
-
-	// Remove already existing diagnostics except if format
-	await docManager.resetDiagnostics(textDocument.uri, { verb: verb, deleteDocLinter: !isSimpleLintIdenticalSource });
 
 	// Get a new task id
 	const linterTaskId = docManager.getNewTaskId();
@@ -128,7 +126,8 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		returnrules: docManager.getRuleDescriptions().size > 0 ? false : true,
 		insight: ((settings?.insight?.enable) ? true : false),
 		output: 'none',
-		verbose: settings.basic.verbose
+		verbose: settings.basic.verbose,
+		failon: 'none'
 	};
 
 	const npmGroovyLintExecParam: any = {};
@@ -189,10 +188,15 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		console.info(`Start ${verb} ${textDocument.uri}`);
 		linter = new NpmGroovyLint(npmGroovyLintConfig, npmGroovyLintExecParam);
 		try {
+			debug(`Run npm-groovy-lint ${verb} for ${textDocument.uri}`);
+			trace(`Config: ${JSON.stringify(npmGroovyLintConfig, null, 2)}\nExecParam: ${JSON.stringify(npmGroovyLintExecParam, null, 2)}`);
 			await linter.run();
+			debug(`Done npm-groovy-lint ${verb} for ${textDocument.uri}`);
 			if (!format) {
 				docManager.setDocLinter(textDocument.uri, linter);
 			}
+
+			trace(`Lint result: ${JSON.stringify(linter.lintResult)}`);
 			// Managed cancelled lint case
 			if (linter.status === 9) {
 				docManager.connection.sendNotification(StatusNotification.type, {
@@ -202,7 +206,9 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 					lastFileName: fileNm
 				});
 				return Promise.resolve([]);
-			} else if (linter.status !== 0 && linter.error && linter.error.msg) {
+			}
+
+			if (linter.status !== 0 && linter.error && linter.error.msg) {
 				// Fatal unexpected error: display in console
 				console.error('===========================================================================');
 				console.error('===========================================================================');
@@ -221,7 +227,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 				if (docManager.ignoreNotifyCrashes === true) {
 					return Promise.resolve([]);
 				}
-				// Display message to user 
+				// Display message to user
 				const doNotDisplayAgain = 'Do not display again';
 				const reportErrorLabel = 'Report error';
 				let errorMessageForUser = `There has been an unexpected error while calling npm-groovy-lint. Please join the end of the logs in Output/GroovyLint if you report the issue`;
@@ -253,7 +259,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 			}
 		} catch (e) {
 			// If error, send notification to client
-			const ex = e as any ;
+			const ex = e as any;
 			console.error('VsCode Groovy Lint error: ' + ex.message + '\n' + ex.stack);
 			debug(`Error processing ${textDocument.uri}` + ex.message + '\n' + ex.stack);
 			docManager.connection.sendNotification(StatusNotification.type, {
@@ -264,7 +270,8 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 			});
 			return Promise.resolve([]);
 		}
-		console.info(`Completed ${verb} ${textDocument.uri} in ${(performance.now() - perfStart).toFixed(0)} ms`);
+
+		console.info(`Completed ${verb} ${textDocument.uri} in ${(performance.now() - perfStart).toFixed(0)} ms found ${linter?.lintResult?.summary?.totalFoundNumber || 0} results`);
 	}
 
 	// Parse results
@@ -322,21 +329,24 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		await notifyFixFailures(fixFailures, docManager);
 	}
 
-	// Call if from lintFolder: open document and display diagnostics if 
+	// Call if from lintFolder: open document and display diagnostics if
 	if (opts.showDocumentIfErrors == true && diagnostics.length > 0) {
 		await docManager.connection.sendNotification(OpenNotification.type, { uri: textDocument.uri, preview: false });
+		debug(`updateDiagnostics: lintFolder ${textDocument.uri} count: ${diagnostics.length}`);
 		await docManager.updateDiagnostics(textDocument.uri, diagnostics);
 	}
 	// Remove diagnostics in case the file has been closed since the lint request
 	else if (!docManager.isDocumentOpenInClient(textDocument.uri) && !(opts.displayErrorsEvenIfDocumentClosed === true)) {
+		debug(`updateDiagnostics: closed file ${textDocument.uri} count: 0`);
 		await docManager.updateDiagnostics(textDocument.uri, []);
 	}
 	// Update diagnostics if this is not a format or fix calls (for format & fix, a lint is called just after)
 	else if (![format, fix].includes(true)) {
+		debug(`updateDiagnostics: not format or fix ${textDocument.uri} count: ${diagnostics.length}`);
 		await docManager.updateDiagnostics(textDocument.uri, diagnostics);
 	}
 
-	// Notify client of end of linting 
+	// Notify client of end of linting
 	docManager.connection.sendNotification(StatusNotification.type, {
 		id: linterTaskId,
 		state: 'lint.end' + (fix ? '.fix' : format ? '.format' : ''),
@@ -397,7 +407,8 @@ async function manageFixSourceBeforeCallingLinter(source: string, textDocument: 
 			const textDocumentFilePath: string = URI.parse(textDocument.uri).fsPath;
 			const tmpLinter = new NpmGroovyLint({
 				sourcefilepath: textDocumentFilePath,
-				output: 'none'
+				output: 'none',
+				failon: 'none'
 			}, {});
 			const tmpStartPath = path.dirname(textDocumentFilePath);
 			let tmpConfigFilePath: string = await tmpLinter.getConfigFilePath(tmpStartPath);
