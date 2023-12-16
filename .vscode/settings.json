@@ -2,5 +2,17 @@
   "editor.insertSpaces": false,
   "tslint.enable": true,
   "typescript.tsc.autoDetect": "off",
-  "typescript.preferences.quoteStyle": "single"
+  "typescript.preferences.quoteStyle": "single",
+  "mochaExplorer.launcherScript": "node_modules/mocha-explorer-launcher-scripts/vscode-test",
+  "mochaExplorer.autoload": false,
+  "mochaExplorer.ipcRole": "server",
+  "mochaExplorer.env": {
+    "VSCODE_VERSION": "stable",
+    "ELECTRON_RUN_AS_NODE": null
+  },
+  "mochaExplorer.ui":"tdd",
+  "mochaExplorer.files": "client/src/test/**/*.test.ts",
+  "mochaExplorer.require": "ts-node/register",
+  "mochaExplorer.logpanel": true,
+  "mochaExplorer.ipcTimeout": 10000
 }

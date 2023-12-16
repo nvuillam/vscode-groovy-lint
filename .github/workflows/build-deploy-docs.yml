@@ -3,22 +3,28 @@ on:
   push:
     branches:
       - master
+
+permissions: read-all
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
-          python-version: 3.x
+          python-version: "3.x"
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: "14"
-      - run: pip install mkdocs-material mdx_truly_sane_lists
-      - run: npm ci
-      - run: npm run compile
-      - run: mkdocs gh-deploy --force
+      - run: |
+          pip install mkdocs-material mdx_truly_sane_lists
+          npm ci
+          npm run compile
+          mkdocs gh-deploy --force
 
       # This step will evaluate the repo status and report the change
       - name: Check if there are changes

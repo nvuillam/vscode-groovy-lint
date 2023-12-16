@@ -12,7 +12,7 @@ import {
     ExecuteCommandParams,
     DocumentFormattingParams,
     TextDocumentChangeEvent
-} from 'vscode-languageserver';
+} from 'vscode-languageserver/node';
 import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument';
 const { performance } = require('perf_hooks');
 
@@ -21,6 +21,7 @@ import { DocumentsManager } from './DocumentsManager';
 import { commands } from './commands';
 import { ActiveDocumentNotification } from './types';
 const debug = require("debug")("vscode-groovy-lint");
+const trace = require("debug")("vscode-groovy-lint-trace");
 const NpmGroovyLint = require("npm-groovy-lint/lib/groovy-lint.js");
 
 const onTypeDelayBeforeLint = 3000;
@@ -61,7 +62,7 @@ connection.onInitialized(async () => {
     connection.client.register(DidSaveTextDocumentNotification.type);
     //connection.client.register(ActiveDocumentNotification.type);
     debug('GroovyLint: initialized server');
-    await docManager.refreshDebugMode();
+    await docManager.refreshDebugMode(true);
 });
 
 // Kill CodeNarcServer when closing VsCode or deactivate extension
@@ -72,12 +73,12 @@ connection.onExit(async () => {
     await new NpmGroovyLint({ killserver: true }, {}).run();
 });
 
-// Lint again all opened documents in configuration changed 
+// Lint again all opened documents in configuration changed
 // wait N seconds in case a new config change arrive, run just after the last one
 connection.onDidChangeConfiguration(async (change) => {
-    debug(`change configuration event received: restart server and lint again all open documents`);
-    await new NpmGroovyLint({ killserver: true }, {}).run();
+    debug(`change configuration event received: restart server and lint again all open documents ${JSON.stringify(change, null, 2)}`);
     await docManager.cancelAllDocumentValidations();
+    await new NpmGroovyLint({ killserver: true }, {}).run();
     await docManager.lintAgainAllOpenDocuments();
 });
 
@@ -91,17 +92,10 @@ connection.onDocumentFormatting(async (params: DocumentFormattingParams): Promis
     const { textDocument } = params;
     debug(`Formatting request received from client for ${textDocument.uri} with params ${JSON.stringify(params)}`);
     if (params && params.options.tabSize) {
-        docManager.updateDocumentSettings(textDocument.uri, { tabSize: params.options.tabSize });
+        await docManager.updateDocumentSettings(textDocument.uri, { tabSize: params.options.tabSize });
     }
     const document = docManager.getDocumentFromUri(textDocument.uri);
-    const textEdits: TextEdit[] = await docManager.formatTextDocument(document);
-    // Lint again the sources
-    setTimeout(async () => {
-        const documentUpdated = docManager.getDocumentFromUri(textDocument.uri);
-        await docManager.validateTextDocument(documentUpdated);
-    }, 500);
-    // Return textEdits to client that will apply them
-    return textEdits;
+    return await docManager.formatTextDocument(document);
 });
 
 // Manage to provide code actions (QuickFixes) when the user selects a part of the source code containing diagnostics
@@ -109,7 +103,8 @@ connection.onCodeAction(async (codeActionParams: CodeActionParams): Promise<Code
     if (!codeActionParams.context.diagnostics.length) {
         return [];
     }
-    debug(`Code action request received from client for ${codeActionParams.textDocument.uri} with params: ${JSON.stringify(codeActionParams)}`);
+    debug(`Code action request received from client for ${codeActionParams.textDocument.uri}`);
+    trace(`codeActionParams: ${JSON.stringify(codeActionParams, null, 2)}`);
     const document = docManager.getDocumentFromUri(codeActionParams.textDocument.uri);
     if (document == null) {
         return [];
@@ -136,15 +131,21 @@ docManager.documents.onDidOpen(async (event) => {
 // when the text document first opened or when its content has changed.
 let lastCall: string;
 docManager.documents.onDidChangeContent(async (change: TextDocumentChangeEvent<TextDocument>) => {
-     if (change.document.languageId !== 'groovy') {
+    if (change.document.languageId !== 'groovy') {
         return;
     }
     docManager.setCurrentDocumentUri(change.document.uri);
     docManager.deleteDocLinter(change.document.uri);
     const settings = await docManager.getDocumentSettings(change.document.uri);
-    const skip = docManager.checkSkipNextOnDidChangeContent(change.document.uri);
-    if (settings.lint.trigger === 'onType' && !skip) {
-        // Wait 5 seconds to request linting (if new lint for same doc just arrived, just skip linting)
+    if (settings.lint.next) {
+        // Previous requested lint.
+        docManager.updateDocumentSettings(change.document.uri, {lint: {next: false}});
+        await docManager.validateTextDocument(change.document);
+        return;
+    }
+
+    if (settings.lint.trigger === 'onType') {
+        // Wait to request linting.
         lastCall = `${change.document.uri}-${performance.now()}`;
         const lastCallLocal = lastCall + '';
         setTimeout(async () => {
@@ -157,26 +158,27 @@ docManager.documents.onDidChangeContent(async (change: TextDocumentChangeEvent<T
 
 // Lint on save if it has been configured
 docManager.documents.onDidSave(async event => {
-    debug(`Save event received for ${event.document.uri}`);
+    debug(`Save event received for: ${event.document.uri}`);
     const textDocument: TextDocument = docManager.getDocumentFromUri(event.document.uri, true);
     const settings = await docManager.getDocumentSettings(textDocument.uri);
     if (settings.fix.trigger === 'onSave') {
+        debug(`Save trigger fix for: ${textDocument.uri}`);
         await docManager.validateTextDocument(textDocument, { fix: true });
     }
     else if (settings.lint.trigger === 'onSave') {
+        debug(`Save trigger lint for: ${textDocument.uri}`);
         await docManager.validateTextDocument(textDocument);
+    } else {
+        debug(`Save no action for: ${textDocument.uri}`);
     }
 });
 
 // Only keep settings for open documents
 docManager.documents.onDidClose(async event => {
-    debug(`Close event received for ${event.document.uri}`);
-    docManager.resetDiagnostics(event.document.uri);
+    await docManager.deleteDiagnostics(event.document.uri);
     docManager.removeDocumentSettings(event.document.uri);
-    docManager.cancelDocumentValidation(event.document.uri);
+    await docManager.cancelDocumentValidation(event.document.uri);
 });
-
-
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events

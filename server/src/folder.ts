@@ -17,16 +17,16 @@ export async function lintFolder(folders: Array<any>, docManager: DocumentsManag
 
 	// Function to lint all applicable files of a folder
 	async function processLintFolder() {
-		const folderList = folders.map(fldr => fldr.fsPath);
+		const folderList = folders.map(folder => folder.path);
 		debug(`Start analyzing folder(s): ${folderList.join(',')}`);
 		// Browse each folder
 		for (const folder of folderList) {
 			// List applicable files of folder
 			const pathFilesPatternGroovy = path.join(folder, '/**/*.groovy');
 			const pathFilesPatternJenkins = path.join(folder, '/**/Jenkins*');
-			const files = [];
+			const files: string[] = [];
 			for (const pathFilesPattern of [pathFilesPatternGroovy, pathFilesPatternJenkins]) {
-				const pathFiles = await glob(pathFilesPattern);
+				const pathFiles: string[] = await glob(pathFilesPattern);
 				files.push(...pathFiles);
 			}
 			// Trigger a lint for each of the found documents
@@ -63,7 +63,7 @@ export async function lintFolder(folders: Array<any>, docManager: DocumentsManag
 				]
 			};
 			const req = await docManager.connection.sendRequest('window/showMessageRequest', msg);
-			if (req.title === "Cancel lint of folders") {
+			if (req?.title === "Cancel lint of folders") {
 				continueLinting = false;
 			}
 		}
