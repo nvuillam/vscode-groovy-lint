@@ -106,6 +106,7 @@
         "levn",
         "linebreak",
         "loglevel",
+        "lycheeignore",
         "markdownlint",
         "materialx",
         "megalinter",
