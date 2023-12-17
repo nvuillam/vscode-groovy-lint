@@ -152,8 +152,7 @@ async function updateStatus(status: StatusParams): Promise<any> {
 		statusList = statusList.filter(statusObj => statusObj.id !== status.id);
 
 		// Show Problems panel just once (if user didn't choose otherwise)
-		const showProblems = workspace.getConfiguration('groovyLint').get('showProblemsView', true);
-		if (showProblems && outputChannelShowedOnce === false) {
+		if (outputChannelShowedOnce === false && vscode.workspace.getConfiguration('groovyLint').get('showProblemsView', true) === true) {
 			vscode.commands.executeCommand('workbench.panel.markers.view.focus');
 			outputChannelShowedOnce = true;
 		}
