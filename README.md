@@ -75,9 +75,20 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Special Thanks
 
+- [stevenh](https://github.com/stevenh), for his huge refactoring of npm-groovy-lint and vscode-groovy-lint, saving them from deprecation :)
+
 - [yuvmel](https://github.com/yuvmel), for his great support on [#18](https://github.com/nvuillam/vscode-groovy-lint/issues/18) that allowed VsCode Groovy Lint to work much better on Mac, Linux, and with other diagnostic extensions
 
 ## Release Notes
+
+### [3.0.0] 2023-12-17
+
+- Update all packages, to address security issues and bring in the latest version of npm-groovy-lint and related fixes.
+- Refactor of tests to more reliable, including being independent of each other so if one test fails others are not effected.
+- Fix partial fixes never applying due to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v10.0.0 breaking change.
+- Fix Analyze Groovy files in folder ([#177](https://github.com/nvuillam/vscode-groovy-lint/issues/177))
+- Debug sessions correctly enable debugging by default including npm-groovy-lint.
+- Upgrade MegaLinter and fix related issues
 
 ### [2.0.0] 2022-08-13
 
