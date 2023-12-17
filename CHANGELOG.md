@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 - Fix doc deployment
+- Add stale workflow
 
 ## [3.0.0] 2023-12-17
 
