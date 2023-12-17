@@ -57,12 +57,12 @@
   "homepage": "https://github.com/nvuillam/vscode-groovy-lint#readme",
   "badges": [
     {
-      "url": "https://vsmarketplacebadge.apphb.com/version/NicolasVuillamy.vscode-groovy-lint.svg",
+      "url": "https://img.shields.io/visual-studio-marketplace/v/NicolasVuillamy.vscode-groovy-lint",
       "href": "https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint",
       "description": "Badge for version for Visual Studio Code extension VsCode Groovy Lint"
     },
     {
-      "url": "https://vsmarketplacebadge.apphb.com/installs/NicolasVuillamy.vscode-groovy-lint.svg",
+      "url": "https://img.shields.io/visual-studio-marketplace/i/NicolasVuillamy.vscode-groovy-lint",
       "href": "https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint",
       "description": "Badge for installs for Visual Studio Code extension VsCode Groovy Lint"
     },
