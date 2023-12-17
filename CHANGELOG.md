@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-- Write your updates here !
+- Fix doc deployment
 
 ## [3.0.0] 2023-12-17
 
