@@ -2,9 +2,11 @@
 
 ## [Unreleased]
 
+## [3.1.0] 2023-12-17
+
+- Added new setting `showProblemsView` that controls if Problems View should open after initial lint pass
 - Fix doc deployment
 - Add stale workflow
-- Added new setting `showProblemsView` that controls if Problems View should open after initial lint pass
 
 ## [3.0.0] 2023-12-17
 

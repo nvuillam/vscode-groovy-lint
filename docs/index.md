@@ -82,6 +82,12 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
+### [3.1.0] 2023-12-17
+
+- Added new setting `showProblemsView` that controls if Problems View should open after initial lint pass
+- Fix doc deployment
+- Add stale workflow
+
 ### [3.0.0] 2023-12-17
 
 - Update all packages, to address security issues and bring in the latest version of npm-groovy-lint and related fixes.
