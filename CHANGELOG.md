@@ -4,7 +4,7 @@
 
 - Fix doc deployment
 - Add stale workflow
-- added new setting `showProblemsView` that controls if Problems View should open after initial lint pass
+- Added new setting `showProblemsView` that controls if Problems View should open after initial lint pass
 
 ## [3.0.0] 2023-12-17
 
