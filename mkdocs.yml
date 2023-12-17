@@ -33,7 +33,7 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/nvuillam/vscode-groovy-lint
     - icon: fontawesome/brands/twitter
-      link: https://twitter.com/nvuillam
+      link: https://twitter.com/NicolasVuillamy
   generator: false
 nav:
   - "Home": "index.md"

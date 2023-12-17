@@ -1,13 +1,13 @@
 <!-- markdownlint-disable MD033 -->
 # VsCode Groovy Lint, Format and Fix
 
-[![Version](https://vsmarketplacebadges.dev/version/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
-[![Installs](https://vsmarketplacebadges.dev/installs/NicolasVuillamy.vscode-groovy-lint.svg)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
-[![Test](https://github.com/nvuillam/vscode-groovy-lint/workflows/Test/badge.svg?branch=master)](https://github.com/nvuillam/vscode-groovy-lint/actions?query=workflow%3ATest+branch%3Amaster)
-[![Mega-Linter](https://github.com/nvuillam/vscode-groovy-lint/workflows/Mega-Linter/badge.svg?branch=master)](https://github.com/nvuillam/mega-linter#readme)
+[![Visual Studio Marketplace Version (including pre-releases)](https://img.shields.io/visual-studio-marketplace/v/NicolasVuillamy.vscode-groovy-lint)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
+[![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/NicolasVuillamy.vscode-groovy-lint)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
+[![Test](https://github.com/nvuillam/vscode-groovy-lint/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/nvuillam/vscode-groovy-lint/actions/workflows/test.yml)
+[![Mega-Linter](https://github.com/nvuillam/vscode-groovy-lint/actions/workflows/mega-linter.yml/badge.svg?branch=main)](https://github.com/nvuillam/vscode-groovy-lint/actions/workflows/mega-linter.yml)
 [![License](https://img.shields.io/github/license/nvuillam/vscode-groovy-lint.png)](https://github.com/nvuillam/vscode-groovy-lint/blob/master/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/nvuillam/vscode-groovy-lint.png?label=Star&maxAge=2592000)](https://GitHub.com/nvuillam/vscode-groovy-lint/stargazers/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.png?style=flat-square)](http://makeapullrequest.com)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.png?style=flat-square)](https://makeapullrequest.com)
 
 **Lint** (code quality), **Format** and **Auto-fix** your groovy files and Jenkinsfile
 
@@ -16,7 +16,7 @@
 - You can [configure the rules](https://github.com/nvuillam/npm-groovy-lint#configuration) by defining a `.groovylintrc.json` file
 - If you use **CI**, you can integrate [Mega-Linter](https://github.com/nvuillam/mega-linter#readme) in your workflow, to **make sure all your sources (groovy and other) are clean**
 
-![image](https://github.com/nvuillam/vscode-groovy-lint/raw/master/images/vscode-anim.gif)
+![image](https://github.com/nvuillam/vscode-groovy-lint/raw/main/images/vscode-anim.gif)
 
 ## Features
 
