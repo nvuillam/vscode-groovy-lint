@@ -2,9 +2,8 @@ import { TextDocuments, Diagnostic, WorkspaceFolder } from 'vscode-languageserve
 import { TextDocument, DocumentUri, TextEdit } from 'vscode-languageserver-textdocument';
 import { executeLinter } from './linter';
 import { applyQuickFixes, applyQuickFixesInFile, disableErrorWithComment, disableErrorForProject } from './codeActions';
-import { isTest, showRuleDocumentation } from './clientUtils';
+import { isTest, showRuleDocumentation, eolAndLines } from './clientUtils';
 import { URI } from 'vscode-uri';
-import { EOL } from 'os';
 import { resolve } from 'path';
 import { StatusNotification, VsCodeGroovyLintSettings } from './types';
 import { lintFolder } from './folder';
@@ -375,16 +374,6 @@ export class DocumentsManager {
 	// If document has been updated during an operation, get its most recent state
 	getUpToDateTextDocument(textDocument: TextDocument): TextDocument {
 		return this.documents.get(textDocument.uri) || textDocument; // Or expression, in case the textDocument is not opened yet
-	}
-
-	// Split source string into array of lines
-	getTextDocumentLines(textDocument: TextDocument): string[] {
-		// TODO(steve): Use TextDocument.eol instead of EOL so we
-		// maintain the original line endings.
-		let normalizedString = textDocument.getText() + "";
-		normalizedString = normalizedString.replace(/\r/g, "");
-		normalizedString = normalizedString.replace(/\n/g, EOL);
-		return normalizedString.split(EOL);
 	}
 
 	// Update diagnostics on client and store them in docsDiagnostics field

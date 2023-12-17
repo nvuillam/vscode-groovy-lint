@@ -1,0 +1,3 @@
+client/src/test/examples/tiny-lf.groovy text eol=lf
+client/src/test/examples/tiny-cr.groovy text eol=cr
+client/src/test/examples/tiny-crlf.groovy text eol=crlf

@@ -4,7 +4,7 @@ import { URI } from 'vscode-uri';
 import * as path from 'path';
 
 import { DocumentsManager } from './DocumentsManager';
-import { applyTextDocumentEditOnWorkspace, getUpdatedSource, createTextEdit, notifyFixFailures } from './clientUtils';
+import { applyTextDocumentEditOnWorkspace, getUpdatedSource, createTextEditReplaceAll, notifyFixFailures } from './clientUtils';
 import { parseLinterResults } from './linterParser';
 import { StatusNotification, OpenNotification } from './types';
 import { ShowMessageRequestParams, MessageType, ShowMessageRequest } from 'vscode-languageserver';
@@ -311,11 +311,11 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	// Send updated sources to client if format mode
 	else if (format === true && linter.status === 0 && linter.lintResult.summary.totalFixedNumber > 0) {
 		const updatedSource = getUpdatedSource(linter, source);
+		const textEdit: TextEdit = createTextEditReplaceAll(source, updatedSource);
 		if (opts.applyNow) {
-			await applyTextDocumentEditOnWorkspace(docManager, textDocument, updatedSource);
+			await applyTextDocumentEditOnWorkspace(docManager, textDocument, textEdit);
 		}
 		else {
-			const textEdit = createTextEdit(docManager, textDocument, updatedSource);
 			textEdits.push(textEdit);
 		}
 		// Display fix failures if existing
@@ -324,7 +324,8 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 	// Send updated sources to client if fix mode
 	else if (fix === true && linter.status === 0 && linter.lintResult.summary.totalFixedNumber > 0) {
 		const updatedSource = getUpdatedSource(linter, source);
-		await applyTextDocumentEditOnWorkspace(docManager, textDocument, updatedSource);
+		const textEdit: TextEdit = createTextEditReplaceAll(source, updatedSource);
+		await applyTextDocumentEditOnWorkspace(docManager, textDocument, textEdit);
 		// Display fix failures if existing
 		await notifyFixFailures(fixFailures, docManager);
 	}
@@ -421,8 +422,9 @@ async function manageFixSourceBeforeCallingLinter(source: string, textDocument: 
 			const replaceChars = " ".repeat(indentLength);
 			const newSources = source.replace(/\t/g, replaceChars);
 			if (newSources !== source) {
-			    await applyTextDocumentEditOnWorkspace(docManager, textDocument, newSources);
-			    debug(`Replaces tabs by spaces in ${textDocument.uri}`);
+				const textEdit: TextEdit = createTextEditReplaceAll(source, newSources);
+				await applyTextDocumentEditOnWorkspace(docManager, textDocument, textEdit);
+				debug(`Replaced tabs with spaces in ${textDocument.uri}`);
 				return 'updated';
 			}
 		}

@@ -6,14 +6,22 @@ import {
 	CodeActionKind,
 	Diagnostic,
 	MessageType,
-	ShowMessageRequestParams
+	ShowMessageRequestParams,
+	Position,
+	Range,
+	TextEdit,
 } from 'vscode-languageserver';
 import { URI } from 'vscode-uri';
-import { isNullOrUndefined } from "util";
 import * as fse from "fs-extra";
 
 import { DocumentsManager } from './DocumentsManager';
-import { applyTextDocumentEditOnWorkspace, getUpdatedSource, notifyFixFailures } from './clientUtils';
+import {
+	applyTextDocumentEditOnWorkspace,
+	getUpdatedSource,
+	notifyFixFailures,
+	createTextEditReplaceAll,
+	eolAndLines,
+} from './clientUtils';
 import { parseLinterResults } from './linterParser';
 import { StatusNotification, OpenNotification } from './types';
 import {
@@ -30,7 +38,7 @@ const debug = require("debug")("vscode-groovy-lint");
 const trace = require("debug")("vscode-groovy-lint-trace");
 
 /**
- * Provide quick-fixes for a piece of code  *
+ * Provide quick-fixes for a piece of code
  * @export
  * @param {TextDocument} textDocument
  * @param {CodeActionParams} codeActionParams
@@ -39,7 +47,7 @@ const trace = require("debug")("vscode-groovy-lint-trace");
 export function provideQuickFixCodeActions(textDocument: TextDocument, codeActionParams: CodeActionParams, docQuickFixes: any): CodeAction[] {
 	const diagnostics = codeActionParams.context.diagnostics;
 	const quickFixCodeActions: CodeAction[] = [];
-	if (isNullOrUndefined(diagnostics) || diagnostics.length === 0) {
+	if (diagnostics === undefined || diagnostics === null || diagnostics.length === 0) {
 		return quickFixCodeActions;
 	}
 
@@ -233,7 +241,10 @@ export async function applyQuickFixes(diagnostics: Diagnostic[], textDocumentUri
 	if (docLinter.status !== 0) {
 		debug(`Error while fixing ${textDocument.uri} status: ${docLinter.status} error: ${docLinter.error ? docLinter.error.msg : 'unknown'}}`);
 	} else if (docLinter.lintResult.summary.totalFixedNumber > 0) {
-		await applyTextDocumentEditOnWorkspace(docManager, textDocument, getUpdatedSource(docLinter, textDocument.getText()));
+		const source: string = textDocument.getText();
+		const updatedSource: string = getUpdatedSource(docLinter, source);
+		const textEdit: TextEdit = createTextEditReplaceAll(source, updatedSource);
+		await applyTextDocumentEditOnWorkspace(docManager, textDocument, textEdit);
 		setTimeout(() => { // Wait 500ms so we are more sure that the textDocument is already updated
 			const newDoc = docManager.getUpToDateTextDocument(textDocument);
 			docManager.validateTextDocument(newDoc, { force: true });
@@ -272,7 +283,7 @@ export async function disableErrorWithComment(diagnostic: Diagnostic, textDocume
 	}
 
 	const textDocument: TextDocument = docManager.getDocumentFromUri(textDocumentUri);
-	const allLines = docManager.getTextDocumentLines(textDocument);
+	const [eol, allLines]: [string, string[]] = eolAndLines(textDocument.getText());
 	// Get line to check or create
 	let linePos: number = 0;
 	let disableKey: string = '';
@@ -299,12 +310,16 @@ export async function disableErrorWithComment(diagnostic: Diagnostic, textDocume
 		commentRules.push(errorCode);
 		commentRules.sort();
 		const disableLine = indent + `/* ${disableKey} ${[...new Set(commentRules)].join(", ")} */`;
-		await applyTextDocumentEditOnWorkspace(docManager, textDocument, disableLine, { replaceLinePos: prevLinePos });
+		const range: Range = Range.create(prevLinePos, 0, prevLinePos, prevLine.length);
+		const textEdit: TextEdit = TextEdit.replace(range, disableLine);
+		await applyTextDocumentEditOnWorkspace(docManager, textDocument, textEdit);
 	}
 	else {
 		// Add new /* groovylint-disable */ or /* groovylint-disable-next-line */
-		const disableLine = indent + `/* ${disableKey} ${errorCode} */`;
-		await applyTextDocumentEditOnWorkspace(docManager, textDocument, disableLine, { insertLinePos: linePos });
+		const disableLine = indent + `/* ${disableKey} ${errorCode} */${eol}`;
+		const position: Position = Position.create(linePos, 0);
+		const textEdit: TextEdit = TextEdit.insert(position, disableLine);
+		await applyTextDocumentEditOnWorkspace(docManager, textDocument, textEdit);
 	}
 
 	// The content of textDocument.getText() will be out of date, so request

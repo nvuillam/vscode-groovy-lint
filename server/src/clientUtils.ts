@@ -1,16 +1,32 @@
-import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument';
-import { TextDocumentEdit, WorkspaceEdit, ShowMessageRequestParams, MessageType, ShowMessageParams, ShowMessageRequest } from 'vscode-languageserver';
+import { TextDocument } from 'vscode-languageserver-textdocument';
+import {
+	TextDocumentEdit,
+	WorkspaceEdit,
+	ShowMessageRequestParams,
+	MessageType,
+	ShowMessageRequest,
+	TextEdit,
+	Range,
+} from 'vscode-languageserver';
 import { DocumentsManager } from './DocumentsManager';
 import { OpenNotification } from './types';
 const debug = require("debug")("vscode-groovy-lint");
-import { EOL } from 'os';
+
+// RegExp to find and capture End Of Line (EOL) sequences.
+export const eolCaptureRegExp: RegExp = new RegExp(/(\r?\n)/);
+
+// RegExp to replace End Of Line (EOL) sequences.
+export const eolReplaceRegExp: RegExp = new RegExp(/\r?\n/g);
+
+// End of Line sequences.
+export const dosEOL: string = '\r\n';
+export const unixEOL: string = '\n';
 
 const defaultDocUrl = "https://codenarc.github.io/CodeNarc/codenarc-rule-index.html";
 
 // Apply updated source into the client TextDocument
-export async function applyTextDocumentEditOnWorkspace(docManager: DocumentsManager, textDocument: TextDocument, updatedSource: string, where: any = {}) {
-	textDocument = docManager.getUpToDateTextDocument(textDocument);
-	const textDocEdit: TextDocumentEdit = createTextDocumentEdit(docManager, textDocument, updatedSource, where);
+export async function applyTextDocumentEditOnWorkspace(docManager: DocumentsManager, textDocument: TextDocument, textEdit: TextEdit) {
+	const textDocEdit: TextDocumentEdit = TextDocumentEdit.create({ uri: textDocument.uri, version: textDocument.version }, [textEdit]);
 	const applyWorkspaceEdits: WorkspaceEdit = {
 		documentChanges: [textDocEdit]
 	};
@@ -18,67 +34,57 @@ export async function applyTextDocumentEditOnWorkspace(docManager: DocumentsMana
 	debug(`Updated ${textDocument.uri} using WorkspaceEdit (${JSON.stringify(applyEditResult)})`);
 }
 
-// Create a TextDocumentEdit that will be applied on client workspace
-export function createTextDocumentEdit(docManager: DocumentsManager, textDocument: TextDocument, updatedSource: string, where: any = {}): TextDocumentEdit {
-	const textEdit: TextEdit = createTextEdit(docManager, textDocument, updatedSource, where);
-	const textDocEdit: TextDocumentEdit = TextDocumentEdit.create({ uri: textDocument.uri, version: textDocument.version }, [textEdit]);
-	return textDocEdit;
+/**
+ * Create text edit to replace the whole file maintaining line endings.
+ *
+ * @param originalText the original text.
+ * @param newText the new text.
+ * @returns a TextEdit which replaces currentText with newText.
+ */
+export function createTextEditReplaceAll(originalText: string, newText: string): TextEdit {
+	const [eol, lines]: [string, string[]] = eolAndLines(originalText);
+
+	// Pop is faster than indexed access and also avoids having to check the index going negative.
+	const lastLine: string = lines.pop() || "";
+	const range: Range = Range.create(0, 0, lines.length, lastLine.length);
+	return TextEdit.replace(range, newText.replace(eolReplaceRegExp, eol));
 }
 
-// Create text edit for the whole file from updated source
-export function createTextEdit(docManager: DocumentsManager, textDocument: TextDocument, updatedSource: string, where: any = {}): TextEdit {
-	const allLines = docManager.getTextDocumentLines(textDocument);
-	// If range is not sent, replace all file lines
-	let textEdit: TextEdit;
-	// Insert at position
-	if (where.insertLinePos || where.insertLinePos === 0) {
-		allLines.splice(where.insertLinePos, 0, updatedSource);
-		textEdit = {
-			range: {
-				start: { line: 0, character: 0 },
-				end: { line: allLines.length - 1, character: allLines[allLines.length - 1].length }
-			},
-			newText: allLines.join(EOL)
-		};
-	}
-	// Replace line at position
-	else if (where.replaceLinePos || where.replaceLinePos === 0) {
-		textEdit = {
-			range: {
-				start: { line: where.replaceLinePos, character: 0 },
-				end: { line: where.replaceLinePos, character: allLines[where.replaceLinePos].length }
-			},
-			newText: updatedSource
-		};
-	}
-	// Replace all source
-	else if (!where?.range) {
-		textEdit = {
-			range: {
-				start: { line: 0, character: 0 },
-				end: { line: allLines.length - 1, character: allLines[allLines.length - 1].length }
-			},
-			newText: updatedSource
-		};
-	}
-	// Provided range
-	else {
-		textEdit = {
-			range: where.range,
-			newText: updatedSource
-		};
-	}
-	return textEdit;
+/**
+ * Returns the predominant end of line sequence and lines of a string.
+ *
+ * @param text the string to process.
+ * @returns the predominant end of line sequence and the lines.
+ */
+export function eolAndLines(text: string): [string, string[]] {
+	const parts: string[] = text.split(eolCaptureRegExp);
+	let dos: number = 0;
+	let unix: number = 0;
+	const lines: string[] = [];
+	parts.forEach(val => {
+		switch (val) {
+			case dosEOL:
+				dos++;
+				break;
+			case unixEOL:
+				unix++;
+				break;
+			default:
+				lines.push(val);
+				break;
+		}
+	});
+
+	return [unix > dos ? unixEOL : dosEOL, lines];
 }
 
 // Return updated source
 export function getUpdatedSource(docLinter: any, prevSource: string) {
-	if (docLinter && docLinter.lintResult && docLinter.lintResult.files && docLinter.lintResult.files[0]) {
+	if (docLinter?.lintResult?.files && docLinter.lintResult.files[0]) {
 		return docLinter.lintResult.files[0].updatedSource;
 	}
-	else {
-		return prevSource;
-	}
+
+	return prevSource;
 }
 
 // Shows the documentation of a rule

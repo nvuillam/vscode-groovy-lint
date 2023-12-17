@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- fix: file end of line character changes ([#176](https://github.com/nvuillam/vscode-groovy-lint/issues/176))
+
 ## [3.1.0] 2023-12-17
 
 - Added new setting `showProblemsView` that controls if Problems View should open after initial lint pass
