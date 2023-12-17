@@ -81,7 +81,7 @@ Please follow [Contribution instructions](https://github.com/nvuillam/vscode-gro
 
 ## Release Notes
 
-## [3.0.0] 2023-12-17
+### [3.0.0] 2023-12-17
 
 - Update all packages, to address security issues and bring in the latest version of npm-groovy-lint and related fixes.
 - Refactor of tests to more reliable, including being independent of each other so if one test fails others are not effected.
