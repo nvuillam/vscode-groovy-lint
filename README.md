@@ -3,8 +3,8 @@
 
 [![Visual Studio Marketplace Version (including pre-releases)](https://img.shields.io/visual-studio-marketplace/v/NicolasVuillamy.vscode-groovy-lint)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
 [![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/NicolasVuillamy.vscode-groovy-lint)](https://marketplace.visualstudio.com/items?itemName=NicolasVuillamy.vscode-groovy-lint)
-[![Test](https://github.com/nvuillam/vscode-groovy-lint/workflows/Test/badge.svg?branch=main)](https://github.com/nvuillam/vscode-groovy-lint/actions?query=workflow%3ATest+branch%3Amaster)
-[![Mega-Linter](https://github.com/nvuillam/vscode-groovy-lint/workflows/Mega-Linter/badge.svg?branch=main)](https://github.com/nvuillam/mega-linter#readme)
+[![Test](https://github.com/nvuillam/vscode-groovy-lint/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/nvuillam/vscode-groovy-lint/actions/workflows/test.yml)
+[![Mega-Linter](https://github.com/nvuillam/vscode-groovy-lint/actions/workflows/mega-linter.yml/badge.svg?branch=main)](https://github.com/nvuillam/vscode-groovy-lint/actions/workflows/mega-linter.yml)
 [![License](https://img.shields.io/github/license/nvuillam/vscode-groovy-lint.png)](https://github.com/nvuillam/vscode-groovy-lint/blob/master/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/nvuillam/vscode-groovy-lint.png?label=Star&maxAge=2592000)](https://GitHub.com/nvuillam/vscode-groovy-lint/stargazers/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.png?style=flat-square)](https://makeapullrequest.com)
