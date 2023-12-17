@@ -21,7 +21,7 @@
 ## Features
 
 | Command                                | Description                                                                                      | Access                                                   |
-|----------------------------------------|--------------------------------------------------------------------------------------------------|----------------------------------------------------------|
+| -------------------------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------- |
 | **Analyze code**                       | Lint the code of the current file                                                                | Ctrl+Shift+F9<br/>Contextual</br>Status bar<br/>Commands |
 | **Format**                             | Format the code of the current file                                                              | Shift+Alt+F<br/>Contextual</br>Commands                  |
 | **Fix all auto-fixable problems**      | Fix the code of the current file                                                                 | Contextual</br>Commands                                  |
@@ -40,20 +40,21 @@
 
 ## Extension Settings
 
-| Parameter                    | Description                                                                                                     | Default              |
-|------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
-| `groovyLint.enable`          | Controls whether GroovyLint is enabled or not                                                                   | true                 |
-| `groovyLint.lint.trigger`    | Run the linter on save (onSave), on type (onType) , or on user request                                          | onSave               |
-| `groovyLint.format.enable`   | Controls whether the groovy formatter is enabled or not                                                         | true                 |
-| `groovyLint.fix.enable`      | Run the auto-fixer on save (onSave), on type (onType) , or on user request                                      | true                 |
-| `groovyLint.fix.trigger`     | Run the fixer on save (onSave), or on user request                                                              | user                 |
-| `groovyLint.basic.loglevel`  | Linting error level (error, warning,info)                                                                       | info                 |
-| `groovyLint.basic.verbose`   | Turn on to have verbose logs                                                                                    | false                |
-| `groovyLint.basic.config`    | [NPM groovy lint configuration file](https://github.com/nvuillam/npm-groovy-lint#configuration)                 | .groovylintrc.json   |
-| `groovyLint.debug.enable`    | Display more logs in VsCode Output panel (select "GroovyLint") for issue investigation                          | false                |
-| `groovyLint.java.executable` | Override java executable to use <br/>Example: C:\\Program Files\\Java\\jdk1.8.0_144\\bin\\java.exe              | java                 |
-| `groovyLint.java.options`    | Override java options to use                                                                                    | "-Xms256m,-Xmx2048m" |
-| `groovyLint.insight.enable`  | Allow to send anonymous usage statistics used only to improve the tool (we will of course never send your code) | false                |
+| Parameter                     | Description                                                                                                     | Default              |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------- |
+| `groovyLint.enable`           | Controls whether GroovyLint is enabled or not                                                                   | true                 |
+| `groovyLint.lint.trigger`     | Run the linter on save (onSave), on type (onType) , or on user request                                          | onSave               |
+| `groovyLint.format.enable`    | Controls whether the groovy formatter is enabled or not                                                         | true                 |
+| `groovyLint.fix.enable`       | Run the auto-fixer on save (onSave), on type (onType) , or on user request                                      | true                 |
+| `groovyLint.fix.trigger`      | Run the fixer on save (onSave), or on user request                                                              | user                 |
+| `groovyLint.basic.loglevel`   | Linting error level (error, warning,info)                                                                       | info                 |
+| `groovyLint.basic.verbose`    | Turn on to have verbose logs                                                                                    | false                |
+| `groovyLint.basic.config`     | [NPM groovy lint configuration file](https://github.com/nvuillam/npm-groovy-lint#configuration)                 | .groovylintrc.json   |
+| `groovyLint.debug.enable`     | Display more logs in VsCode Output panel (select "GroovyLint") for issue investigation                          | false                |
+| `groovyLint.java.executable`  | Override java executable to use <br/>Example: C:\\Program Files\\Java\\jdk1.8.0_144\\bin\\java.exe              | java                 |
+| `groovyLint.java.options`     | Override java options to use                                                                                    | "-Xms256m,-Xmx2048m" |
+| `groovyLint.insight.enable`   | Allow to send anonymous usage statistics used only to improve the tool (we will of course never send your code) | false                |
+| `groovyLint.showProblemsView` | Show Problems View once after start                                                                             | false                |
 
 ## Troubleshooting
 
