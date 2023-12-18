@@ -10,7 +10,7 @@
     "VSCODE_VERSION": "stable",
     "ELECTRON_RUN_AS_NODE": null
   },
-  "mochaExplorer.ui":"tdd",
+  "mochaExplorer.ui": "tdd",
   "mochaExplorer.files": "client/src/test/**/*.test.ts",
   "mochaExplorer.require": "ts-node/register",
   "mochaExplorer.logpanel": true,

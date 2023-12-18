@@ -43,7 +43,7 @@
       "args": [
         "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/client/out/test/suite/index",
+        "--extensionTestsPath=${workspaceFolder}/client/out/test/suite/index"
       ],
       "outFiles": ["${workspaceFolder}/client/out/test/**/*.js"],
       "preLaunchTask": "npm: watch",
@@ -58,7 +58,7 @@
       "args": [
         "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/client/out/test/suite/index",
+        "--extensionTestsPath=${workspaceFolder}/client/out/test/suite/index"
       ],
       "env": {
         "NPM_DEBUG": "vscode-groovy-lint,npm-groovy-lint",
@@ -87,6 +87,6 @@
     {
       "name": "Run Extension Tests + Server",
       "configurations": ["Run Extension Tests", "Attach to Server"]
-    },
+    }
   ]
 }
