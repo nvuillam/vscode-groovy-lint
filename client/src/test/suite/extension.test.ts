@@ -21,13 +21,20 @@ const testsFolder = '../../../src/test';
 const examples = 'examples';
 const testConfig = '.groovylintrc.json';
 const extensionId = 'NicolasVuillamy.vscode-groovy-lint';
-const tinyGroovy = 'tiny.groovy';
+const tinyGroovy = 'tiny-crlf.groovy';
 const validGroovy = 'valid.groovy';
 const numberOfGroovyLintCommands = 9;
 
 // Additional timeout for the first test to
 // allow for server startup timeout.
 let additionalTimeout = defaultTimeout;
+
+// RegExp to determine predominate End Of Line (EOL) sequence.
+const eolCaptureRegExp: RegExp = new RegExp(/(\r?\n)/g);
+
+// End of Line sequences.
+const unixEOL = '\n';
+const dosEOL = '\r\n';
 
 /**
  * testDocumentDetails represents the expected results for a testDocument.
@@ -54,6 +61,7 @@ const documentDetails = new Map<string, testDocumentDetails>();
 [
 	new testDocumentDetails(validGroovy, 0, 0, false),
 	new testDocumentDetails(tinyGroovy, 50, 19),
+	new testDocumentDetails('tiny-lf.groovy', 50, 19),
 	new testDocumentDetails('big.groovy', 4114, 789, true, 10 * second),
 	new testDocumentDetails('Jenkinsfile', 380, 151, true, 10 * second),
 	new testDocumentDetails('parseError.groovy', 2, 1, false),
@@ -428,15 +436,19 @@ class testDocuments extends Map<string, testDocument> {
 				this.forEach(doc => doc.reject());
 			}, timeout);
 
-			// Close stale editors.
-			await executeCommand('workbench.action.closeAllEditors');
+			try {
+				// Close stale editors.
+				await executeCommand('workbench.action.closeAllEditors');
 
-			doc = await doc.setupTest();
-			if (action) {
-				action(doc, this);
+				doc = await doc.setupTest();
+				if (action) {
+					await action(doc, this);
+				}
+
+				resolve();
+			} catch (err) {
+				reject(err);
 			}
-
-			resolve();
 		}).finally(async () => {
 			clearTimeout(timer);
 			await this.cleanup();
@@ -503,8 +515,11 @@ suite('VsCode GroovyLint Test Suite', async function() {
 	// Format documents.
 	documentDetails.forEach(async (_, name) => {
 		test(`Format "${name}"`, async function() {
+			// Total process requires two passes so double the timeout.
+			const docDetails = documentDetails.get(name);
 			await testSingle(this, name, async function(doc: testDocument): Promise<void> {
 				const textBefore = doc.text;
+				const origEOL: string = textEOL(textBefore);
 				const textEdits = await executeCommand('vscode.executeFormatDocumentProvider', doc.uri, {});
 				if (!doc.formats) {
 					// Not expected for format.
@@ -513,10 +528,13 @@ suite('VsCode GroovyLint Test Suite', async function() {
 				}
 
 				await doc.applyEdits(textEdits);
-				const textAfter = doc.text;
 
+				const textAfter = doc.text;
 				assert(textBefore !== textAfter, 'Text not updated format');
-			});
+
+				const newEOL: string = textEOL(textAfter);
+				assert(origEOL === newEOL, `end of line sequence changed from ${origEOL} to ${newEOL}`);
+			}, docDetails.timeout * 2);
 		});
 	});
 
@@ -527,6 +545,7 @@ suite('VsCode GroovyLint Test Suite', async function() {
 			const docDetails = documentDetails.get(name);
 			await testSingle(this, name, async function(doc: testDocument): Promise<void> {
 				const textBefore = doc.text;
+				const origEOL: string = textEOL(textBefore);
 				const promiseNames: string[] = [];
 				if (doc.lint !== doc.lintFix) {
 					promiseNames.push(testDocument.diagnosticPromise, testDocument.documentEditPromise);
@@ -544,36 +563,57 @@ suite('VsCode GroovyLint Test Suite', async function() {
 					assert(textBefore === textAfter, 'Unexpected text update');
 				}
 				assert(diagsLen === doc.lintFix, `Found ${diagsLen} diagnostics expected ${doc.lintFix}`);
+
+				const newEOL: string = textEOL(textAfter);
+				assert(origEOL === newEOL, `end of line sequence changed from ${origEOL} to ${newEOL}`);
 			}, docDetails.timeout * 3);
 		});
 	});
 
 	// Disable rules for a line.
-	test('Disable next line', async function() {
-		await testSingle(this, tinyGroovy, async function(doc: testDocument): Promise<void> {
-			const lineNb = 5;
-			await doc.disableRule('groovyLint.disableRule', 'SpaceBeforeOpeningBrace', lineNb);
-			await doc.disableRule('groovyLint.disableRule', 'UnnecessaryGString', lineNb + 1); // Disable added a line.
+	documentDetails.forEach(async (_, name) => {
+		if (!name.startsWith('tiny')) {
+			return;
+		}
 
-			const disableLine = doc.doc.lineAt(lineNb).text;
+		test(`Disable "${name}" next line`, async function() {
+			await testSingle(this, name, async function(doc: testDocument): Promise<void> {
+				const origEOL: string = textEOL(doc.text);
+				const lineNb = 5;
+				// Add a disable line.
+				await doc.disableRule('groovyLint.disableRule', 'SpaceBeforeOpeningBrace', lineNb);
 
-			assert(disableLine.includes(`/* groovylint-disable-next-line SpaceBeforeOpeningBrace, UnnecessaryGString */`),
-				`groovylint-disable-next-line not added correctly found: ${disableLine}`
-			);
+				// Amend the disable line.
+				await doc.disableRule('groovyLint.disableRule', 'UnnecessaryGString', lineNb + 1);
+
+				const disableLine = doc.doc.lineAt(lineNb).text;
+				assert(disableLine.includes(`/* groovylint-disable-next-line SpaceBeforeOpeningBrace, UnnecessaryGString */`),
+					`groovylint-disable-next-line not added correctly found: ${disableLine}`
+				);
+
+				const newEOL: string = textEOL(doc.text);
+				assert(origEOL === newEOL, `end of line sequence changed from ${origEOL} to ${newEOL}`);
+			});
 		});
 	});
 
 	// Disable rules for entire file.
 	test('Disable rules in all file', async function() {
 		await testSingle(this, tinyGroovy, async function(doc: testDocument): Promise<void> {
+			const origEOL: string = textEOL(doc.text);
+			// Add a disable line.
 			await doc.disableRule('groovyLint.disableRuleInFile', 'CompileStatic');
+
+			// Amend the disable line.
 			await doc.disableRule('groovyLint.disableRuleInFile', 'DuplicateStringLiteral');
 
 			const disableLine = doc.doc.lineAt(0).text;
-
 			assert(disableLine.includes('/* groovylint-disable CompileStatic, DuplicateStringLiteral */'),
 				`groovylint-disable not added correctly found: ${disableLine}`
 			);
+
+			const newEOL: string = textEOL(doc.text);
+			assert(origEOL === newEOL, `end of line sequence changed from ${origEOL} to ${newEOL}`);
 		});
 	});
 
@@ -581,6 +621,7 @@ suite('VsCode GroovyLint Test Suite', async function() {
 	test('Quick fix error in tiny document', async function() {
 		await testSingle(this, tinyGroovy, async function(doc: testDocument): Promise<void> {
 			const textBefore = doc.text;
+			const origEOL: string = textEOL(textBefore);
 			const diagnostic = doc.diags.find(diag => (diag.code as string).startsWith('UnnecessarySemicolon'));
 			// Request code actions.
 			await doc.execute([], 'vscode.executeCodeActionProvider', doc.uri, diagnostic.range);
@@ -590,6 +631,9 @@ suite('VsCode GroovyLint Test Suite', async function() {
 			const textAfter = doc.text;
 
 			assert(textBefore !== textAfter, 'Text not updated');
+
+			const newEOL: string = textEOL(textAfter);
+			assert(origEOL === newEOL, `end of line sequence changed from ${origEOL} to ${newEOL}`);
 		});
 	});
 
@@ -597,6 +641,7 @@ suite('VsCode GroovyLint Test Suite', async function() {
 	test('Quick fix error in entire file in tiny document', async function() {
 		await testSingle(this, tinyGroovy, async function(doc: testDocument): Promise<void> {
 			const textBefore = doc.text;
+			const origEOL: string = textEOL(textBefore);
 			const diagnostic = doc.diags.find(diag => (diag.code as string).startsWith('UnnecessarySemicolon'));
 
 			// Request code actions.
@@ -604,23 +649,23 @@ suite('VsCode GroovyLint Test Suite', async function() {
 
 			// Apply Quick Fix.
 			await doc.execute([testDocument.diagnosticPromise, testDocument.documentEditPromise], 'groovyLint.quickFixFile', doc.uri.toString(), diagnostic);
-			const textAfter = doc.text;
 
+			const textAfter = doc.text;
 			assert(textBefore !== textAfter, 'Text not updated');
+
+			const newEOL: string = textEOL(textAfter);
+			assert(origEOL === newEOL, `end of line sequence changed from ${origEOL} to ${newEOL}`);
 		});
 	});
 
 	// Lint a folder.
 	test('Lint folder', async function() {
 		let timeout = 0;
-		let expected = 0;
 		documentDetails.forEach(doc => {
 			timeout += doc.timeout;
-			expected += doc.lint;
 		});
 		await testMulti(this, [...documentDetails.keys()], async function(doc: testDocument, testDocs: testDocuments): Promise<void> {
 			const promises: Promise<void>[] = [];
-			let expected = 0;
 			testDocs.forEach(doc => {
 				promises.push(doc.wait(testDocument.diagnosticPromise));
 			});
@@ -631,14 +676,9 @@ suite('VsCode GroovyLint Test Suite', async function() {
 
 			await Promise.all(promises);
 
-			let diags = 0;
 			testDocs.forEach(doc => {
-				diags += doc.diags.length;
+				assert(doc.lint === doc.diags.length, `"${doc.name}" has: ${doc.diags.length} diagnostics expected: ${doc.lint}`);
 			});
-
-			await testDocs.cleanup();
-
-			assert(diags === expected, `Found ${diags} diagnostics expected: ${expected}`);
 		}, timeout);
 	});
 
@@ -656,4 +696,28 @@ suite('VsCode GroovyLint Test Suite', async function() {
 async function executeCommand(command: string, ...args: any[]): Promise<any> {
 	debug(`Execute command ${command} with args ${JSON.stringify(args)}`);
 	return vscode.commands.executeCommand(command, ...args);
+}
+
+/**
+ * Returns the name of the predominate End Of Line (EOL) of the given text.
+ *
+ * @param text the text to determine the EOL from.
+ * @returns the name of the predominate EOL sequence of text.
+ */
+function textEOL(text: string): string {
+	const eols: string[] = text.match(eolCaptureRegExp) || [];
+	let dos: number = 0;
+	let unix: number = 0;
+	eols.forEach(eol => {
+		switch (eol) {
+			case dosEOL:
+				dos++;
+				break;
+			case unixEOL:
+				unix++;
+				break;
+		}
+	});
+
+	return unix > dos ? unixEOL : dosEOL;
 }
