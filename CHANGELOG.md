@@ -3,6 +3,9 @@
 ## [Unreleased]
 
 - fix: file end of line character changes ([#176](https://github.com/nvuillam/vscode-groovy-lint/issues/176))
+- dep: Upgrade npm-groovy-lint to v4.2.0
+  - fix: missing parse errors with --noserver
+  - fix: deactivate log file by default
 
 ## [3.1.0] 2023-12-17
 

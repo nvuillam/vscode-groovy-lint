@@ -119,6 +119,7 @@
     "njre",
     "nolintafter",
     "nonblock",
+    "noserver",
     "notif",
     "npmignore",
     "nuxt",
