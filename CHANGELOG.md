@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.2.0] 2024-01-15
+
 - fix: file end of line character changes ([#176](https://github.com/nvuillam/vscode-groovy-lint/issues/176))
 - dep: Upgrade npm-groovy-lint to v4.2.0
   - fix: missing parse errors with --noserver
