@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [3.2.1] 2024-02-19
+
+- Upgrade npm-groovy-lint to v14.2.1
+  - fix: class not found request failure
+- Upgrade npm dependencies
+
 ## [3.2.0] 2024-01-15
 
 - fix: file end of line character changes ([#176](https://github.com/nvuillam/vscode-groovy-lint/issues/176))
