@@ -34,7 +34,7 @@
     "find-java-home": "^2.0.0",
     "fs-extra": "^11.2.0",
     "glob-promise": "^6.0.5",
-    "npm-groovy-lint": "^14.2.0",
+    "npm-groovy-lint": "^14.2.1",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.11",
     "vscode-uri": "^3.0.8"
