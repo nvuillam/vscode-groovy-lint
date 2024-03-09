@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [3.2.2] 2024-03-09
+
+- Upgrade npm-groovy-lint to [v14.2.3](https://github.com/nvuillam/npm-groovy-lint/releases/tag/v14.2.3)
+  - Fix "directories aren't cleaned up"
+- Upgrade npm dependencies
+
 ## [3.2.1] 2024-02-19
 
 - Upgrade npm-groovy-lint to v14.2.1
