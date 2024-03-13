@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [3.2.3] 2024-03-13
+
+- Upgrade npm-groovy-lint to [v14.2.4](https://github.com/nvuillam/npm-groovy-lint/releases/tag/v14.2.4)
+- Upgrade npm dependencies
+
 ## [3.2.2] 2024-03-09
 
 - Upgrade npm-groovy-lint to [v14.2.3](https://github.com/nvuillam/npm-groovy-lint/releases/tag/v14.2.3)

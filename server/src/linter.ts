@@ -124,7 +124,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		nolintafter: true,
 		loglevel: (format) ? 'info' : settings.basic.loglevel,
 		returnrules: docManager.getRuleDescriptions().size > 0 ? false : true,
-		insight: ((settings?.insight?.enable) ? true : false),
+		insight: settings?.insight?.enable === true ? true : false,
 		output: 'none',
 		verbose: settings.basic.verbose,
 		failon: 'none'
