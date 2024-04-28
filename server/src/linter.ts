@@ -234,7 +234,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 				await new Promise(resolve => {
 					require("find-java-home")((err: any) => {
 						if (err) {
-							errorMessageForUser = "Java is required to use VsCode Groovy Lint, as CodeNarc is written in Java/Groovy. Please install Java (version 8 minimum) https://www.java.com/download ,then type \"java -version\" in command line to verify that the installation is correct";
+							errorMessageForUser = "Java is required to use VsCode Groovy Lint, as CodeNarc is written in Java/Groovy. Please install Java (version 8 minimum) https://www.java.com/en/download/ ,then type \"java -version\" in command line to verify that the installation is correct";
 						}
 						resolve(true);
 					});
