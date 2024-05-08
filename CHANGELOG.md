@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [3.3.1] 2024-05-08
+
+- Upgrade npm-groovy-lint to fix issues with Mac
+
 ## [3.3.0] 2024-04-28
 
 - Upgrade dependencies
