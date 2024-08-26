@@ -19,6 +19,7 @@ import { provideQuickFixCodeActions } from './codeActions';
 import { DocumentsManager } from './DocumentsManager';
 import { commands } from './commands';
 import { ActiveDocumentNotification } from './types';
+import * as NpmGroovyLint from 'npm-groovy-lint';
 import Debug from "debug";
 
 const debug = Debug('vscode-groovy-lint');
