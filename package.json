@@ -8,7 +8,7 @@
   "icon": "icon.png",
   "engines": {
     "vscode": "^1.75.0",
-    "node": ">=14.0.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "compile": "tsc -b",

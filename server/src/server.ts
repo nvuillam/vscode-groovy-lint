@@ -20,6 +20,7 @@ import { DocumentsManager } from './DocumentsManager';
 import { commands } from './commands';
 import { ActiveDocumentNotification } from './types';
 import Debug from "debug";
+
 const debug = Debug('vscode-groovy-lint');
 const trace = Debug("vscode-groovy-lint-trace");
 

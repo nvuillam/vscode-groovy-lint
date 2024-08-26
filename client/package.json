@@ -25,7 +25,7 @@
   "homepage": "https://github.com/nvuillam/vscode-groovy-lint#readme",
   "engines": {
     "vscode": "^1.75.0",
-    "node": ">=14.0.0"
+    "node": ">=20.0.0"
   },
   "author": "Nicolas Vuillamy",
   "license": "GPL-3.0-only",

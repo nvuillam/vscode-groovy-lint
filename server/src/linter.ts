@@ -10,7 +10,7 @@ import { parseLinterResults } from './linterParser';
 import { StatusNotification, OpenNotification } from './types';
 import { ShowMessageRequestParams, MessageType, ShowMessageRequest } from 'vscode-languageserver';
 import { COMMAND_LINT_FIX } from './commands';
-import NpmGroovyLint  from "npm-groovy-lint";
+import * as NpmGroovyLint from "npm-groovy-lint";
 import Debug from "debug";
 import { performance } from 'perf_hooks';
 const debug = Debug('vscode-groovy-lint');
