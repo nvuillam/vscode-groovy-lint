@@ -1,8 +1,9 @@
 import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DocumentsManager } from './DocumentsManager';
-const debug = require("debug")("vscode-groovy-lint");
-const trace = require("debug")("vscode-groovy-lint-trace");
+import Debug from "debug";
+const debug = Debug('vscode-groovy-lint');
+const trace = Debug("vscode-groovy-lint-trace");
 
 // Parse results into VsCode diagnostic
 export function parseLinterResults(lintResultsIn: any, source: string, textDocument: TextDocument, docManager: DocumentsManager) {

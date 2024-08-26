@@ -6,10 +6,10 @@ import * as temp from 'temp';
 import * as fs from 'fs';
 import { performance } from 'perf_hooks';
 import { test } from 'mocha';
-
+import Debug from "debug";
+const debug = Debug('vscode-groovy-lint');
 // Workaround: https://github.com/microsoft/vscode/issues/197494.
 process.env['DEBUG'] = process.env['NPM_DEBUG'];
-const debug = require('debug')('vscode-groovy-lint');
 
 // Track temporary files and directories.
 temp.track();

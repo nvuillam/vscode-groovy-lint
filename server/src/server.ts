@@ -14,15 +14,14 @@ import {
     TextDocumentChangeEvent
 } from 'vscode-languageserver/node';
 import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument';
-const { performance } = require('perf_hooks');
-
+import { performance } from 'perf_hooks';
 import { provideQuickFixCodeActions } from './codeActions';
 import { DocumentsManager } from './DocumentsManager';
 import { commands } from './commands';
 import { ActiveDocumentNotification } from './types';
-const debug = require("debug")("vscode-groovy-lint");
-const trace = require("debug")("vscode-groovy-lint-trace");
-const NpmGroovyLint = require("npm-groovy-lint/lib/groovy-lint.js");
+import Debug from "debug";
+const debug = Debug('vscode-groovy-lint');
+const trace = Debug("vscode-groovy-lint-trace");
 
 const onTypeDelayBeforeLint = 3000;
 

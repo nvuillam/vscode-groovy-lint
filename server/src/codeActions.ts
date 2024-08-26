@@ -34,8 +34,9 @@ import {
 } from './commands';
 import { dirname } from 'path';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-const debug = require("debug")("vscode-groovy-lint");
-const trace = require("debug")("vscode-groovy-lint-trace");
+import Debug from "debug";
+const debug = Debug('vscode-groovy-lint');
+const trace = Debug("vscode-groovy-lint-trace");
 
 /**
  * Provide quick-fixes for a piece of code

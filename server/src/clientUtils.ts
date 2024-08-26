@@ -10,7 +10,8 @@ import {
 } from 'vscode-languageserver';
 import { DocumentsManager } from './DocumentsManager';
 import { OpenNotification } from './types';
-const debug = require("debug")("vscode-groovy-lint");
+import Debug from "debug";
+const debug = Debug("vscode-groovy-lint");
 
 // RegExp to find and capture End Of Line (EOL) sequences.
 export const eolCaptureRegExp: RegExp = new RegExp(/(\r?\n)/);

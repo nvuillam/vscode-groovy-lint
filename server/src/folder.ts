@@ -4,9 +4,10 @@ import { URI } from 'vscode-uri';
 import * as fse from "fs-extra";
 import * as path from "path";
 import { ShowMessageRequestParams, MessageType } from 'vscode-languageserver';
+import {glob} from "glob";
+import Debug from "debug";
+const debug = Debug('vscode-groovy-lint');
 
-const debug = require("debug")("vscode-groovy-lint");
-const glob = require("glob-promise");
 
 const timeToDisplayWaitingMessageMs = 5000;
 

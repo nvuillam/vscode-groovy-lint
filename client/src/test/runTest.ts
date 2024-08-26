@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { runTests } from '@vscode/test-electron';
-const NYC = require('nyc');
+import * as NYC from 'nyc';
 
 const codeCoverage = process?.argv.includes('--codecoverage');
 

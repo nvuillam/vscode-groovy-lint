@@ -1,5 +1,6 @@
 /* eslint-disable eqeqeq */
 import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument';
+import * as findJavaHome from "find-java-home";
 import { URI } from 'vscode-uri';
 import * as path from 'path';
 
@@ -9,10 +10,11 @@ import { parseLinterResults } from './linterParser';
 import { StatusNotification, OpenNotification } from './types';
 import { ShowMessageRequestParams, MessageType, ShowMessageRequest } from 'vscode-languageserver';
 import { COMMAND_LINT_FIX } from './commands';
-const NpmGroovyLint = require("npm-groovy-lint/lib/groovy-lint.js");
-const debug = require("debug")("vscode-groovy-lint");
-const trace = require("debug")("vscode-groovy-lint-trace");
-const { performance } = require('perf_hooks');
+import NpmGroovyLint  from "npm-groovy-lint";
+import Debug from "debug";
+import { performance } from 'perf_hooks';
+const debug = Debug('vscode-groovy-lint');
+const trace = Debug("vscode-groovy-lint-trace");
 
 const issuesUrl = "https://github.com/nvuillam/vscode-groovy-lint/issues";
 
@@ -231,13 +233,9 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 				const doNotDisplayAgain = 'Do not display again';
 				const reportErrorLabel = 'Report error';
 				let errorMessageForUser = `There has been an unexpected error while calling npm-groovy-lint. Please join the end of the logs in Output/GroovyLint if you report the issue`;
-				await new Promise(resolve => {
-					require("find-java-home")((err: any) => {
-						if (err) {
-							errorMessageForUser = "Java is required to use VsCode Groovy Lint, as CodeNarc is written in Java/Groovy. Please install Java (version 8 minimum) https://www.java.com/en/download/ ,then type \"java -version\" in command line to verify that the installation is correct";
-						}
-						resolve(true);
-					});
+				await findJavaHome({ allowJre: true }, (err) => {
+					if (err) {
+						errorMessageForUser = "Java is required to use VsCode Groovy Lint, as CodeNarc is written in Java/Groovy. Please install Java (version 8 minimum) https://www.java.com/en/download/ ,then type \"java -version\" in command line to verify that the installation is correct";					}
 				});
 				const msg: ShowMessageRequestParams = {
 					type: MessageType.Error,

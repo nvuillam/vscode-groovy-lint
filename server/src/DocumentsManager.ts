@@ -18,7 +18,8 @@ import {
 	COMMAND_SHOW_RULE_DOCUMENTATION,
 	COMMAND_LINT_FOLDER
 } from './commands';
-const debug = require("debug")("vscode-groovy-lint");
+import Debug from "debug";
+const debug = Debug('vscode-groovy-lint');
 
 // Documents manager
 export class DocumentsManager {
@@ -439,15 +440,13 @@ export class DocumentsManager {
 		});
 
 		// Enable debug logs if setting is set
-		const debugLib = require("debug");
 		if (settings.debug && settings.debug.enable === true) {
-			debugLib.enable('vscode-groovy-lint');
-			debugLib.enable('npm-groovy-lint');
+			Debug.enable('vscode-groovy-lint');
+			Debug.enable('npm-groovy-lint');
 		}
 		// Disable if not set
 		else {
-			debugLib.disable('vscode-groovy-lint');
-			debugLib.disable('npm-groovy-lint');
+			Debug.disable();
 		}
 	}
 }
