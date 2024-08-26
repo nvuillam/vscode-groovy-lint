@@ -395,11 +395,11 @@ async function manageFixSourceBeforeCallingLinter(source: string, textDocument: 
 			if (req == null) {
 				return 'cancel';
 			} else if (req?.title === "Always (recommended)") {
-				docManager.autoFixTabs = true;
+				docManager.setAutoFixTabs ("always");
 			} else if (req?.title === "Yes") {
 				fixTabs = true;
 			} else if (req?.title === "Never") {
-				docManager.neverFixTabs = true;
+				docManager.setAutoFixTabs ("never");
 			}
 		}
 		// Get indent length from config file then apply it on file instead of tabs
