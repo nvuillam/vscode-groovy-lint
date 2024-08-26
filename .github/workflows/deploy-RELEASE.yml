@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm ci
-      - uses: lannonbr/vsce-action@08c559e5b8d51bf7c1e4ae83744a561b8c5870c8
+      - uses: lannonbr/vsce-action@510e61c5e9e6f33c0418ec5ff5fd36b1ced61e85
         with:
           args: "publish -p $VSCE_TOKEN"
         env:
