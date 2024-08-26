@@ -208,6 +208,17 @@
           "default": "onType",
           "description": "Run the linter on type (recommended), on save (if you have a slow config), or after user request"
         },
+        "groovyLint.autoFixTabs": {
+          "scope": "resource",
+          "type": "string",
+          "enum": [
+            "always",
+            "never",
+            "undefined"
+          ],
+          "default": "undefined",
+          "description": "Enables or disables auto rewriting of tabs into spaces if found in the current Groovy file"
+        },
         "groovyLint.fix.enable": {
           "scope": "resource",
           "type": "boolean",
