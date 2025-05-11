@@ -4,6 +4,7 @@
 
 - Upgrade to npm-groovy-lint v15.0.0 (refactored as ES Module)
 - Upgrade npm dependencies
+- Update README to link to Release Notes
 
 ## [3.3.1] 2024-05-08
 
