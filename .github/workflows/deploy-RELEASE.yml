@@ -19,7 +19,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: npm ci
       - uses: lannonbr/vsce-action@510e61c5e9e6f33c0418ec5ff5fd36b1ced61e85
         with:
@@ -29,7 +29,7 @@ jobs:
   deploy_ovsx:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: 16
