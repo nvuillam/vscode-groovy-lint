@@ -9,7 +9,7 @@ import { parseLinterResults } from './linterParser';
 import { StatusNotification, OpenNotification } from './types';
 import { ShowMessageRequestParams, MessageType, ShowMessageRequest } from 'vscode-languageserver';
 import { COMMAND_LINT_FIX } from './commands';
-const NpmGroovyLint = require("npm-groovy-lint/lib/groovy-lint.js");
+import { getNpmGroovyLint } from './npmGroovyLintLoader';
 const debug = require("debug")("vscode-groovy-lint");
 const trace = require("debug")("vscode-groovy-lint-trace");
 const { performance } = require('perf_hooks');
@@ -186,6 +186,7 @@ export async function executeLinter(textDocument: TextDocument, docManager: Docu
 		// Run npm-groovy-lint linter/fixer
 		docManager.deleteDocLinter(textDocument.uri);
 		console.info(`Start ${verb} ${textDocument.uri}`);
+		const NpmGroovyLint = await getNpmGroovyLint();
 		linter = new NpmGroovyLint(npmGroovyLintConfig, npmGroovyLintExecParam);
 		try {
 			debug(`Run npm-groovy-lint ${verb} for ${textDocument.uri}`);
@@ -406,6 +407,7 @@ async function manageFixSourceBeforeCallingLinter(source: string, textDocument: 
 		if (docManager.autoFixTabs || fixTabs) {
 			let indentLength = 4; // Default
 			const textDocumentFilePath: string = URI.parse(textDocument.uri).fsPath;
+			const NpmGroovyLint = await getNpmGroovyLint();
 			const tmpLinter = new NpmGroovyLint({
 				sourcefilepath: textDocumentFilePath,
 				output: 'none',

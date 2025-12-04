@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v16.0.0
 - CI: avoid duplicate testing jobs
 - Upgrade npm dependencies
 
