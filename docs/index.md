@@ -62,7 +62,7 @@
 
 - [**Java**](https://www.java.com/en/download/) version **17 or higher** is required to run this extension
 
-- As CodeNarc is run in background with java/groovy, performances could be improved on large files (do not hesitate to provide advices !)
+- As CodeNarc is run in background with java/groovy, performances could be improved on large files (do not hesitate to provide advice !)
 But do not worry, as the groovy linting is provided by a background local server, your VsCode won't be slowed.
 
 ## Contribute
