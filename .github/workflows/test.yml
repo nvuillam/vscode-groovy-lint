@@ -10,6 +10,8 @@ concurrency:
 
 jobs:
   test:
+    # Avoid duplicate jobs
+    if: github.event_name != 'push' || github.ref_name == github.event.repository.default_branch
     strategy:
       matrix:
         node_version: ["18"]
