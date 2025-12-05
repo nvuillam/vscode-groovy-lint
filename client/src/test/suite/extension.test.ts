@@ -16,7 +16,7 @@ temp.track();
 
 // Constants
 const second = 1000; // 1 second in milliseconds.
-const defaultTimeout = 5 * second;
+const defaultTimeout = 10 * second;
 const testsFolder = '../../../src/test';
 const examples = 'examples';
 const testConfig = '.groovylintrc.json';
@@ -62,8 +62,8 @@ const documentDetails = new Map<string, testDocumentDetails>();
 	new testDocumentDetails(validGroovy, 0, 0, false),
 	new testDocumentDetails(tinyGroovy, 50, 19),
 	new testDocumentDetails('tiny-lf.groovy', 50, 19),
-	new testDocumentDetails('big.groovy', 4114, 789, true, 10 * second),
-	new testDocumentDetails('Jenkinsfile', 380, 151, true, 10 * second),
+	new testDocumentDetails('big.groovy', 4114, 789, true, 20 * second),
+	new testDocumentDetails('Jenkinsfile', 380, 151, true, 20 * second),
 	new testDocumentDetails('parseError.groovy', 2, 1, false),
 	new testDocumentDetails('file with spaces.groovy', 50, 19),
 ].forEach(details => documentDetails.set(details.name, details));

@@ -17,7 +17,7 @@
     "lint:fix": "eslint --ext ts --fix client/src server/src",
     "pretest": "run-s compile lint",
     "pretest:verbose": "run-s compile lint",
-    "test": "node ./client/out/test/runTest.js 2>&1 |grep -v :ERROR:",
+    "test": "node ./client/out/test/runTest.js",
     "test:coverage": "env AUTO_ACCEPT_REPLACE_TABS=activated node ./client/out/test/runTest.js --codecoverage",
     "test:debug": "env AUTO_ACCEPT_REPLACE_TABS=activated DEBUG=npm-groovy-lint,vscode-groovy-lint NPM_DEBUG=npm-groovy-lint,vscode-groovy-lint node --inspect-brk ./client/out/test/runTest.js",
     "test:verbose": "env AUTO_ACCEPT_REPLACE_TABS=activated DEBUG=vscode-groovy-lint NPM_DEBUG=vscode-groovy-lint node ./client/out/test/runTest.js",
