@@ -1,7 +1,7 @@
 let cached: any = null;
 
 export async function getNpmGroovyLint(): Promise<any> {
-  if (cached) return cached;
+  if (cached) {return cached;}
   const candidates = [
     'npm-groovy-lint',
     'npm-groovy-lint/lib/groovy-lint.js',
