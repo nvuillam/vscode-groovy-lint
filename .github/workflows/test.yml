@@ -14,7 +14,7 @@ jobs:
     if: github.event_name != 'push' || github.ref_name == github.event.repository.default_branch
     strategy:
       matrix:
-        node_version: ["18"]
+        node_version: ["20","24"]
         os: [ubuntu-latest, macos-latest, windows-latest]
     name: Test
     runs-on: ${{ matrix.os }}
