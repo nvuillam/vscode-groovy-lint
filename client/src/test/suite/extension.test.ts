@@ -36,6 +36,12 @@ const eolCaptureRegExp: RegExp = new RegExp(/(\r?\n)/g);
 const unixEOL = '\n';
 const dosEOL = '\r\n';
 
+// Ensure temp directory is in a local folder to avoid EPERM issues on Windows CI
+const tempRoot = join(__dirname, '..', '..', '..', '..', '.vscode-test', 'temp');
+if (!fs.existsSync(tempRoot)) {
+	fs.mkdirSync(tempRoot, { recursive: true });
+}
+
 /**
  * testDocumentDetails represents the expected results for a testDocument.
  */
@@ -353,7 +359,7 @@ class testDocuments extends Map<string, testDocument> {
     constructor(...files: string[]) {
 		super();
 
-		this.directory = temp.mkdirSync({prefix: 'vscode-groovy-lint-test-'});
+		this.directory = temp.mkdirSync({dir: tempRoot, prefix: 'vscode-groovy-lint-test-'});
 		debug(`testDocuments ${files} directory: "${this.directory}"`);
 
 		// Copy the test config, so it will be found.
