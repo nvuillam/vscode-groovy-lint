@@ -162,7 +162,7 @@ class testDocument extends testDocumentDetails {
 		// We use copies in temporary files to ensure each test is independent.
 		const data = fs.readFileSync(join(__dirname, testsFolder, examples, details.name));
 		const tmpFile = join(tempDirectory, details.name);
-		fs.writeFileSync(tmpFile, data);
+		fs.writeFileSync(tmpFile, new Uint8Array(data));
 
 		this.uri = vscode.Uri.file(tmpFile);
 		this.uriString = this.uri.toString();
@@ -365,7 +365,7 @@ class testDocuments extends Map<string, testDocument> {
 		// Copy the test config, so it will be found.
 		const data = fs.readFileSync(join(__dirname, testsFolder, testConfig));
 		const tmpFile = join(this.directory, testConfig);
-		fs.writeFileSync(tmpFile, data);
+		fs.writeFileSync(tmpFile, new Uint8Array(data));
 
 		// Copy each requested file so they are unique per test.
 		files.forEach(file => {
