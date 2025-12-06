@@ -35,7 +35,7 @@
     "vscode-languageclient": "^9.0.1"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@types/node": "^24.0.0",
     "@types/temp": "^0.9.4",
     "@types/vscode": "^1.85.0",
     "@vscode/test-electron": "^2.3.8",
