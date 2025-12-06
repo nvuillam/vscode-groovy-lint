@@ -21,6 +21,10 @@ export function parseLinterResults(lintResultsIn: any, source: string, textDocum
 		// Get each error for the file
 		let pos = 0;
 		for (const err of lintResults.files[0].errors) {
+			// Ensure line is a number
+			if (err.line  && typeof err.line === 'string') {
+				err.line = parseInt(err.line, 10);
+			}
 			// Do not display diagnostics for fixed errors
 			if (err.fixed === true) {
 				continue;

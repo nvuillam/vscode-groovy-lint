@@ -2,7 +2,10 @@
 
 ## [Unreleased]
 
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v16.0.0
+  - Embedding [CodeNarc](https://github.com/CodeNarc/CodeNarc) 3.7.0
 - CI: avoid duplicate testing jobs
+- CI: test on Node 20 and 24
 - Upgrade npm dependencies
 
 ## [3.3.1] 2024-05-08

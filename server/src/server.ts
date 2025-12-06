@@ -22,7 +22,7 @@ import { commands } from './commands';
 import { ActiveDocumentNotification } from './types';
 const debug = require("debug")("vscode-groovy-lint");
 const trace = require("debug")("vscode-groovy-lint-trace");
-const NpmGroovyLint = require("npm-groovy-lint/lib/groovy-lint.js");
+import { getNpmGroovyLint } from './npmGroovyLintLoader';
 
 const onTypeDelayBeforeLint = 3000;
 
@@ -67,9 +67,11 @@ connection.onInitialized(async () => {
 
 // Kill CodeNarcServer when closing VsCode or deactivate extension
 connection.onShutdown(async () => {
+    const NpmGroovyLint = await getNpmGroovyLint();
     await new NpmGroovyLint({ killserver: true }, {}).run();
 });
 connection.onExit(async () => {
+    const NpmGroovyLint = await getNpmGroovyLint();
     await new NpmGroovyLint({ killserver: true }, {}).run();
 });
 
@@ -78,6 +80,7 @@ connection.onExit(async () => {
 connection.onDidChangeConfiguration(async (change) => {
     debug(`change configuration event received: restart server and lint again all open documents ${JSON.stringify(change, null, 2)}`);
     await docManager.cancelAllDocumentValidations();
+    const NpmGroovyLint = await getNpmGroovyLint();
     await new NpmGroovyLint({ killserver: true }, {}).run();
     await docManager.lintAgainAllOpenDocuments();
 });
