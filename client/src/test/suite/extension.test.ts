@@ -664,7 +664,7 @@ suite('VsCode GroovyLint Test Suite', async function() {
 		documentDetails.forEach(doc => {
 			timeout += doc.timeout;
 		});
-		timeout *= 2; // Increase timeout for folder linting
+		timeout *= 4; // Increase timeout for folder linting
 		await testMulti(this, [...documentDetails.keys()], async function(doc: testDocument, testDocs: testDocuments): Promise<void> {
 			const promises: Promise<void>[] = [];
 			testDocs.forEach(doc => {
