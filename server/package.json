@@ -43,6 +43,8 @@
     "axios": "^1.6.2"
   },
   "devDependencies": {
-    "@types/fs-extra": "^11.0.4"
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.7.2"
   }
 }

@@ -35,11 +35,13 @@
     "vscode-languageclient": "^9.0.1"
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
     "@types/temp": "^0.9.4",
     "@types/vscode": "^1.85.0",
     "@vscode/test-electron": "^2.3.8",
     "mocha": "^11.0.0",
     "nyc": "^17.0.0",
-    "temp": "^0.9.4"
+    "temp": "^0.9.4",
+    "typescript": "^5.7.2"
   }
 }
