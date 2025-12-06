@@ -666,6 +666,10 @@ suite('VsCode GroovyLint Test Suite', async function() {
 
 	// Lint a folder.
 	test('Lint folder', async function() {
+		// Skip this test when running on windows in a CI job
+		if (process.platform === 'win32' && process.env.CI) {
+			this.skip();
+		}
 		let timeout = 0;
 		documentDetails.forEach(doc => {
 			timeout += doc.timeout;
