@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [4.1.0] 2025-12-19
+
 - Make dynamic loading of npm-groovy-lint compliant with VsCodium (Cursor)
 
 ## [4.0.0] 2025-12-06
