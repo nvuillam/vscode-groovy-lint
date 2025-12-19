@@ -70,7 +70,7 @@ jobs:
           echo 'deb [ signed-by=/usr/share/keyrings/vscodium-archive-keyring.gpg ] https://download.vscodium.com/debs vscodium main' | sudo tee /etc/apt/sources.list.d/vscodium.list
           sudo apt-get update
           sudo apt-get install codium
-          echo "VSCODE_EXECUTABLE_PATH=/usr/bin/codium" >> $GITHUB_ENV
+          echo "VSCODE_EXECUTABLE_PATH=/usr/bin/codium" >> "$GITHUB_ENV"
       - name: Run headless test
         uses: GabrielBB/xvfb-action@v1
         env:
