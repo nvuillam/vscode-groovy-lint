@@ -3,7 +3,7 @@
   "displayName": "Groovy Lint, Format and Fix",
   "description": "Lint, format and auto-fix groovy and Jenkinsfile",
   "publisher": "NicolasVuillamy",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "license": "MIT",
   "icon": "icon.png",
   "engines": {
