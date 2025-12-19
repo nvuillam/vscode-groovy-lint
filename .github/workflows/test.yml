@@ -13,6 +13,7 @@ jobs:
     # Avoid duplicate jobs
     if: github.event_name != 'push' || github.ref_name == github.event.repository.default_branch
     strategy:
+      fail-fast: false
       matrix:
         node_version: ["20", "24"]
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -43,9 +44,10 @@ jobs:
     # Avoid duplicate jobs
     if: github.event_name != 'push' || github.ref_name == github.event.repository.default_branch
     strategy:
+      fail-fast: false
       matrix:
         node_version: ["20", "24"]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]
     name: Test VSCodium
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
@@ -64,8 +66,10 @@ jobs:
         run: npm run compile
       - name: Install VSCodium
         run: |
-          wget https://github.com/VSCodium/vscodium/releases/download/1.95.3.24321/codium_1.95.3.24321_amd64.deb
-          sudo dpkg -i codium_1.95.3.24321_amd64.deb || sudo apt-get install -f -y
+          wget -qO - https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg | gpg --dearmor | sudo dd of=/usr/share/keyrings/vscodium-archive-keyring.gpg
+          echo 'deb [ signed-by=/usr/share/keyrings/vscodium-archive-keyring.gpg ] https://download.vscodium.com/debs vscodium main' | sudo tee /etc/apt/sources.list.d/vscodium.list
+          sudo apt-get update
+          sudo apt-get install codium
           echo "VSCODE_EXECUTABLE_PATH=/usr/bin/codium" >> $GITHUB_ENV
       - name: Run headless test
         uses: GabrielBB/xvfb-action@v1
