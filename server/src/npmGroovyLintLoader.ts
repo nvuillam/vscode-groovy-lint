@@ -5,6 +5,7 @@ export async function getNpmGroovyLint(): Promise<any> {
   
   // Try dynamic import first (for ESM packages like npm-groovy-lint v16+)
   // Use eval to prevent TypeScript from transpiling import() to require()
+  // This is safe as we're only evaluating a constant string, not user input
   try {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -16,6 +17,7 @@ export async function getNpmGroovyLint(): Promise<any> {
       return cached;
     }
   } catch (e) {
+    // Not an error - trying fallback method
     console.log(`Failed to load npm-groovy-lint via dynamic import: ${(e as any).message}`);
   }
 
@@ -29,6 +31,7 @@ export async function getNpmGroovyLint(): Promise<any> {
       return cached;
     }
   } catch (e) {
+    // Not an error - trying fallback method
     console.log(`Failed to load npm-groovy-lint via require: ${(e as any).message}`);
   }
 
