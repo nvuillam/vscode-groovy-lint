@@ -51,6 +51,7 @@ async function main() {
 		await runTests({
 			extensionDevelopmentPath: extensionDevelopmentPath,
 			extensionTestsPath: extensionTestsPath,
+			vscodeExecutablePath: process.env.VSCODE_EXECUTABLE_PATH,
 			extensionTestsEnv: {
 				DEBUG: 'vscode-groovy-lint,npm-groovy-lint',
 			},

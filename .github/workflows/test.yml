@@ -16,7 +16,7 @@ jobs:
       matrix:
         node_version: ["20", "24"]
         os: [ubuntu-latest, macos-latest, windows-latest]
-    name: Test
+    name: Test VsCode
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
     steps:
@@ -36,5 +36,41 @@ jobs:
         uses: GabrielBB/xvfb-action@v1
         env:
           NPM_DEBUG: vscode-groovy-lint
+        with:
+          run: npm run test
+
+  test-vscodium:
+    # Avoid duplicate jobs
+    if: github.event_name != 'push' || github.ref_name == github.event.repository.default_branch
+    strategy:
+      matrix:
+        node_version: ["20", "24"]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    name: Test VSCodium
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+      - name: Install node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+      - name: Lint
+        run: npm run lint
+      - name: Compile
+        run: npm run compile
+      - name: Install VSCodium
+        run: |
+          wget https://github.com/VSCodium/vscodium/releases/download/1.95.3.24321/codium_1.95.3.24321_amd64.deb
+          sudo dpkg -i codium_1.95.3.24321_amd64.deb || sudo apt-get install -f -y
+          echo "VSCODE_EXECUTABLE_PATH=/usr/bin/codium" >> $GITHUB_ENV
+      - name: Run headless test
+        uses: GabrielBB/xvfb-action@v1
+        env:
+          NPM_DEBUG: vscode-groovy-lint
+          VSCODE_EXECUTABLE_PATH: ${{ env.VSCODE_EXECUTABLE_PATH }}
         with:
           run: npm run test
