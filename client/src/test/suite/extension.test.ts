@@ -66,12 +66,12 @@ class testDocumentDetails {
 const documentDetails = new Map<string, testDocumentDetails>();
 [
 	new testDocumentDetails(validGroovy, 0, 0, false),
-	new testDocumentDetails(tinyGroovy, 50, 19),
-	new testDocumentDetails('tiny-lf.groovy', 50, 19),
-	new testDocumentDetails('big.groovy', 4114, 791, true, 20 * second),
-	new testDocumentDetails('Jenkinsfile', 380, 151, true, 20 * second),
+	new testDocumentDetails(tinyGroovy, 45, 19),
+	new testDocumentDetails('tiny-lf.groovy', 45, 19),
+	new testDocumentDetails('big.groovy', 3143, 789, true, 20 * second),
+	new testDocumentDetails('Jenkinsfile', 379, 151, true, 20 * second),
 	new testDocumentDetails('parseError.groovy', 2, 1, false),
-	new testDocumentDetails('file with spaces.groovy', 50, 19),
+	new testDocumentDetails('file with spaces.groovy', 45, 19),
 ].forEach(details => documentDetails.set(details.name, details));
 
 /**

@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+- New minimum NodeJs version: 22
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v17.0.0
+  - Includes performances updates
+- Upgrade dependencies
+
 ## [4.1.0] 2025-12-19
 
 - Make dynamic loading of npm-groovy-lint compliant with VsCodium (Cursor)
