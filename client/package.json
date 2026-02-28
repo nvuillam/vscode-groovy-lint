@@ -43,5 +43,9 @@
     "nyc": "^17.0.0",
     "temp": "^0.9.4",
     "typescript": "^5.7.2"
+  },
+  "overrides": {
+    "diff": "^8.0.3",
+    "serialize-javascript": "^7.0.3"
   }
 }
