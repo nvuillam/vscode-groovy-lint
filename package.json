@@ -21,7 +21,7 @@
     "test:coverage": "env AUTO_ACCEPT_REPLACE_TABS=activated node ./client/out/test/runTest.js --codecoverage",
     "test:debug": "env AUTO_ACCEPT_REPLACE_TABS=activated DEBUG=npm-groovy-lint,vscode-groovy-lint NPM_DEBUG=npm-groovy-lint,vscode-groovy-lint node --inspect-brk ./client/out/test/runTest.js",
     "test:verbose": "env AUTO_ACCEPT_REPLACE_TABS=activated DEBUG=vscode-groovy-lint NPM_DEBUG=vscode-groovy-lint node ./client/out/test/runTest.js",
-    "postinstall": "cd client && npm install --unsafe-perm && cd ../server && npm install --unsafe-perm && cd ..",
+    "postinstall": "cd client && npm ci && cd ../server && npm ci && cd ..",
     "vscode:prepublish": "run-s dev:pre-commit",
     "dev:pre-commit": "run-s lint:fix compile && cp -f README.md docs/index.md",
     "mocha": "mocha --require ts-node/register --require source-map-support/register --timeout 10000 --recursive ./client/src/test",
