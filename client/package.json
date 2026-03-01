@@ -40,7 +40,7 @@
     "@types/vscode": "^1.85.0",
     "@vscode/test-electron": "^2.3.8",
     "mocha": "^11.0.0",
-    "nyc": "^17.0.0",
+    "nyc": "^18.0.0",
     "temp": "^0.9.4",
     "typescript": "^5.9.3"
   },
