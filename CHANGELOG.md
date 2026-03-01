@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Use Node24 in publish workflow
+
 ## [4.2.0] 2026-03-01
 
 - New minimum NodeJs version: 22
