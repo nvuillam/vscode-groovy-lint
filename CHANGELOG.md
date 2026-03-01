@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [4.2.0] 2026-03-01
+
 - New minimum NodeJs version: 22
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v17.0.0
   - Includes performances updates
