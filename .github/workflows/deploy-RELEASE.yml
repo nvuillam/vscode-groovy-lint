@@ -18,6 +18,7 @@ permissions: read-all
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -31,6 +32,7 @@ jobs:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
   deploy_ovsx:
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
