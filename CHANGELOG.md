@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## [4.2.1] 2026-04-15
+
+- Upgrade dependencies
 - Use Node24 in publish workflow
 
 ## [4.2.0] 2026-03-01
