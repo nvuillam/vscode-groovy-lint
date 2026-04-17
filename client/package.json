@@ -42,7 +42,7 @@
     "mocha": "^11.0.0",
     "nyc": "^18.0.0",
     "temp": "^0.9.4",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.0"
   },
   "overrides": {
     "diff": "^9.0.0",
