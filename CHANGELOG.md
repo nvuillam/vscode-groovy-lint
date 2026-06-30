@@ -6,6 +6,7 @@
 - Migrate to ESLint flat config
 - Upgrade dependencies
 - CI improvements and security hardening
+- Fix: preserve diff/compare view when lint triggers on edit ([#343](https://github.com/nvuillam/vscode-groovy-lint/issues/343))
 
 ## [4.2.1] 2026-04-15
 
