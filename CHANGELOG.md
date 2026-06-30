@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+- Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v18.0.0 (CodeNarc upgrade, CVE fixes)
+- Migrate to ESLint flat config
+- Upgrade dependencies
+- CI improvements and security hardening
+
 ## [4.2.1] 2026-04-15
 
 - Upgrade dependencies
