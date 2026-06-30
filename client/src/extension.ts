@@ -140,6 +140,11 @@ async function updateStatus(status: StatusParams): Promise<any> {
 		statusList.push(status);
 		// Really open document previewed documents, so tab will not be replaced by next preview
 		for (const docDef of status.documents) {
+			// Skip if the document is currently displayed in a diff/compare editor to avoid
+			// moving the user out of the diff view into the regular file tab
+			if (isDocumentInDiffEditor(docDef.documentUri)) {
+				continue;
+			}
 			const documentTextEditors = vscode.window.visibleTextEditors.filter(txtDoc => txtDoc.document.uri.toString() === docDef.documentUri);
 			if (documentTextEditors && documentTextEditors[0]) {
 				await vscode.window.showTextDocument(documentTextEditors[0].document, { preview: false, preserveFocus: true });
@@ -171,6 +176,20 @@ async function updateStatus(status: StatusParams): Promise<any> {
 	}
 	// Refresh status bar content (icon + tooltip)
 	await refreshStatusBar();
+}
+
+// Check if a document URI is currently open in a diff/compare editor
+function isDocumentInDiffEditor(docUri: string): boolean {
+	for (const tabGroup of vscode.window.tabGroups.all) {
+		for (const tab of tabGroup.tabs) {
+			if (tab.input instanceof vscode.TabInputTextDiff) {
+				if (tab.input.modified.toString() === docUri || tab.input.original.toString() === docUri) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 // Get URI from StatusParams
