@@ -13,8 +13,8 @@
   "scripts": {
     "compile": "tsc -b",
     "watch": "tsc -b -w",
-    "lint": "eslint --ext ts client/src server/src",
-    "lint:fix": "eslint --ext ts --fix client/src server/src",
+    "lint": "eslint client/src server/src",
+    "lint:fix": "eslint --fix client/src server/src",
     "pretest": "run-s compile lint",
     "pretest:verbose": "run-s compile lint",
     "test": "node ./client/out/test/runTest.js",
