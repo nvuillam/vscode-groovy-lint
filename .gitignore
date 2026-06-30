@@ -115,3 +115,4 @@ site/
 
 report/
 megalinter-reports/
+.megalinter_github_conf/
