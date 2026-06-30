@@ -1,4 +1,4 @@
-FILTER_REGEX_EXCLUDE: (/examples/|docs/javascripts)
+FILTER_REGEX_EXCLUDE: (/examples/|docs/javascripts|\.claude/)
 DISABLE:
   - COPYPASTE
   - CSS

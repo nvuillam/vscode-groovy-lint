@@ -15,7 +15,8 @@ env: #Uncomment to activate variables below
   APPLY_FIXES_EVENT: pull_request # Decide which event triggers application of fixes in a commit or a PR (pull_request (default), push, all)
   APPLY_FIXES_MODE: commit # If APPLY_FIXES is used, defines if the fixes are directly committed (commit) or posted in a PR (pull_request)
 
-permissions: read-all
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -32,14 +33,15 @@ jobs:
     steps:
       # Git Checkout
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+          persist-credentials: false
           fetch-depth: 0
 
       # Mega-Linter
       - name: Mega-Linter
-        uses: oxsecurity/megalinter/flavors/cupcake@beta
+        uses: oxsecurity/megalinter/flavors/cupcake@331108469f4b174c6ad77f8231249b331bcdb056 # beta
         env:
           # All available variables are described in documentation
           # https://github.com/oxsecurity/megalinter#configuration
@@ -49,7 +51,7 @@ jobs:
       # Upload Mega-Linter artifacts. They will be available on Github action page "Artifacts" section
       - name: Archive production artifacts
         if: success() || failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: Mega-Linter reports
           path: |
@@ -60,13 +62,13 @@ jobs:
       - name: Check if there are changes
         id: changes
         if: success() || failure()
-        uses: UnicornGlobal/has-changes-action@v1.0.12
+        uses: UnicornGlobal/has-changes-action@ea00e6f831a9e785271645729fa2519076b314707 # v1.0.12
 
       # Create pull request if applicable
       - name: Create Pull Request with applied fixes
         id: cpr
         if: steps.changes.outputs.changed == 1 && (env.APPLY_FIXES_EVENT == 'all' || env.APPLY_FIXES_EVENT == github.event_name) && env.APPLY_FIXES_MODE == 'pull_request'
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         with:
           token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
           commit-message: "[Mega-Linter] Apply linters automatic fixes"
@@ -74,9 +76,12 @@ jobs:
           labels: bot
       - name: Create PR output
         if: steps.changes.outputs.changed == 1 && (env.APPLY_FIXES_EVENT == 'all' || env.APPLY_FIXES_EVENT == github.event_name) && env.APPLY_FIXES_MODE == 'pull_request'
+        env:
+          PR_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
+          PR_URL: ${{ steps.cpr.outputs.pull-request-url }}
         run: |
-          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
-          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
+          echo "Pull Request Number - $PR_NUMBER"
+          echo "Pull Request URL - $PR_URL"
 
       # Push new commit if applicable
       - name: Prepare commit
@@ -84,7 +89,7 @@ jobs:
         run: sudo chown -Rc $UID .git/
       - name: Commit and push applied linter fixes
         if: steps.changes.outputs.changed == 1 && (env.APPLY_FIXES_EVENT == 'all' || env.APPLY_FIXES_EVENT == github.event_name) && env.APPLY_FIXES_MODE == 'commit' && github.ref != 'refs/heads/master' && github.repository == github.event.pull_request.head.repo.full_name
-        uses: stefanzweifel/git-auto-commit-action@v7
+        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7
         with:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
           commit_message: "[Mega-Linter] Apply linters fixes"

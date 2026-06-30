@@ -2,7 +2,8 @@ name: Test
 
 on: [push, pull_request]
 
-permissions: read-all
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.ref_name }}-${{ github.workflow }}
@@ -22,10 +23,13 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
-      - name: Install node
-        uses: actions/setup-node@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
+          persist-credentials: false
+      - name: Install node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          cache: false
           node-version: ${{ matrix.node_version }}
       - name: Install dependencies
         run: npm install
@@ -34,7 +38,7 @@ jobs:
       - name: Compile
         run: npm run compile
       - name: Run headless test
-        uses: GabrielBB/xvfb-action@v1
+        uses: GabrielBB/xvfb-action@86d97bde4a65fe9b290c0b3fb92c2c4ed0e5302d # v1
         env:
           NPM_DEBUG: vscode-groovy-lint
         with:
@@ -53,10 +57,13 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
-      - name: Install node
-        uses: actions/setup-node@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
+          persist-credentials: false
+      - name: Install node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          cache: false
           node-version: ${{ matrix.node_version }}
       - name: Install dependencies
         run: npm install
@@ -72,7 +79,7 @@ jobs:
           sudo apt-get install codium
           echo "VSCODE_EXECUTABLE_PATH=/usr/bin/codium" >> "$GITHUB_ENV"
       - name: Run headless test
-        uses: GabrielBB/xvfb-action@v1
+        uses: GabrielBB/xvfb-action@86d97bde4a65fe9b290c0b3fb92c2c4ed0e5302d # v1
         env:
           NPM_DEBUG: vscode-groovy-lint
           VSCODE_EXECUTABLE_PATH: ${{ env.VSCODE_EXECUTABLE_PATH }}
