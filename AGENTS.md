@@ -15,16 +15,16 @@ VS Code extension (`vscode-groovy-lint`) that lints, formats, and auto-fixes Gro
 
 Run from repo root:
 
-| Task | Command |
-| --- | --- |
+| Task                             | Command                                                          |
+|----------------------------------|------------------------------------------------------------------|
 | Install (root + client + server) | `npm install` (runs `postinstall`: `npm ci` in both subpackages) |
-| Compile TS (project references) | `npm run compile` |
-| Watch | `npm run watch` |
-| Lint | `npm run lint` |
-| Lint + autofix | `npm run lint:fix` |
-| Tests (VS Code extension tests) | `npm test` |
-| Tests with coverage | `npm run test:coverage` |
-| Verbose/debug test runs | `npm run test:verbose` / `npm run test:debug` |
+| Compile TS (project references)  | `npm run compile`                                                |
+| Watch                            | `npm run watch`                                                  |
+| Lint                             | `npm run lint`                                                   |
+| Lint + autofix                   | `npm run lint:fix`                                               |
+| Tests (VS Code extension tests)  | `npm test`                                                       |
+| Tests with coverage              | `npm run test:coverage`                                          |
+| Verbose/debug test runs          | `npm run test:verbose` / `npm run test:debug`                    |
 
 Important order and gotchas:
 
