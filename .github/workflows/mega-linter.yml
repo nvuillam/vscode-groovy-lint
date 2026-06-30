@@ -62,7 +62,7 @@ jobs:
       - name: Check if there are changes
         id: changes
         if: success() || failure()
-        uses: UnicornGlobal/has-changes-action@ea00e6f831a9e785271645729fa2519076b314707 # v1.0.12
+        uses: UnicornGlobal/has-changes-action@ea00e6f831a9e785271645729fa251907b314707 # v1.0.12
 
       # Create pull request if applicable
       - name: Create Pull Request with applied fixes
