@@ -1,4 +1,4 @@
-FILTER_REGEX_EXCLUDE: (/examples/|docs/javascripts|\.claude/)
+FILTER_REGEX_EXCLUDE: (/examples/|docs/javascripts|\.claude/|\.megalinter_github_conf/)
 DISABLE:
   - COPYPASTE
   - CSS
