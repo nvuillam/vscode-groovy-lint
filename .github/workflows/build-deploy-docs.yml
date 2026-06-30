@@ -18,12 +18,12 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
-          cache: false
+          package-manager-cache: false
           python-version: "3.x"
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
-          cache: false
+          package-manager-cache: false
           node-version: "24"
       - run: |
           pip install mkdocs-material mdx_truly_sane_lists
