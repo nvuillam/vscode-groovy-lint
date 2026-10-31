@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [5.0.0] 2026-10-31
+
 - Upgrade to [npm-groovy-lint](https://www.npmjs.com/package/npm-groovy-lint) v19.0.0: 3 to 18 times faster, and the default `recommended` preset now reports likely mistakes only (see the [migration guide](https://nvuillam.github.io/npm-groovy-lint/#migrating-from-v18-to-v19); use `{ "extends": "all" }` in `.groovylintrc.json` to get the previous rules back)
 - Node.js 22.13 or higher is required
 - VS Code 1.91 or higher is required (upgrade to vscode-languageclient / vscode-languageserver v11)
