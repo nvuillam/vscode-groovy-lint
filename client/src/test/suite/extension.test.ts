@@ -1,5 +1,5 @@
 /* eslint-disable eqeqeq */
-import * as assert from 'assert';
+import assert = require('assert');
 import { join } from 'path';
 import * as vscode from 'vscode';
 import * as temp from 'temp';
@@ -68,8 +68,8 @@ const documentDetails = new Map<string, testDocumentDetails>();
 	new testDocumentDetails(validGroovy, 0, 0, false),
 	new testDocumentDetails(tinyGroovy, 45, 19),
 	new testDocumentDetails('tiny-lf.groovy', 45, 19),
-	new testDocumentDetails('big.groovy', 3143, 789, true, 30 * second),
-	new testDocumentDetails('Jenkinsfile', 379, 151, true, 20 * second),
+	new testDocumentDetails('big.groovy', 3343, 987, true, 30 * second),
+	new testDocumentDetails('Jenkinsfile', 511, 283, true, 20 * second),
 	new testDocumentDetails('parseError.groovy', 2, 1, false),
 	new testDocumentDetails('file with spaces.groovy', 45, 19),
 ].forEach(details => documentDetails.set(details.name, details));
@@ -560,6 +560,10 @@ suite('VsCode GroovyLint Test Suite', async function() {
 				// groovyLint.lintFix requires two passes so double the timeout.
 				docDetails.timeout *= 2;
 				await doc.execute(promiseNames, 'groovyLint.lintFix', doc.uri);
+				// A late publish of the pre-fix diagnostics can arrive first: wait for the next one.
+				while (doc.lint !== doc.lintFix && doc.diags.length === doc.lint) {
+					await doc.wait(testDocument.diagnosticPromise);
+				}
 				const textAfter = doc.text;
 				const diagsLen = doc.diags.length;
 

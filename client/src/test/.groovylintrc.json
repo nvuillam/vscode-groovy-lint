@@ -1,5 +1,5 @@
 {
-  "extends": "recommended",
+  "extends": "all",
   "rules": {
     "CatchException": {
       "enabled": false

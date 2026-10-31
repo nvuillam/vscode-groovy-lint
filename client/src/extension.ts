@@ -27,19 +27,23 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// The server is implemented in node
 	let serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'));
+	// npm-groovy-lint logs use NODE_DEBUG, which Node reads once when the process starts:
+	// it must be set when spawning the server (changing groovyLint.debug.enable needs a reload).
+	const debugEnabled = vscode.workspace.getConfiguration('groovyLint').get<boolean>('debug.enable') === true;
 	// If the extension is launched in debug mode then the debug server options are used
 	// Otherwise the run options are used.
 	let serverOptions: ServerOptions = {
 		run: {
 			module: serverModule,
 			transport: TransportKind.ipc,
+			options: debugEnabled ? { env: { "NODE_DEBUG": "npm-groovy-lint" } } : undefined
 		},
 		debug: {
 			module: serverModule,
 			transport: TransportKind.ipc,
 			options: {
 				execArgv: ['--nolazy', '--inspect=6009'],
-				env: { "DEBUG": "vscode-groovy-lint,npm-groovy-lint" }
+				env: { "DEBUG": "vscode-groovy-lint", "NODE_DEBUG": "npm-groovy-lint" }
 			}
 		}
 	};

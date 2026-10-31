@@ -1,5 +1,5 @@
 import * as path from 'path';
-import * as Mocha from 'mocha';
+import Mocha = require('mocha');
 import { sync } from 'glob';
 
 export function run(): Promise<void> {

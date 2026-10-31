@@ -1,0 +1,5 @@
+# OSV-Scanner configuration (used by MegaLinter REPOSITORY_OSV_SCANNER)
+
+[[IgnoredVulns]]
+id = "GHSA-g3hv-75wg-m249"
+reason = "minimatch < 11.0.1 (CVE-2026-118764): only fixed in minimatch 11, which removes the makeRe API and is not yet supported by eslint, typescript-eslint, mocha, nyc (test-exclude), temp or vscode-languageclient. Glob patterns are developer-controlled. Remove once those dependencies accept minimatch >= 11.0.1."
