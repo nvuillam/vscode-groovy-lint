@@ -105,7 +105,10 @@
   },
   "overrides": {
     "diff": "^9.0.0",
-    "serialize-javascript": "^7.0.3"
+    "serialize-javascript": "^7.1.4",
+    "mocha": {
+      "glob": "^14.0.3"
+    }
   },
   "activationEvents": [
     "onLanguage:groovy",

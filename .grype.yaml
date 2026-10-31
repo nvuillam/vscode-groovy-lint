@@ -1,0 +1,12 @@
+# Grype configuration (used by MegaLinter REPOSITORY_GRYPE)
+ignore:
+  # minimatch < 11.0.1 - DoS via globparts amplification (CVE-2026-118764).
+  # Only fixed in minimatch 11, which removes the makeRe API and is not yet
+  # supported by any release of eslint, typescript-eslint, mocha, nyc
+  # (test-exclude), temp or vscode-languageclient. Glob patterns come from the
+  # developer / extension configuration, not from untrusted input.
+  # Remove once those dependencies accept minimatch >= 11.0.1.
+  - vulnerability: GHSA-g3hv-75wg-m249
+    package:
+      name: minimatch
+      type: npm
