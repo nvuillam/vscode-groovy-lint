@@ -33,7 +33,7 @@ jobs:
     steps:
       # Git Checkout
       - name: Checkout Code
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # zizmor artipacked: this workflow legitimately pushes linter fixes
           # via git-auto-commit-action, so credentials must persist.
@@ -43,7 +43,7 @@ jobs:
 
       # Mega-Linter
       - name: Mega-Linter
-        uses: oxsecurity/megalinter/flavors/cupcake@331108469f4b174c6ad77f8231249b331bcdb056 # beta
+        uses: oxsecurity/megalinter/flavors/cupcake@9949bad031045f366be2467e00e8371a7328a2e2 # v10.1.0
         env:
           # All available variables are described in documentation
           # https://github.com/oxsecurity/megalinter#configuration
@@ -53,7 +53,7 @@ jobs:
       # Upload Mega-Linter artifacts. They will be available on Github action page "Artifacts" section
       - name: Archive production artifacts
         if: success() || failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: Mega-Linter reports
           path: |
@@ -70,7 +70,7 @@ jobs:
       - name: Create Pull Request with applied fixes
         id: cpr
         if: steps.changes.outputs.changed == 1 && (env.APPLY_FIXES_EVENT == 'all' || env.APPLY_FIXES_EVENT == github.event_name) && env.APPLY_FIXES_MODE == 'pull_request'
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
           commit-message: "[Mega-Linter] Apply linters automatic fixes"
@@ -91,7 +91,7 @@ jobs:
         run: sudo chown -Rc $UID .git/
       - name: Commit and push applied linter fixes
         if: steps.changes.outputs.changed == 1 && (env.APPLY_FIXES_EVENT == 'all' || env.APPLY_FIXES_EVENT == github.event_name) && env.APPLY_FIXES_MODE == 'commit' && github.ref != 'refs/heads/master' && github.repository == github.event.pull_request.head.repo.full_name
-        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7
+        uses: stefanzweifel/git-auto-commit-action@d0b01107b5db882071f96de5dd4b54961ea93f4c # v7.2.1
         with:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
           commit_message: "[Mega-Linter] Apply linters fixes"

@@ -6,7 +6,7 @@ import * as path from "path";
 import { ShowMessageRequestParams, MessageType } from 'vscode-languageserver';
 
 const debug = require("debug")("vscode-groovy-lint");
-const glob = require("glob-promise");
+const { glob } = require("glob");
 
 const timeToDisplayWaitingMessageMs = 5000;
 

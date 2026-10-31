@@ -8,7 +8,7 @@
   "icon": "icon.png",
   "engines": {
     "vscode": "^1.75.0",
-    "node": ">=22.0.0"
+    "node": ">=22.13.0"
   },
   "scripts": {
     "compile": "tsc -b",
@@ -19,7 +19,7 @@
     "pretest:verbose": "run-s compile lint",
     "test": "node ./client/out/test/runTest.js",
     "test:coverage": "env AUTO_ACCEPT_REPLACE_TABS=activated node ./client/out/test/runTest.js --codecoverage",
-    "test:debug": "env AUTO_ACCEPT_REPLACE_TABS=activated DEBUG=npm-groovy-lint,vscode-groovy-lint NPM_DEBUG=npm-groovy-lint,vscode-groovy-lint node --inspect-brk ./client/out/test/runTest.js",
+    "test:debug": "env AUTO_ACCEPT_REPLACE_TABS=activated DEBUG=vscode-groovy-lint NODE_DEBUG=npm-groovy-lint NPM_DEBUG=npm-groovy-lint,vscode-groovy-lint node --inspect-brk ./client/out/test/runTest.js",
     "test:verbose": "env AUTO_ACCEPT_REPLACE_TABS=activated DEBUG=vscode-groovy-lint NPM_DEBUG=vscode-groovy-lint node ./client/out/test/runTest.js",
     "postinstall": "cd client && npm ci && cd ../server && npm ci && cd ..",
     "vscode:prepublish": "run-s dev:pre-commit",
@@ -105,7 +105,10 @@
   },
   "overrides": {
     "diff": "^9.0.0",
-    "serialize-javascript": "^7.0.3"
+    "serialize-javascript": "^7.1.4",
+    "mocha": {
+      "glob": "^14.0.3"
+    }
   },
   "activationEvents": [
     "onLanguage:groovy",
@@ -271,7 +274,7 @@
           "scope": "resource",
           "type": "boolean",
           "default": false,
-          "description": "Display debugging info in output panel"
+          "description": "Display debugging info in output panel (npm-groovy-lint debug logs require a window reload to take effect)"
         },
         "groovyLint.java.executable": {
           "scope": "resource",

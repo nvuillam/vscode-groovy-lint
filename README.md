@@ -58,7 +58,7 @@
 
 ## Troubleshooting
 
-- [**Node.js**](https://nodejs.org) version **18 or higher** is required to run this extension. If you can't upgrade, you can use [nvm](https://github.com/nvm-sh/nvm) to have [different node versions on your computer](https://www.sitepoint.com/quick-tip-multiple-versions-node-nvm/)
+- [**Node.js**](https://nodejs.org) version **22.13 or higher** is required to run this extension. If you can't upgrade, you can use [nvm](https://github.com/nvm-sh/nvm) to have [different node versions on your computer](https://www.sitepoint.com/quick-tip-multiple-versions-node-nvm/)
 
 - [**Java**](https://www.java.com/en/download/) version **17 or higher** is required to run this extension
 

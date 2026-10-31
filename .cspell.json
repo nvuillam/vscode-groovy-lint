@@ -189,6 +189,9 @@
     "xvfb",
     "yallist",
     "yuvmel",
-    "zalgo"
+    "zalgo",
+    "GHSA",
+    "globparts",
+    "minimatch"
   ]
 }

@@ -25,20 +25,20 @@
   "homepage": "https://github.com/nvuillam/vscode-groovy-lint#readme",
   "engines": {
     "vscode": "^1.75.0",
-    "node": ">=22.0.0"
+    "node": ">=22.13.0"
   },
   "author": "Nicolas Vuillamy",
   "license": "GPL-3.0-only",
   "dependencies": {
     "debug": "^4.3.4",
-    "glob": "^13.0.0",
+    "glob": "^14.0.3",
     "vscode-languageclient": "^9.0.1"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
     "@types/temp": "^0.9.4",
     "@types/vscode": "^1.85.0",
-    "@vscode/test-electron": "^2.3.8",
+    "@vscode/test-electron": "^3.1.0",
     "mocha": "^11.0.0",
     "nyc": "^18.0.0",
     "temp": "^0.9.4",
@@ -46,6 +46,12 @@
   },
   "overrides": {
     "diff": "^9.0.0",
-    "serialize-javascript": "^7.0.3"
+    "serialize-javascript": "^7.1.4",
+    "mocha": {
+      "glob": "^14.0.3"
+    },
+    "nyc": {
+      "glob": "^14.0.3"
+    }
   }
 }
