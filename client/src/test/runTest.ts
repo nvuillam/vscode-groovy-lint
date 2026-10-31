@@ -53,7 +53,8 @@ async function main() {
 			extensionTestsPath: extensionTestsPath,
 			vscodeExecutablePath: process.env.VSCODE_EXECUTABLE_PATH,
 			extensionTestsEnv: {
-				DEBUG: 'vscode-groovy-lint,npm-groovy-lint',
+				DEBUG: 'vscode-groovy-lint',
+				NODE_DEBUG: 'npm-groovy-lint',
 			},
 			launchArgs: ['--disable-extensions'],
 			reuseMachineInstall: true
