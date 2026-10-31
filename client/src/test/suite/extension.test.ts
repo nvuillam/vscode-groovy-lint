@@ -560,6 +560,10 @@ suite('VsCode GroovyLint Test Suite', async function() {
 				// groovyLint.lintFix requires two passes so double the timeout.
 				docDetails.timeout *= 2;
 				await doc.execute(promiseNames, 'groovyLint.lintFix', doc.uri);
+				// A late publish of the pre-fix diagnostics can arrive first: wait for the next one.
+				while (doc.lint !== doc.lintFix && doc.diags.length === doc.lint) {
+					await doc.wait(testDocument.diagnosticPromise);
+				}
 				const textAfter = doc.text;
 				const diagsLen = doc.diags.length;
 
