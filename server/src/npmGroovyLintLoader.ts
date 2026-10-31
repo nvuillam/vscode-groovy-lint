@@ -7,7 +7,6 @@ export async function getNpmGroovyLint(): Promise<any> {
   // Use eval to prevent TypeScript from transpiling import() to require()
   // This is safe as we're only evaluating a constant string, not user input
   try {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const dynamicImport = eval('(specifier) => import(specifier)');
     const mod = await dynamicImport('npm-groovy-lint');
@@ -23,7 +22,6 @@ export async function getNpmGroovyLint(): Promise<any> {
 
   // Fallback to require for older CommonJS versions
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const mod = require('npm-groovy-lint');
     const cls = mod?.default ?? mod?.GroovyLint ?? mod;
     if (cls) {
