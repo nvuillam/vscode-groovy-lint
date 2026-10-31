@@ -36,7 +36,7 @@ Important order and gotchas:
 
 ## Requirements
 
-- Node `>=22.0.0`, VS Code `>=1.75.0`. CI matrix tests Node 22 and 24 on Ubuntu/macOS/Windows.
+- Node `>=22.0.0`, VS Code `>=1.91.0`. CI matrix tests Node 22 and 24 on Ubuntu/macOS/Windows.
 - Java must be on `PATH` (or configured via `groovyLint.java.executable`) for the linter to actually work — tests that exercise linting will fail without it.
 
 ## Code style / conventions

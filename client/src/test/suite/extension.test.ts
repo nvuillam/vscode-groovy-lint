@@ -1,5 +1,5 @@
 /* eslint-disable eqeqeq */
-import * as assert from 'assert';
+import assert = require('assert');
 import { join } from 'path';
 import * as vscode from 'vscode';
 import * as temp from 'temp';

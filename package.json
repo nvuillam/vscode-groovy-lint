@@ -7,7 +7,7 @@
   "license": "MIT",
   "icon": "icon.png",
   "engines": {
-    "vscode": "^1.75.0",
+    "vscode": "^1.91.0",
     "node": ">=22.13.0"
   },
   "scripts": {
